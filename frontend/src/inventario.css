@@ -1,0 +1,174 @@
+:root {
+  --levis-red: #e61b23;
+  --dark-black: #111111;
+  --light-gray: #f4f4f4;
+  --white: #ffffff;
+  --border-color: #dddddd;
+}
+
+.App {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  background-color: var(--light-gray);
+  min-height: 100vh;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px; 
+  background: var(--white);
+  padding: 40px;
+  border-radius: 2px; 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+  color: var(--dark-black);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: #f9f9f9;
+  border-left: 6px solid var(--levis-red);
+  padding: 25px;
+  margin-bottom: 30px;
+  border-radius: 4px;
+}
+
+.card h3 {
+  margin-top: 0;
+  font-size: 1rem;
+  color: var(--levis-red);
+}
+
+input[type="text"], 
+input[type="password"] {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0 20px 0;
+  border: 1px solid #ccc;
+  background-color: white; 
+  color: var(--dark-black); 
+  border-radius: 0;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: 2px solid var(--levis-red);
+  border-color: transparent;
+}
+
+.levis-button {
+  background-color: var(--levis-red);
+  color: var(--white);
+  border: none;
+  padding: 15px 30px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  letter-spacing: 1px;
+}
+
+.levis-button:hover {
+  background-color: var(--dark-black);
+  transform: translateY(-2px);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 30px;
+  border: 1px solid var(--border-color);
+}
+
+th {
+  background-color: var(--dark-black);
+  color: var(--white);
+  padding: 18px;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+
+td {
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--border-color);
+  color: #333;
+}
+
+tr:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+.btn-delete {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-delete:hover {
+  background-color: var(--levis-red);
+}
+
+.btn-edit {
+  background-color: var(--levis-red);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-right: 5px;
+}
+
+.btn-edit:hover {
+  background-color: var(--dark-black);
+}
+
+.btn-back {
+  background-color: #888;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.btn-back:hover {
+  background-color: var(--dark-black);
+}
+
+.badge-insumo {
+  background-color: #ffebee;
+  color: var(--levis-red);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  border: 1px solid var(--levis-red);
+  display: inline-block;
+  margin-top: 10px;
+}
+/*  */

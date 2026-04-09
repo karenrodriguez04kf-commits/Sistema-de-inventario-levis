@@ -1,0 +1,23 @@
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Catalogo from "./catalogo";
+import Inventario from "./inventario";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+
+        {/* CATÁlOGO*/}
+        <Route path="/" element={<Catalogo />} />
+
+        {/*  INVENTARIO */}
+        <Route path="/admin" element={<Inventario />} />
+
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
