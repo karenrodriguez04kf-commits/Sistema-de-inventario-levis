@@ -24,7 +24,7 @@ db.connect(err => {
 
 const SECRET_KEY = "mi_clave_secreta_super_segura";
 
-// 🔐 Middleware
+// Middleware
 const validarToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; 
@@ -42,7 +42,7 @@ const validarToken = (req, res, next) => {
     });
 };
 
-// 🔑 LOGIN
+//  LOGIN
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -63,7 +63,7 @@ app.post('/login', (req, res) => {
 // CRUD PRODUCTOS
 // =============================
 
-// 📦 LISTAR
+//  LISTAR
 app.get('/api/productos', validarToken, (req, res) => {
     const sql = `
         SELECT id_producto, nombreProducto, precioProducto, stockProducto, categoria, talla, color, genero, imagen 
@@ -75,7 +75,7 @@ app.get('/api/productos', validarToken, (req, res) => {
     });
 });
 
-// ➕ AGREGAR
+//  AGREGAR
 app.post('/api/productos', validarToken, (req, res) => {
     const { 
         nombreProducto, descripcionProducto, precioProducto, 
@@ -97,7 +97,7 @@ app.post('/api/productos', validarToken, (req, res) => {
     });
 });
 
-// ✏️ EDITAR
+// EDITAR
 app.put('/api/productos/:id', validarToken, (req, res) => {
     const { id } = req.params;
 
@@ -132,7 +132,7 @@ app.put('/api/productos/:id', validarToken, (req, res) => {
     );
 });
 
-// ❌ ELIMINAR
+//  ELIMINAR
 app.delete('/api/productos/:id', validarToken, (req, res) => {
     const { id } = req.params;
     const sql = 'DELETE FROM productos WHERE id_producto = ?';
@@ -142,7 +142,7 @@ app.delete('/api/productos/:id', validarToken, (req, res) => {
     });
 });
 
-// 🛍️ CATÁLOGO (PÚBLICO)
+// CATÁLOGO (PÚBLICO)
 app.get('/api/catalogo', (req, res) => {
     const sql = `
         SELECT id_producto, nombreProducto, precioProducto, stockProducto, categoria, talla, color, genero, imagen
@@ -155,7 +155,6 @@ app.get('/api/catalogo', (req, res) => {
         res.json(results);
     });
 });
-
 // 🚀 SERVIDOR
 const PORT = 3001;
 app.listen(PORT, () => {

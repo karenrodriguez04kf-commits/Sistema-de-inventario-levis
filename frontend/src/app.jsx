@@ -8,11 +8,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* CATÁlOGO*/}
         <Route path="/" element={<Catalogo />} />
-
-        {/*  INVENTARIO */}
         <Route path="/admin" element={<Inventario />} />
 
       </Routes>
