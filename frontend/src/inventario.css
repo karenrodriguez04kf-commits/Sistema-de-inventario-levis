@@ -1,174 +1,308 @@
-:root {
-  --levis-red: #e61b23;
-  --dark-black: #111111;
-  --light-gray: #f4f4f4;
-  --white: #ffffff;
-  --border-color: #dddddd;
+/* --- BASE --- */
+body {
+  margin: 0;
+  font-family: 'Helvetica', Arial, sans-serif; /* Helvetica es más estilo Levi's */
+  background-color: #f9f9f9;
 }
 
-.App {
-  font-family: 'Helvetica', 'Arial', sans-serif;
-  background-color: var(--light-gray);
-  min-height: 100vh;
-  padding: 40px 20px;
+/* 🔴 HEADER */
+.header {
+  background: #d71920; /* Rojo Levi's */
+  color: white;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 30px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.container {
-  width: 100%;
-  max-width: 900px; 
-  background: var(--white);
-  padding: 40px;
-  border-radius: 2px; 
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+.logo {
+  font-size: 28px;
+  font-weight: bold;
 }
 
-h1, h2, h3 {
-  color: var(--dark-black);
+/* 🔍 BUSCADOR CORREGIDO */
+.buscador {
+  display: flex;
+  align-items: center;
+  background: white; /* Cambiado a blanco para que se vea */
+  border-radius: 25px;
+  overflow: hidden;
+  padding: 0 10px;
+}
+
+.buscador input {
+  border: none;
+  padding: 10px;
+  outline: none;
+  width: 250px;
+  background: transparent;
+  color: #333; /* Texto oscuro para fondo blanco */
+}
+
+.buscador input::placeholder {
+  color: #999;
+}
+
+/* 🛒 CARRITO ICONO & BADGE */
+.carrito-icono-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+  margin-left: 20px;
+}
+
+.badge {
+  background: black;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  border: 2px solid #d71920;
+}
+
+.btn-admin {
+  background: black;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-admin:hover {
+  background: #333;
+}
+
+/* 📦 CONTENIDO */
+.contenido {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 📂 SIDEBAR */
+.sidebar {
+  width: 240px;
+  padding: 20px;
+  background: white;
+  border-right: 1px solid #eee;
+  min-height: calc(100vh - 70px);
+}
+
+.sidebar h3, .sidebar h4, .sidebar h5 {
+  margin: 15px 0 10px;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-bottom: 20px;
+  font-size: 14px;
+  letter-spacing: 1px;
 }
 
+.tallas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.sidebar label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+/* 🛍️ PRODUCTOS GRID */
+.productos-grid {
+  flex: 1;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+}
+
+/* 🧱 CARD */
 .card {
-  background: #f9f9f9;
-  border-left: 6px solid var(--levis-red);
-  padding: 25px;
-  margin-bottom: 30px;
-  border-radius: 4px;
+  background: white;
+  border: 1px solid #eee;
+  padding: 15px;
+  transition: 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
-.card h3 {
-  margin-top: 0;
-  font-size: 1rem;
-  color: var(--levis-red);
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
 }
 
-input[type="text"], 
-input[type="password"] {
+.card img {
   width: 100%;
-  padding: 14px;
-  margin: 10px 0 20px 0;
-  border: 1px solid #ccc;
-  background-color: white; 
-  color: var(--dark-black); 
-  border-radius: 0;
-  box-sizing: border-box;
-  font-size: 1rem;
-}
-
-input:focus {
-  outline: 2px solid var(--levis-red);
-  border-color: transparent;
-}
-
-.levis-button {
-  background-color: var(--levis-red);
-  color: var(--white);
-  border: none;
-  padding: 15px 30px;
-  font-weight: bold;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  letter-spacing: 1px;
-}
-
-.levis-button:hover {
-  background-color: var(--dark-black);
-  transform: translateY(-2px);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 30px;
-  border: 1px solid var(--border-color);
-}
-
-th {
-  background-color: var(--dark-black);
-  color: var(--white);
-  padding: 18px;
-  text-align: left;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-}
-
-td {
-  padding: 15px 18px;
-  border-bottom: 1px solid var(--border-color);
-  color: #333;
-}
-
-tr:nth-child(even) {
-  background-color: #fcfcfc;
-}
-
-tr:hover {
-  background-color: #f1f1f1;
-}
-
-.btn-delete {
-  background-color: #333;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-delete:hover {
-  background-color: var(--levis-red);
-}
-
-.btn-edit {
-  background-color: var(--levis-red);
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: 0.3s;
-  margin-right: 5px;
-}
-
-.btn-edit:hover {
-  background-color: var(--dark-black);
-}
-
-.btn-back {
-  background-color: #888;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 0.8rem;
+  height: 250px;
+  object-fit: contain; /* Para que la ropa se vea completa */
+  background: #f4f4f4;
   margin-bottom: 10px;
 }
 
-.btn-back:hover {
-  background-color: var(--dark-black);
+.card h4 {
+  font-size: 15px;
+  margin: 10px 0;
+  color: #333;
+  height: 40px; /* Alinea los títulos */
 }
 
-.badge-insumo {
-  background-color: #ffebee;
-  color: var(--levis-red);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+.precio {
   font-weight: bold;
-  border: 1px solid var(--levis-red);
-  display: inline-block;
-  margin-top: 10px;
+  font-size: 20px;
+  color: #d71920;
+  margin: 5px 0;
 }
-/*  */
+
+.comprar-btn {
+  background: #000;
+  color: white;
+  border: none;
+  padding: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.comprar-btn:hover {
+  background: #d71920;
+}
+
+/* 🛒 PANEL FLOTANTE DEL CARRITO (EL QUE PEDISTE) */
+.carrito-floating-panel {
+  position: fixed;
+  top: 75px; /* Justo debajo del header */
+  right: 20px;
+  width: 360px;
+  background: white;
+  box-shadow: -5px 5px 25px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  z-index: 2000;
+  padding: 20px;
+  border-top: 4px solid #d71920;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.carrito-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.carrito-items {
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Scrollbar personalizada para el carrito */
+.carrito-items::-webkit-scrollbar {
+  width: 5px;
+}
+.carrito-items::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.item-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.item-nombre {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.item-detalle {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.item-controles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-controles button {
+  background: #eee;
+  border: none;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.trash-icon {
+  color: #d71920;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.carrito-footer {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+}
+
+.total-div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.btn-vaciar {
+  background: transparent;
+  border: 1px solid #ddd;
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-finalizar {
+  background: #d71920;
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.btn-finalizar:hover {
+  background: #000;
+}

@@ -11,7 +11,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'tienda_SQL' 
+    database: 'levis_db' 
 });
 
 db.connect(err => {
@@ -19,12 +19,12 @@ db.connect(err => {
         console.error('Error conectando a MySQL:', err);
         return;
     }
-    console.log('Conectado exitosamente a tienda_SQL...');
+    console.log('Conectado exitosamente a levis_db...');
 });
 
 const SECRET_KEY = "mi_clave_secreta_super_segura";
 
-// Middleware
+// Middleware para validar el token
 const validarToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; 
@@ -42,12 +42,12 @@ const validarToken = (req, res, next) => {
     });
 };
 
-//  LOGIN
+// LOGIN
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    const sql = 'SELECT * FROM usuarios WHERE username = ? AND password = ?';
-    db.query(sql, [username, password], (err, results) => {
+    const sql = 'SELECT * FROM usuarios WHERE email = ? AND password = ?';
+    db.query(sql, [email, password], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         
         if (results.length > 0) {
@@ -59,14 +59,10 @@ app.post('/login', (req, res) => {
     });
 });
 
-// =============================
-// CRUD PRODUCTOS
-// =============================
-
-//  LISTAR
+// LISTAR
 app.get('/api/productos', validarToken, (req, res) => {
     const sql = `
-        SELECT id_producto, nombreProducto, precioProducto, stockProducto, categoria, talla, color, genero, imagen 
+        SELECT id_producto, nombreProducto, precioProducto, stockProducto, categoria, talla, genero, imagen 
         FROM productos
     `;
     db.query(sql, (err, results) => {
@@ -75,22 +71,22 @@ app.get('/api/productos', validarToken, (req, res) => {
     });
 });
 
-//  AGREGAR
+// AGREGAR
 app.post('/api/productos', validarToken, (req, res) => {
     const { 
         nombreProducto, descripcionProducto, precioProducto, 
-        stockProducto, estadoProducto, categoria, talla, color, genero, imagen
+        stockProducto, categoria, talla, genero, imagen
     } = req.body;
 
     const sql = `
         INSERT INTO productos 
-        (nombreProducto, descripcionProducto, precioProducto, stockProducto, estadoProducto, categoria, talla, color, genero, imagen) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, imagen) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     db.query(sql, [
         nombreProducto, descripcionProducto, precioProducto,
-        stockProducto, estadoProducto, categoria, talla, color, genero, imagen
+        stockProducto, categoria, talla, genero, imagen
     ], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Producto guardado" });
@@ -100,10 +96,9 @@ app.post('/api/productos', validarToken, (req, res) => {
 // EDITAR
 app.put('/api/productos/:id', validarToken, (req, res) => {
     const { id } = req.params;
-
     const { 
         nombreProducto, precioProducto, stockProducto, 
-        categoria, talla, color, genero, imagen 
+        categoria, talla, genero, imagen 
     } = req.body;
 
     const sql = `
@@ -112,8 +107,7 @@ app.put('/api/productos/:id', validarToken, (req, res) => {
         precioProducto = ?, 
         stockProducto = ?, 
         categoria = ?, 
-        talla = ?, 
-        color = ?, 
+        talla = ?,   
         genero = ?, 
         imagen = ?
         WHERE id_producto = ?
@@ -121,7 +115,7 @@ app.put('/api/productos/:id', validarToken, (req, res) => {
     
     db.query(
         sql, 
-        [nombreProducto, precioProducto, stockProducto, categoria, talla, color, genero, imagen, id], 
+        [nombreProducto, precioProducto, stockProducto, categoria, talla, genero, imagen, id], 
         (err) => {
             if (err) {
                 console.error(err);
@@ -132,7 +126,7 @@ app.put('/api/productos/:id', validarToken, (req, res) => {
     );
 });
 
-//  ELIMINAR
+// ELIMINAR
 app.delete('/api/productos/:id', validarToken, (req, res) => {
     const { id } = req.params;
     const sql = 'DELETE FROM productos WHERE id_producto = ?';
@@ -142,12 +136,12 @@ app.delete('/api/productos/:id', validarToken, (req, res) => {
     });
 });
 
-// CATÁLOGO (PÚBLICO)
 app.get('/api/catalogo', (req, res) => {
     const sql = `
-        SELECT id_producto, nombreProducto, precioProducto, stockProducto, categoria, talla, color, genero, imagen
-        FROM productos 
-        WHERE estadoProducto = 'Activo'
+        SELECT id_producto, nombreProducto, precioProducto, stockProducto, categoria, talla, genero, imagen
+        FROM productos
+        WHERE stockProducto > 0
+
     `;
 
     db.query(sql, (err, results) => {
@@ -155,7 +149,63 @@ app.get('/api/catalogo', (req, res) => {
         res.json(results);
     });
 });
-// 🚀 SERVIDOR
+// RUTA PARA FINALIZAR COMPRA Y DESCONTAR STOCK
+app.post('/api/finalizar-compra', (req, res) => {
+    const { productos } = req.body; // El carrito que viene del front
+
+    if (!productos || productos.length === 0) {
+        return res.status(400).json({ error: "Carrito vacío" });
+    }
+
+    // Iniciamos una conexión para manejar múltiples queries
+    db.getConnection((err, connection) => {
+        if (err) return res.status(500).json({ error: "Error de conexión" });
+
+        // EMPEZAMOS UNA TRANSACCIÓN (Para que sea seguro)
+        connection.beginTransaction(err => {
+            if (err) { connection.release(); return res.status(500).json({ error: err }); }
+
+            // 1. Descontar Stock de cada producto
+            const queries = productos.map(p => {
+                return new Promise((resolve, reject) => {
+                    const sqlUpdate = 'UPDATE productos SET stockProducto = stockProducto - ? WHERE id_producto = ?';
+                    connection.query(sqlUpdate, [p.cantidad, p.id_producto], (err, result) => {
+                        if (err) return reject(err);
+                        resolve(result);
+                    });
+                });
+            });
+
+            Promise.all(queries)
+                .then(() => {
+                    /* --- ESPACIO PARA REGISTRO DE VENTAS ---
+                       Mano, aquí es donde más adelante haremos:
+                       INSERT INTO ventas (total, fecha) VALUES (...)
+                       Y luego registraremos el detalle de cada prenda.
+                    */
+                    
+                    connection.commit(err => {
+                        if (err) {
+                            return connection.rollback(() => {
+                                connection.release();
+                                res.status(500).json({ error: "Error al confirmar la compra" });
+                            });
+                        }
+                        connection.release();
+                        res.json({ message: "Stock actualizado correctamente" });
+                    });
+                })
+                .catch(err => {
+                    connection.rollback(() => {
+                        connection.release();
+                        res.status(500).json({ error: "Error procesando productos: " + err.message });
+                    });
+                });
+        });
+    });
+});
+
+// SERVIDOR
 const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
