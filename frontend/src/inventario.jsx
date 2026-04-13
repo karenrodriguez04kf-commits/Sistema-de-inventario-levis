@@ -1,282 +1,217 @@
 import React, { useState } from "react";
 import "./inventario.css";
+import "./app.css"; 
 import { useNavigate } from "react-router-dom";
 
-function App() {
+function Inventario() {
   const [view, setView] = useState("login");
-  const [productos, setProductos] = useState([]);
+  const [productos, setProductos] = useState([
+    { id: 1, nombre: "Jeans 501 Original", categoria: "pantalon", precio: 250000, talla: "32", stock: 50, genero: "Hombre", color: "Azul", imagen: "/img/calcetinesrojos.jpg" },
+    { id: 2, nombre: "Chaqueta Trucker", categoria: "chaqueta", precio: 320000, talla: "M", stock: 20, genero: "Mujer", color: "Negro", imagen: "/img/relojnegro.jpg" }
+  ]);
   const [auth, setAuth] = useState({ email: "", pass: "" });
   const navigate = useNavigate();
+
   const [mostrarModal, setMostrarModal] = useState(false);
   const [editando, setEditando] = useState(false);
-  const [productoEditandoId, setProductoEditandoId] = useState(null);
-  const [idTallaEditando, setIdTallaEditando] = useState(null);
-
+  const [idActual, setIdActual] = useState(null);
   const [form, setForm] = useState({
-    nombreProducto: "",
-    precioProducto: "",
-    stockProducto: "", 
-    categoria: "",
-    talla: "",
-    genero: "",
-    imagen: "",
+    nombre: "", precio: "", stock: "", imagen: "", talla: "", genero: "", color: "", categoria: ""
   });
 
-  const [filtroCategoria, setFiltroCategoria] = useState("");
-  const [ordenPrecio, setOrdenPrecio] = useState("");
-  const [filtroGenero, setFiltroGenero] = useState("");
-
-  const getAuthHeader = () => {
-    const token = localStorage.getItem("token");
-    return {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    };
-  };
-
-  const handleLogin = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: auth.email, password: auth.pass }),
-      });
-      const data = await response.json();
-      if (data.auth) {
-        localStorage.setItem("token", data.token);
+  const handleLogin = () => {
+    if (auth.email === "admin@levis.com" && auth.pass === "12345") {
         setView("home");
-      } else {
-        alert(data.message || "Credenciales incorrectas");
-      }
-    } catch (error) {
-      alert("No se pudo conectar con el servidor");
+    } else {
+        alert("Acceso Denegado");
     }
   };
 
-  const fetchProductos = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/api/productos", {
-        headers: getAuthHeader(),
-      });
-      if (response.status === 403 || response.status === 401) {
-        setView("login");
-        return;
-      }
-      const data = await response.json();
-      setProductos(Array.isArray(data) ? data : []);
-      setView("listar");
-    } catch (error) {
-      console.error(error);
+  const abrirModal = (prod = null) => {
+    if (prod) {
+      setEditando(true);
+      setIdActual(prod.id);
+      setForm({ ...prod });
+    } else {
+      setEditando(false);
+      setForm({ nombre: "", precio: "", stock: "", imagen: "/img/", talla: "", genero: "", color: "", categoria: "" });
     }
-  };
-
-  const guardarProducto = async () => {
-    const url = editando
-      ? `http://localhost:3001/api/productos/${productoEditandoId}`
-      : "http://localhost:3001/api/productos";
-
-    const method = editando ? "PUT" : "POST";
-
-    const payload = {
-      nombreProducto: form.nombreProducto,
-      precioProducto: parseFloat(form.precioProducto),
-      stockProducto: parseInt(form.stockProducto), 
-      categoria: form.categoria,
-      talla: form.talla,
-      genero: form.genero,
-      imagen: form.imagen,
-      id_talla: idTallaEditando 
-    };
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers: getAuthHeader(),
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        setMostrarModal(false);
-        setEditando(false);
-        setProductoEditandoId(null);
-        setIdTallaEditando(null);
-        setForm({
-          nombreProducto: "", precioProducto: "", stockProducto: "",
-          categoria: "", talla: "", genero: "", imagen: "",
-        });
-        fetchProductos();
-        alert("¡Guardado correctamente!");
-      } else {
-        const errorData = await response.json();
-        alert("Error: " + (errorData.error || "No se pudo guardar"));
-      }
-    } catch (error) {
-      alert("Error de conexión");
-    }
-  };
-
-  const editarProducto = (p) => {
-    setForm({
-      nombreProducto: p.nombreProducto,
-      precioProducto: p.precioProducto,
-      stockProducto: p.stockProducto, 
-      categoria: p.categoria || "",
-      talla: p.talla || "",
-      genero: p.genero || "",
-      imagen: p.imagen || "",
-    });
-    setProductoEditandoId(p.id_producto);
-    setIdTallaEditando(p.id_talla);
-    setEditando(true);
     setMostrarModal(true);
   };
 
-  const eliminarProducto = async (id) => {
-    if (!window.confirm("¿Eliminar este producto?")) return;
-    try {
-      const response = await fetch(`http://localhost:3001/api/productos/${id}`, {
-        method: "DELETE",
-        headers: getAuthHeader(),
-      });
-      if(response.ok) fetchProductos();
-    } catch (error) {
-      console.error(error);
+  const guardarProducto = () => {
+    if (editando) {
+      setProductos(productos.map(p => p.id === idActual ? { ...form, id: idActual, precio: Number(form.precio), stock: Number(form.stock) } : p));
+    } else {
+      // ID CORTO: Toma el último ID y le suma 1 para que sea limpio (Ej: 3, 4, 5...)
+      const nuevoId = productos.length > 0 ? Math.max(...productos.map(p => p.id)) + 1 : 1;
+      const nuevoProd = { ...form, id: nuevoId, precio: Number(form.precio), stock: Number(form.stock) };
+      setProductos([...productos, nuevoProd]);
+    }
+    setMostrarModal(false);
+  };
+
+  const eliminarProducto = (id) => {
+    if (window.confirm("¿Estás seguro de eliminar este producto?")) {
+      setProductos(productos.filter(p => p.id !== id));
     }
   };
 
-  let productosFiltrados = [...productos];
-  if (filtroCategoria) {
-    productosFiltrados = productosFiltrados.filter(
-      (p) => p.categoria?.toLowerCase() === filtroCategoria.toLowerCase()
-    );
-  }
-  if (ordenPrecio === "asc") productosFiltrados.sort((a, b) => a.precioProducto - b.precioProducto);
-  if (ordenPrecio === "desc") productosFiltrados.sort((a, b) => b.precioProducto - a.precioProducto);
-  if (filtroGenero) productosFiltrados = productosFiltrados.filter((p) => p.genero === filtroGenero);
-
   return (
-    <div className="App">
+    <div className="admin-wrapper">
+      
       {view === "login" && (
-        <div className="container">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Levi%27s_logo.svg/2560px-Levi%27s_logo.svg.png" alt="Levis" style={{ width: "100px", marginBottom: "20px" }} />
-          <h2>Login de Inventario</h2>
-          <input type="text" placeholder="Email" onChange={(e) => setAuth({ ...auth, email: e.target.value })} />
-          <input type="password" placeholder="Password" onChange={(e) => setAuth({ ...auth, pass: e.target.value })} />
-          <button className="levis-button" onClick={handleLogin}>Ingresar</button>
+        <div className="login-container">
+          <div className="login-card">
+            <div className="brand-header">
+              <h1 className="brand-logo-text">LEVI'S</h1>
+              <p className="brand-tagline">ADMINISTRACIÓN DE INVENTARIO</p>
+            </div>
+            <div className="login-form">
+              <div className="input-field">
+                <input type="text" placeholder="Usuario" onChange={(e) => setAuth({ ...auth, email: e.target.value })} />
+              </div>
+              <div className="input-field">
+                <input type="password" placeholder="Contraseña" onChange={(e) => setAuth({ ...auth, pass: e.target.value })} />
+              </div>
+              <button className="btn-login-pro" onClick={handleLogin}>ENTRAR</button>
+            </div>
+          </div>
         </div>
       )}
 
       {view === "home" && (
-        <div className="container" style={{ textAlign: "center" }}>
-          <h1>Sistema de inventario de productos de Levis</h1>
-          <button className="levis-button" onClick={fetchProductos}>Gestionar Productos</button>
-          <button className="levis-button" style={{ marginTop: "10px" }} onClick={() => navigate("/")}>Ver tienda</button>
-          <button className="btn-back" style={{ marginTop: "20px", width: "100%" }} onClick={() => { localStorage.removeItem("token"); setView("login"); }}>Cerrar Sesión</button>
+        <div className="admin-dashboard">
+          <nav className="admin-nav">
+             <h2 className="logo-small">LEVI'S <span>Admin</span></h2>
+             <button className="btn-logout" onClick={() => setView("login")}>Cerrar Sesión</button>
+          </nav>
+          <div className="dashboard-content">
+             <h1>Bienvenido al Panel de Control</h1>
+             <div className="admin-cards-grid">
+                <div className="admin-option-card" onClick={() => setView("listar")}>
+                   <h3>Gestionar Productos</h3>
+                   <p>Ver, editar y eliminar stock</p>
+                </div>
+                <div className="admin-option-card" onClick={() => navigate("/")}>
+                   <h3>Ir a la Tienda</h3>
+                   <p>Ver como cliente</p>
+                </div>
+             </div>
+          </div>
         </div>
       )}
 
       {view === "listar" && (
-        <div className="container">
-          <button className="btn-back" onClick={() => setView("home")}>← Volver</button>
-          <h2>Inventario Actual (Desglosado por Tallas)</h2>
-          <button className="levis-button" style={{ marginBottom: "20px" }} onClick={() => { 
-            setForm({ nombreProducto: "", precioProducto: "", stockProducto: "", categoria: "", talla: "", genero: "", imagen: "" });
-            setEditando(false); setMostrarModal(true); 
-          }}>+ Añadir Producto / Talla</button>
-
-          <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-            <select onChange={(e) => setFiltroCategoria(e.target.value)}>
-              <option value="">Todas las Categorías</option>
-              <option value="Camiseta">Camiseta</option>
-              <option value="Pantalon">Pantalón</option>
-              <option value="Chaqueta">Chaqueta</option>
-              <option value="Accesorio">Accesorio</option>
-              <option value="Calzado">Calzado</option>
-            </select>
-            <select onChange={(e) => setOrdenPrecio(e.target.value)}>
-              <option value="">Ordenar precio</option>
-              <option value="asc">Menor a mayor</option>
-              <option value="desc">Mayor a menor</option>
-            </select>
-            <select onChange={e => setFiltroGenero(e.target.value)}>
-              <option value="">Género</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Femenino">Femenino</option>
-              <option value="Niño">Niño</option>
-            </select>
+        <div className="inventory-panel">
+          <div className="panel-header-pro">
+            <button className="btn-back-pro" onClick={() => setView("home")}>← VOLVER</button>
+            <div className="header-title-group">
+              <h2>INVENTARIO ACTUAL</h2>
+            </div>
+            <button className="btn-add-pro" onClick={() => abrirModal()}>+ AÑADIR PRODUCTO</button>
           </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Producto</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Talla</th>
-                <th>Stock</th>
-                <th>Género</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {productosFiltrados.map((p, index) => (
-                <tr key={p.id_talla || index}>
-                  <td>{p.id_producto}</td>
-                  <td><strong>{p.nombreProducto}</strong></td>
-                  <td>{p.categoria}</td>
-                  <td>${p.precioProducto}</td>
-                  <td><span className="badge-talla">{p.talla || "U"}</span></td>
-                  <td>
-                    <span className={`badge-insumo ${p.stockProducto <= 5 ? 'bajo-stock' : ''}`}>
-                      {p.stockProducto} und
-                    </span>
-                  </td>
-                  <td>{p.genero}</td>
-                  <td>
-                    <button className="btn-edit" onClick={() => editarProducto(p)}>Editar</button>
-                    <button className="btn-delete" onClick={() => eliminarProducto(p.id_producto)}>Eliminar</button>
-                  </td>
+          <div className="table-container-pro">
+            <table className="levis-admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>PRODUCTO</th>
+                  <th>CATEGORÍA</th>
+                  <th>PRECIO</th>
+                  <th>TALLA</th>
+                  <th>STOCK</th>
+                  <th>GÉNERO</th>
+                  <th>ACCIONES</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {productos.map((prod) => (
+                  <tr key={prod.id}>
+                    <td>#{prod.id}</td>
+                    <td className="bold">{prod.nombre}</td>
+                    <td><span className="cat-tag">{prod.categoria}</span></td>
+                    <td>${prod.precio.toLocaleString()} COP</td>
+                    <td><span className="talla-badge">{prod.talla}</span></td>
+                    <td>
+                      <span className={`stock-status ${prod.stock < 10 ? 'low' : ''}`}>
+                        {prod.stock} und
+                      </span>
+                    </td>
+                    <td>{prod.genero}</td>
+                    <td>
+                      <button className="btn-action edit" onClick={() => abrirModal(prod)}>Editar</button>
+                      <button className="btn-action delete" onClick={() => eliminarProducto(prod.id)}>Eliminar</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
+      {/* MODAL CORREGIDO: Ahora usa contenedores para no verse amontonado */}
       {mostrarModal && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <h3>{editando ? "Editar Existencia" : "Nuevo Producto / Talla"}</h3>
-            <input placeholder="Nombre" value={form.nombreProducto} onChange={(e) => setForm({ ...form, nombreProducto: e.target.value })} />
-            <input placeholder="Precio" type="number" value={form.precioProducto} onChange={(e) => setForm({ ...form, precioProducto: e.target.value })} />
-            <input placeholder="Cantidad Stock" type="number" value={form.stockProducto} onChange={(e) => setForm({ ...form, stockProducto: e.target.value })} />
-            <input placeholder="URL Imagen" value={form.imagen} onChange={e => setForm({...form, imagen: e.target.value})} />
-            
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <select style={{ flex: 1 }} value={form.talla} onChange={(e) => setForm({ ...form, talla: e.target.value })}>
-                <option value="">Talla</option>
-                {form.categoria === "Calzado" ? ["36","37","38","39","40","41","42","43"].map(t => <option key={t} value={t}>{t}</option>) : ["XS","S","M","L","XL","30","32","34","36"].map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-              <select style={{ flex: 1 }} value={form.genero} onChange={e => setForm({...form, genero: e.target.value})}>
-                <option value="">Género</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Femenino">Femenino</option>
-                <option value="Niño">Niño</option>
-              </select>
+        <div className="modal-overlay">
+          <div className="modal-card">
+            <div className="modal-header">
+                <h3>{editando ? "EDITAR PRODUCTO" : "NUEVO PRODUCTO"}</h3>
             </div>
-
-            <select value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })}>
-              <option value="">Categoría</option>
-              <option value="Camiseta">Camiseta</option>
-              <option value="Pantalon">Pantalón</option>
-              <option value="Chaqueta">Chaqueta</option>
-              <option value="Accesorio">Accesorio</option>
-              <option value="Calzado">Calzado</option>
-            </select>
-
-            <button className="levis-button" onClick={guardarProducto}>{editando ? "Guardar Cambios" : "Crear Producto"}</button>
-            <button className="btn-back" onClick={() => setMostrarModal(false)}>Cancelar</button>
+            <div className="modal-form-body">
+              <div className="input-field">
+                <label>Nombre</label>
+                <input type="text" placeholder="Ej: Jeans 501" value={form.nombre} onChange={e => setForm({...form, nombre: e.target.value})} />
+              </div>
+              <div className="form-row-pro">
+                  <div className="input-field">
+                    <label>Precio</label>
+                    <input type="number" value={form.precio} onChange={e => setForm({...form, precio: e.target.value})} />
+                  </div>
+                  <div className="input-field">
+                    <label>Stock</label>
+                    <input type="number" value={form.stock} onChange={e => setForm({...form, stock: e.target.value})} />
+                  </div>
+              </div>
+              <div className="input-field">
+                <label>Ruta de Imagen</label>
+                <input type="text" placeholder="/img/nombre.jpg" value={form.imagen} onChange={e => setForm({...form, imagen: e.target.value})} />
+              </div>
+              <div className="form-row-pro">
+                  <div className="input-field">
+                    <label>Talla</label>
+                    <input type="text" value={form.talla} onChange={e => setForm({...form, talla: e.target.value})} />
+                  </div>
+                  <div className="input-field">
+                    <label>Color</label>
+                    <input type="text" value={form.color} onChange={e => setForm({...form, color: e.target.value})} />
+                  </div>
+              </div>
+              <div className="form-row-pro">
+                  <div className="input-field">
+                    <label>Género</label>
+                    <select value={form.genero} onChange={e => setForm({...form, genero: e.target.value})}>
+                        <option value="">Seleccionar</option>
+                        <option value="Hombre">Hombre</option>
+                        <option value="Mujer">Mujer</option>
+                        <option value="Unisex">Unisex</option>
+                    </select>
+                  </div>
+                  <div className="input-field">
+                    <label>Categoría</label>
+                    <select value={form.categoria} onChange={e => setForm({...form, categoria: e.target.value})}>
+                        <option value="">Seleccionar</option>
+                        <option value="pantalon">Pantalón</option>
+                        <option value="camiseta">Camiseta</option>
+                        <option value="chaqueta">Chaqueta</option>
+                    </select>
+                  </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-login-pro" onClick={guardarProducto}>{editando ? "ACTUALIZAR" : "GUARDAR"}</button>
+              <button className="btn-cancel-pro" onClick={() => setMostrarModal(false)}>CANCELAR</button>
+            </div>
           </div>
         </div>
       )}
@@ -284,9 +219,4 @@ function App() {
   );
 }
 
-const styles = {
-  overlay: { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 },
-  modal: { background: "#fff", padding: "30px", borderRadius: "10px", display: "flex", flexDirection: "column", gap: "15px", minWidth: "400px", boxShadow: "0 5px 15px rgba(0,0,0,0.3)" }
-};
-
-export default App;
+export default Inventario;

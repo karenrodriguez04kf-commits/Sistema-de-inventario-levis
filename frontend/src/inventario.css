@@ -1,308 +1,191 @@
-/* --- BASE --- */
-body {
-  margin: 0;
-  font-family: 'Helvetica', Arial, sans-serif; /* Helvetica es más estilo Levi's */
-  background-color: #f9f9f9;
+/* Contenedor Principal del Admin */
+.admin-dashboard {
+  background-color: #f4f4f4;
+  min-height: 100vh;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-/* 🔴 HEADER */
-.header {
-  background: #d71920; /* Rojo Levi's */
-  color: white;
+/* Barra de Navegación superior */
+.admin-nav {
+  background-color: #000;
+  color: #fff;
+  padding: 15px 5%;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 10px 30px;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  align-items: center;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.logo {
-  font-size: 28px;
+.logo-small {
   font-weight: bold;
+  letter-spacing: 1px;
+  margin: 0;
 }
 
-/* 🔍 BUSCADOR CORREGIDO */
-.buscador {
-  display: flex;
-  align-items: center;
-  background: white; /* Cambiado a blanco para que se vea */
-  border-radius: 25px;
-  overflow: hidden;
-  padding: 0 10px;
+.logo-small span {
+  color: #c41230; /* Rojo Levi's */
+  font-weight: 300;
+  margin-left: 5px;
 }
 
-.buscador input {
-  border: none;
-  padding: 10px;
-  outline: none;
-  width: 250px;
+/* Botón de Cerrar Sesión */
+.btn-logout {
   background: transparent;
-  color: #333; /* Texto oscuro para fondo blanco */
-}
-
-.buscador input::placeholder {
-  color: #999;
-}
-
-/* 🛒 CARRITO ICONO & BADGE */
-.carrito-icono-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  position: relative;
-  margin-left: 20px;
-}
-
-.badge {
-  background: black;
-  color: white;
-  font-size: 11px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 50%;
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  border: 2px solid #d71920;
-}
-
-.btn-admin {
-  background: black;
-  color: white;
-  border: none;
+  border: 1px solid #fff;
+  color: #fff;
   padding: 8px 15px;
-  border-radius: 20px;
   cursor: pointer;
   transition: 0.3s;
 }
 
-.btn-admin:hover {
-  background: #333;
+.btn-logout:hover {
+  background: #fff;
+  color: #000;
 }
 
-/* 📦 CONTENIDO */
-.contenido {
-  display: flex;
-  max-width: 1400px;
+/* Contenido Central */
+.dashboard-content {
+  padding: 40px 5%;
+  text-align: center;
+}
+
+.dashboard-content h1 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+  color: #222;
+}
+
+/* Cuadrícula de Opciones (Tarjetas) */
+.admin-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-/* 📂 SIDEBAR */
-.sidebar {
-  width: 240px;
-  padding: 20px;
-  background: white;
-  border-right: 1px solid #eee;
-  min-height: calc(100vh - 70px);
+.admin-option-card {
+  background: #fff;
+  padding: 40px 20px;
+  border-radius: 4px;
+  border-bottom: 4px solid #000;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
-.sidebar h3, .sidebar h4, .sidebar h5 {
-  margin: 15px 0 10px;
+.admin-option-card:hover {
+  transform: translateY(-10px);
+  border-bottom-color: #c41230;
+  box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+}
+
+.admin-option-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.3rem;
+  color: #000;
+}
+
+.admin-option-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Contenedor de la Tabla */
+.inventory-panel {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.panel-header-pro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 20px;
+}
+
+.header-title-group h2 {
+  margin: 0;
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+
+/* Diseño de la Tabla */
+.table-container-pro {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.levis-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.levis-admin-table th {
+  background: #000;
+  color: white;
+  padding: 18px;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  font-size: 14px;
   letter-spacing: 1px;
 }
 
-.tallas-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
-}
-
-.sidebar label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  margin-bottom: 8px;
-  cursor: pointer;
-}
-
-/* 🛍️ PRODUCTOS GRID */
-.productos-grid {
-  flex: 1;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 25px;
-}
-
-/* 🧱 CARD */
-.card {
-  background: white;
-  border: 1px solid #eee;
-  padding: 15px;
-  transition: 0.3s ease;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-}
-
-.card:hover {
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  transform: translateY(-5px);
-}
-
-.card img {
-  width: 100%;
-  height: 250px;
-  object-fit: contain; /* Para que la ropa se vea completa */
-  background: #f4f4f4;
-  margin-bottom: 10px;
-}
-
-.card h4 {
-  font-size: 15px;
-  margin: 10px 0;
-  color: #333;
-  height: 40px; /* Alinea los títulos */
-}
-
-.precio {
-  font-weight: bold;
-  font-size: 20px;
-  color: #d71920;
-  margin: 5px 0;
-}
-
-.comprar-btn {
-  background: #000;
-  color: white;
-  border: none;
-  padding: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: 0.3s;
-}
-
-.comprar-btn:hover {
-  background: #d71920;
-}
-
-/* 🛒 PANEL FLOTANTE DEL CARRITO (EL QUE PEDISTE) */
-.carrito-floating-panel {
-  position: fixed;
-  top: 75px; /* Justo debajo del header */
-  right: 20px;
-  width: 360px;
-  background: white;
-  box-shadow: -5px 5px 25px rgba(0,0,0,0.2);
-  border-radius: 8px;
-  z-index: 2000;
-  padding: 20px;
-  border-top: 4px solid #d71920;
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from { transform: translateX(20px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-.carrito-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.carrito-items {
-  max-height: 380px;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
-/* Scrollbar personalizada para el carrito */
-.carrito-items::-webkit-scrollbar {
-  width: 5px;
-}
-.carrito-items::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
-}
-
-.item-fila {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
+.levis-admin-table td {
+  padding: 16px 18px;
   border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+  color: #444;
 }
 
-.item-nombre {
-  margin: 0;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.item-detalle {
-  margin: 0;
-  font-size: 12px;
-  color: #666;
-}
-
-.item-controles {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.item-controles button {
-  background: #eee;
-  border: none;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
+/* Tags y Badges */
+.talla-badge {
+  background: #f4f4f4;
+  padding: 4px 10px;
   border-radius: 4px;
-}
-
-.trash-icon {
-  color: #d71920;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.carrito-footer {
-  margin-top: 20px;
-  border-top: 1px solid #ddd;
-  padding-top: 15px;
-}
-
-.total-div {
-  display: flex;
-  justify-content: space-between;
-  font-size: 18px;
   font-weight: bold;
-  margin-bottom: 15px;
-}
-
-.btn-vaciar {
-  background: transparent;
   border: 1px solid #ddd;
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  font-size: 12px;
 }
 
-.btn-finalizar {
-  background: #d71920;
+.cat-tag {
+  text-transform: capitalize;
+  color: #666;
+  font-style: italic;
+}
+
+.stock-status.low {
+  color: #c41230;
+  font-weight: bold;
+}
+
+/* Botones de Acción */
+.btn-action {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-right: 5px;
+  transition: 0.2s;
+}
+
+.btn-action.edit { background: #eee; color: #333; }
+.btn-action.delete { background: #fce8e8; color: #c41230; }
+
+.btn-action.edit:hover { background: #333; color: white; }
+.btn-action.delete:hover { background: #c41230; color: white; }
+
+.btn-add-pro {
+  background: #c41230;
   color: white;
   border: none;
-  width: 100%;
-  padding: 12px;
+  padding: 12px 24px;
   font-weight: bold;
   cursor: pointer;
-  font-size: 14px;
-  border-radius: 4px;
-}
-
-.btn-finalizar:hover {
-  background: #000;
 }

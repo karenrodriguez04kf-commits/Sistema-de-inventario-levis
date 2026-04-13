@@ -11,7 +11,8 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'levis_db' 
+    database: 'levis_db' ,
+    port: 3307
 });
 
 db.connect(err => {
