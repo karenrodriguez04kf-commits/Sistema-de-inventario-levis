@@ -1,0 +1,85 @@
+/* Contenedor principal de Recuperación */
+.recuperar-container {
+    text-align: center;
+    margin-top: 100px;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Logo Estilo Levi's */
+.recuperar-logo {
+    background-color: #c41230;
+    color: white;
+    padding: 15px 25px;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 24px;
+    letter-spacing: 2px;
+}
+
+.recuperar-titulo {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #333;
+    text-transform: uppercase;
+}
+
+.recuperar-instrucciones {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Formulario */
+.recuperar-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 320px;
+}
+
+.recuperar-form input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.recuperar-form input:focus {
+    border-color: #c41230;
+}
+
+/* Botón de Acción */
+.btn-actualizar {
+    background-color: black;
+    color: white;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+.btn-actualizar:hover {
+    background-color: #333;
+}
+
+/* Enlace de retorno */
+.link-volver {
+    margin-top: 15px;
+    color: black;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.link-volver b {
+    color: #c41230;
+}
+
+.link-volver:hover text-decoration {
+    text-decoration: underline;
+}

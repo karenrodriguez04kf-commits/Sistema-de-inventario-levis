@@ -1,0 +1,55 @@
+/* Estilos para el panel de bienvenida */
+.bienvenida-container {
+    text-align: center;
+    margin-top: 50px;
+    font-family: Arial, sans-serif;
+}
+
+.bienvenida-titulo {
+    color: #c41230;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.bienvenida-subtitulo {
+    color: #666;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.bienvenida-botones {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn-gestion {
+    background-color: black;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.btn-gestion:hover {
+    background-color: #333;
+}
+
+.btn-logout {
+    background-color: #c41230;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: opacity 0.3s;
+}
+
+.btn-logout:hover {
+    opacity: 0.9;
+}

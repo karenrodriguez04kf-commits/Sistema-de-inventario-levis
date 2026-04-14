@@ -1,0 +1,93 @@
+
+.clientes-page {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+
+.clientes-header {
+    background-color: black;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-levis {
+    background-color: #c41230;
+    padding: 5px 15px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.seccion-titulo {
+    border-left: 4px solid #c41230;
+    padding-left: 10px;
+    margin-top: 30px;
+    text-transform: uppercase;
+}
+
+.clientes-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.clientes-form input {
+    padding: 12px;
+    flex: 1;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.clientes-form input:focus {
+    border-color: #c41230;
+}
+
+.btn-submit {
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-agregar { background-color: #28a745; }
+.btn-editar { background-color: #ffc107; color: black; }
+
+.tabla-clientes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-clientes thead tr {
+    background-color: black;
+    color: white;
+}
+
+.tabla-clientes th, .tabla-clientes td {
+    padding: 12px;
+    text-align: left;
+}
+
+.tabla-clientes tbody tr {
+    border-bottom: 1px solid #eee;
+}
+
+.tabla-clientes tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.btn-tabla {
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    margin-right: 5px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.btn-edit { background-color: #ffc107; color: black; }
+.btn-delete { background-color: #dc3545; color: white; }

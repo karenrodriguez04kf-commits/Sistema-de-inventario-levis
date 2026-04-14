@@ -1,0 +1,88 @@
+/* Contenedor principal del Login */
+.login-container {
+    text-align: center;
+    margin-top: 100px;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Logo Estilo Levi's */
+.login-logo {
+    background-color: #c41230;
+    color: white;
+    padding: 15px 25px;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 24px;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Formulario */
+.login-form {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 320px;
+}
+
+.login-form input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.login-form input:focus {
+    border-color: #c41230;
+}
+
+/* Botón de Ingreso */
+.btn-login {
+    background-color: black;
+    color: white;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #333;
+}
+
+/* Enlaces inferiores */
+.login-footer {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.link-registro {
+    color: #c41230;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.link-registro:hover {
+    text-decoration: underline;
+}
+
+.link-recuperar {
+    color: #666;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.3s;
+}
+
+.link-recuperar:hover {
+    color: #000;
+}

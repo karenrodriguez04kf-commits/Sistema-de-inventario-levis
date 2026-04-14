@@ -1,0 +1,76 @@
+/* Contenedor principal de Registro */
+.registro-container {
+    text-align: center;
+    margin-top: 100px;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Logo Estilo Levi's */
+.registro-logo {
+    background-color: #c41230;
+    color: white;
+    padding: 15px 25px;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 24px;
+    letter-spacing: 2px;
+}
+
+/* Formulario */
+.registro-form {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 320px;
+}
+
+.registro-form input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.registro-form input:focus {
+    border-color: #c41230;
+}
+
+/* Botón de Registro */
+.btn-registro {
+    background-color: black;
+    color: white;
+    padding: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+.btn-registro:hover {
+    background-color: #333;
+}
+
+/* Enlace inferior */
+.registro-footer {
+    margin-top: 10px;
+}
+
+.registro-footer a {
+    color: black;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.registro-footer b {
+    color: #c41230;
+}
+
+.registro-footer a:hover text-decoration {
+    text-decoration: underline;
+}
