@@ -12,7 +12,7 @@ const db = mysql.createConnection({
     user: 'root',
     password: '',
     database: 'levis_db' ,
-    port: 3307
+    port: 3306
 });
 
 db.connect(err => {
@@ -207,7 +207,7 @@ app.post('/api/finalizar-compra', (req, res) => {
 });
 
 // SERVIDOR
-const PORT = 3001;
+const PORT = 3002;
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
