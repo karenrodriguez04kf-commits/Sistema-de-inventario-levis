@@ -25,12 +25,8 @@ const Bienvenida = () => {
     return (
         <div className="bienvenida-container">
             <h1 className="bienvenida-titulo">
-                BIENVENIDO AL PANEL {nombreUsuario.toUpperCase()}
+                BIENVENID@ A LEVIS {nombreUsuario.toUpperCase()}
             </h1>
-            
-            <p className="bienvenida-subtitulo">
-                ¿Qué deseas gestionar hoy? Selecciona una opción:
-            </p>
 
             <div className="bienvenida-botones">
                 {/* BOTÓN PARA EL CATÁLOGO */}
@@ -40,23 +36,6 @@ const Bienvenida = () => {
                 >
                     🛒 VER CATÁLOGO
                 </button>
-
-                {/* BOTÓN PARA EL INVENTARIO */}
-                <button 
-                    onClick={() => navigate('/home/inventario')}
-                    className="btn-gestion"
-                >
-                    📦 GESTIONAR INVENTARIO
-                </button>
-                
-                {/* BOTÓN PARA LOS CLIENTES */}
-                <button 
-                    onClick={() => navigate('/home/clientes')}
-                    className="btn-gestion"
-                >
-                    👥 GESTIONAR CLIENTES
-                </button>
-                
                 {/* BOTÓN PARA SALIR */}
                 <button 
                     onClick={() => {

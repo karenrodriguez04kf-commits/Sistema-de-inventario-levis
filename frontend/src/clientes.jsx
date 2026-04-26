@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './Clientes.css'; // Importación del CSS
+import api from './api'; // Usamos tu instancia configurada
+import './Clientes.css'; 
 
 const Clientes = () => {
     const [clientes, setClientes] = useState([]);
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
     const [telefono, setTelefono] = useState('');
+    const [direccion, setDireccion] = useState(''); // Agregamos dirección
     const [editandoId, setEditandoId] = useState(null);
 
     useEffect(() => {
@@ -15,7 +16,8 @@ const Clientes = () => {
 
     const cargarClientes = async () => {
         try {
-            const res = await axios.get('http://localhost:3001/clientes');
+            // La instancia api ya sabe que la base es http://localhost:3002/api
+            const res = await api.get('/clientes');
             setClientes(res.data);
         } catch (err) {
             console.error("Error al cargar clientes:", err);
@@ -24,33 +26,47 @@ const Clientes = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!nombre || !email) return alert("Llena los campos obligatorios");
+        if (!nombre || !email) return alert("Mano, llena los campos obligatorios");
+
+        const datosCliente = { 
+            nombre, 
+            email, 
+            telefono, 
+            direccion, 
+            rol: 'cliente' // Forzamos el rol aquí
+        };
 
         try {
             if (editandoId) {
-                await axios.put(`http://localhost:3001/clientes/${editandoId}`, { nombre, email, telefono });
+                await api.put(`/clientes/${editandoId}`, datosCliente);
                 setEditandoId(null);
+                alert("Cliente actualizado ✨");
             } else {
-                await axios.post('http://localhost:3001/clientes', { nombre, email, telefono });
+                await api.post('/clientes', datosCliente);
+                alert("Cliente registrado ✅");
             }
-            setNombre(''); setEmail(''); setTelefono('');
+            // Limpiar formulario
+            setNombre(''); setEmail(''); setTelefono(''); setDireccion('');
             cargarClientes();
         } catch (err) {
             console.error("Error en la operación:", err);
+            alert("Error: revisa si el email ya existe");
         }
     };
 
     const iniciarEdicion = (cliente) => {
-        setEditandoId(cliente.id);
+        // Importante: usar id_usuario que viene de la DB
+        setEditandoId(cliente.id_usuario);
         setNombre(cliente.nombre);
         setEmail(cliente.email);
-        setTelefono(cliente.telefono);
+        setTelefono(cliente.telefono || '');
+        setDireccion(cliente.direccion || '');
     };
 
     const eliminarCliente = async (id) => {
-        if (window.confirm("¿Seguro que quieres eliminar este cliente?")) {
+        if (window.confirm("¿Mano, seguro que quieres borrar este cliente?")) {
             try {
-                await axios.delete(`http://localhost:3001/clientes/${id}`);
+                await api.delete(`/clientes/${id}`);
                 cargarClientes();
             } catch (err) {
                 console.error("Error al eliminar:", err);
@@ -71,34 +87,45 @@ const Clientes = () => {
                 <input type="text" placeholder="NOMBRE" value={nombre} onChange={e => setNombre(e.target.value)} />
                 <input type="email" placeholder="EMAIL" value={email} onChange={e => setEmail(e.target.value)} />
                 <input type="text" placeholder="TELÉFONO" value={telefono} onChange={e => setTelefono(e.target.value)} />
+                <input type="text" placeholder="DIRECCIÓN" value={direccion} onChange={e => setDireccion(e.target.value)} />
+                
                 <button type="submit" className={`btn-submit ${editandoId ? 'btn-editar' : 'btn-agregar'}`}>
                     {editandoId ? 'GUARDAR CAMBIOS' : '+ AGREGAR CLIENTE'}
                 </button>
+                {editandoId && <button type="button" onClick={() => {setEditandoId(null); setNombre(''); setEmail('');}} className="btn-cancelar">Cancelar</button>}
             </form>
 
-            <table className="tabla-clientes">
-                <thead>
-                    <tr>
-                        <th>NOMBRE</th>
-                        <th>EMAIL</th>
-                        <th>TELÉFONO</th>
-                        <th>ACCIONES</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {clientes.map(cliente => (
-                        <tr key={cliente.id}>
-                            <td>{cliente.nombre}</td>
-                            <td>{cliente.email}</td>
-                            <td>{cliente.telefono || 'N/A'}</td>
-                            <td>
-                                <button onClick={() => iniciarEdicion(cliente)} className="btn-tabla btn-edit">Editar</button>
-                                <button onClick={() => eliminarCliente(cliente.id)} className="btn-tabla btn-delete">Eliminar</button>
-                            </td>
+            <div className="tabla-container">
+                <table className="tabla-clientes">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>NOMBRE</th>
+                            <th>EMAIL</th>
+                            <th>TELÉFONO</th>
+                            <th>DIRECCIÓN</th>
+                            <th>ACCIONES</th>
+                        
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {clientes.map(cliente => (
+                            <tr key={cliente.id_usuario}>
+                                <td>#{cliente.id_usuario}</td>
+                                <td className="bold">{cliente.nombre}</td>
+                                <td>{cliente.email}</td>
+                                <td>{cliente.telefono || 'N/A'}</td>
+                                <td>{cliente.direccion || 'N/A'}</td>
+                                <td>
+
+                                    <button onClick={() => iniciarEdicion(cliente)} className="btn-tabla btn-edit">Editar</button>
+                                    <button onClick={() => eliminarCliente(cliente.id_usuario)} className="btn-tabla btn-delete">Eliminar</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

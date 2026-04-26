@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from './api';
 import { useNavigate, Link } from 'react-router-dom';
 import './Registro.css'; // Importación del CSS
 
@@ -9,10 +9,11 @@ const Registro = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleRegistro = async (e) => {
+const handleRegistro = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3001/register', {
+            // USAMOS 'api' y la ruta completa del controlador de auth
+            const response = await api.post('/auth/register', {
                 nombre,
                 email,
                 password

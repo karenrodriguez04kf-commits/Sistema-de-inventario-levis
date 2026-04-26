@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from './api';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css'; // Importación del CSS
 
@@ -8,19 +8,30 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await axios.post('http://localhost:3001/login', { email, password });
-            
-            if (res.data.Status === "Exito") {
-                localStorage.setItem('token', res.data.Token);
-                navigate('/home'); 
+   const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+        const res = await api.post('/auth/login', { email, password });
+        
+        if (res.data.Status === "Exito") {
+            // 1. Guardas los datos
+            localStorage.setItem('token', res.data.Token);
+            localStorage.setItem('rol', res.data.Rol);
+            localStorage.setItem('id_usuario', res.data.id_usuario);
+
+            // 2. CORRECCIÓN DE DIRECCIONES AQUÍ:
+            if (res.data.Rol === 'admin') {
+                // Le pones el "/home/" adelante porque en App.jsx son rutas hijas
+                navigate('/home/inventario'); 
+            } else {
+                navigate('/home/catalogo'); 
             }
-        } catch (err) {
-            alert("Correo o contraseña incorrectos");
         }
-    };
+    } catch (err) {
+        const mensaje = err.response?.data?.Message || "Error al conectar con el servidor";
+        alert(mensaje);
+    }
+};
 
     return (
         <div className="login-container">

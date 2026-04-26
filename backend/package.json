@@ -1,14 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Backend de la tienda: Login, Inventario y Ventas",
-  "main": "index.js",
+  "description": "Backend unificado de LEVI'S: Auth, Inventario y Ventas",
+  "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start-auth": "node index.js",
-    "start-store": "node server.jsx",
-    "dev": "concurrently \"npm run start-auth\" \"npm run start-store\""
+    "start": "node server.js",
+    "dev": "node --watch server.js"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +17,7 @@
     "cors": "^2.8.6",
     "express": "^4.22.1",
     "jsonwebtoken": "^9.0.3",
-    "mysql": "^2.18.1",
+    "multer": "^2.1.1",
     "mysql2": "^3.22.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"

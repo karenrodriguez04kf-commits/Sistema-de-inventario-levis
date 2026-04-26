@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "./catalogo.css"; // Asegúrate de que el nombre coincida con tu archivo físico
+// CORRECCIÓN: Importamos api (default) y BASE_URL (nombrada)
+import api, { BASE_URL } from "./api"; 
+import "./catalogo.css";
 import { FaShoppingCart, FaTrash, FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -13,19 +15,21 @@ function Catalogo() {
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const navigate = useNavigate();
 
-  // --- 1. CARGA DE DATOS DESDE PUERTO 3002 ---
+  // --- CARGA DE DATOS USANDO AXIOS (API) ---
   useEffect(() => {
     fetchProductos();
   }, []);
 
-  const fetchProductos = () => {
-    fetch("http://localhost:3002/api/catalogo")
-      .then((res) => res.json())
-      .then((data) => setProductos(data))
-      .catch((err) => console.error("Error al traer productos:", err));
+  const fetchProductos = async () => {
+    try {
+      const response = await api.get("/productos/catalogo");
+      setProductos(response.data);
+    } catch (err) {
+      console.error("Error al traer productos:", err);
+    }
   };
 
-  // --- 2. LÓGICA DEL CARRITO ---
+  // --- LÓGICA DEL CARRITO ---
   const agregarAlCarrito = (p) => {
     setCarrito((prev) => {
       const existe = prev.find((item) => item.id_producto === p.id_producto);
@@ -55,25 +59,23 @@ function Catalogo() {
   const finalizarCompra = async () => {
     if (carrito.length === 0) return alert("El carrito está vacío");
     try {
-      const response = await fetch("http://localhost:3002/api/finalizar-compra", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productos: carrito }),
+      const response = await api.post("/productos/finalizar-compra", { 
+        productos: carrito 
       });
-      if (response.ok) {
-        alert("¡Compra finalizada con éxito! ✨");
+
+      if (response.status === 200) {
+        alert("¡Compra finalizada con éxito en Levi's! ✨");
         setCarrito([]);
         setMostrarCarrito(false);
         fetchProductos();
-      } else {
-        alert("Error al procesar la compra");
       }
     } catch (error) {
-      alert("Error de conexión con el servidor");
+      console.error(error);
+      alert("Error al procesar la compra");
     }
   };
 
-  // --- 3. LÓGICA DE FILTROS ---
+  // --- LÓGICA DE FILTROS ---
   const normalizarTexto = (texto) =>
     texto?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
 
@@ -81,13 +83,14 @@ function Catalogo() {
     normalizarTexto(p.nombreProducto).includes(normalizarTexto(busqueda))
   );
 
-  if (generosSeleccionados.length > 0) {
-    productosFiltrados = productosFiltrados.filter((p) =>
-      generosSeleccionados.some(
-        (g) => normalizarTexto(g) === normalizarTexto(p.genero)
-      )
-    );
-  }
+ if (generosSeleccionados.length > 0) {
+  productosFiltrados = productosFiltrados.filter((p) =>
+    // Comparamos el género del producto con los que el usuario seleccionó
+    generosSeleccionados.some(
+      (g) => g.toLowerCase() === p.genero?.toLowerCase()
+    )
+  );
+}
 
   if (categoriasSeleccionadas.length > 0) {
     productosFiltrados = productosFiltrados.filter((p) =>
@@ -133,32 +136,42 @@ function Catalogo() {
       </div>
 
       <div className="catalogo-layout">
-        <aside className="catalogo-sidebar">
-          <h3 className="sidebar-title">Género</h3>
-          <div className="filter-group">
-            <label>
-              <input
-                type="checkbox"
-                onChange={(e) =>
-                  e.target.checked
-                    ? setGenerosSeleccionados([...generosSeleccionados, "Masculino"])
-                    : setGenerosSeleccionados(generosSeleccionados.filter((g) => g !== "Masculino"))
-                }
-              />{" "}
-              Masculino
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                onChange={(e) =>
-                  e.target.checked
-                    ? setGenerosSeleccionados([...generosSeleccionados, "Femenino"])
-                    : setGenerosSeleccionados(generosSeleccionados.filter((g) => g !== "Femenino"))
-                }
-              />{" "}
-              Femenino
-            </label>
-          </div>
+  <aside className="catalogo-sidebar">
+    <h3 className="sidebar-title">Género</h3>
+<div className="filter-group">
+  <label>
+    <input
+      type="checkbox"
+      onChange={(e) =>
+        e.target.checked
+          ? setGenerosSeleccionados([...generosSeleccionados, "hombre"])
+          : setGenerosSeleccionados(generosSeleccionados.filter((g) => g !== "hombre"))
+      }
+    />Hombre
+  </label>
+  
+  <label>
+    <input
+      type="checkbox"
+      onChange={(e) =>
+        e.target.checked
+          ? setGenerosSeleccionados([...generosSeleccionados, "mujer"])
+          : setGenerosSeleccionados(generosSeleccionados.filter((g) => g !== "mujer"))
+      }
+    /> Mujer
+  </label>
+
+  <label>
+    <input
+      type="checkbox"
+      onChange={(e) =>
+        e.target.checked
+          ? setGenerosSeleccionados([...generosSeleccionados, "niños"])
+          : setGenerosSeleccionados(generosSeleccionados.filter((g) => g !== "niños"))
+      }
+    /> Niños
+  </label>
+</div>
 
           <h3 className="sidebar-title">Tallas</h3>
           <div className="tallas-flex">
@@ -176,32 +189,6 @@ function Catalogo() {
               </label>
             ))}
           </div>
-
-          <h3 className="sidebar-title">Categorías</h3>
-          <div className="filter-group">
-            <label>
-              <input
-                type="checkbox"
-                onChange={(e) =>
-                  e.target.checked
-                    ? setCategoriasSeleccionadas([...categoriasSeleccionadas, "pantalon"])
-                    : setCategoriasSeleccionadas(categoriasSeleccionadas.filter((c) => c !== "pantalon"))
-                }
-              />{" "}
-              Pantalones
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                onChange={(e) =>
-                  e.target.checked
-                    ? setCategoriasSeleccionadas([...categoriasSeleccionadas, "camiseta"])
-                    : setCategoriasSeleccionadas(categoriasSeleccionadas.filter((c) => c !== "camiseta"))
-                }
-              />{" "}
-              Camisetas
-            </label>
-          </div>
         </aside>
 
         <main className="productos-container">
@@ -210,7 +197,12 @@ function Catalogo() {
               {productosFiltrados.map((p) => (
                 <div className="producto-card" key={p.id_producto}>
                   <div className="img-wrapper">
-                    <img src={p.imagen || "/img/default.jpg"} alt={p.nombreProducto} />
+                    {/* CORRECCIÓN: Concatenamos BASE_URL con la ruta de la imagen */}
+                    <img 
+                      src={p.imagen ? `${BASE_URL}${p.imagen}` : "/img/default.jpg"} 
+                      alt={p.nombreProducto} 
+                      onError={(e) => { e.target.src = "/img/default.jpg"; }} 
+                    />
                   </div>
                   <div className="producto-info">
                     <h4>{p.nombreProducto}</h4>
@@ -229,61 +221,31 @@ function Catalogo() {
         </main>
       </div>
 
-      {/* --- CARRITO FLOTANTE --- */}
+      {/* --- CARRITO FLOTANTE (Drawer) --- */}
       {mostrarCarrito && (
         <div className="cart-drawer open">
           <div className="cart-drawer-header">
             <h3>TU CARRITO ({carrito.length})</h3>
             <button className="btn-close-cart" onClick={() => setMostrarCarrito(false)}>✕</button>
           </div>
-
           <div className="cart-drawer-body">
             {carrito.length === 0 ? (
-              <div className="cart-empty-state">
-                <p>Aún no has añadido nada.</p>
-              </div>
+              <p>El carrito está vacío</p>
             ) : (
-              carrito.map((item) => (
+              carrito.map(item => (
                 <div key={item.id_producto} className="cart-item-pro">
-                  <img src={item.imagen || "/img/default.jpg"} alt={item.nombreProducto} className="cart-item-img" />
-                  <div className="cart-item-main">
-                    <div className="cart-item-info">
-                      <p className="cart-item-name">{item.nombreProducto}</p>
-                      <p className="cart-item-meta">Talla: {item.talla} | {item.genero}</p>
-                    </div>
-                    <div className="cart-item-actions-row">
-                      <div className="qty-controls-pro">
-                        <button onClick={() => modificarCantidad(item.id_producto, "menos")}>-</button>
-                        <span>{item.cantidad}</span>
-                        <button onClick={() => modificarCantidad(item.id_producto, "mas")}>+</button>
-                      </div>
-                      <div className="cart-item-subtotal">
-                        <span>${((item.precioProducto || 0) * item.cantidad).toLocaleString()}</span>
-                      </div>
-                      <FaTrash
-                        className="btn-remove-item"
-                        onClick={() => setCarrito(carrito.filter((i) => i.id_producto !== item.id_producto))}
-                      />
-                    </div>
+                  <div className="cart-item-info">
+                    <p>{item.nombreProducto} (x{item.cantidad})</p>
+                    <span>${(item.precioProducto * item.cantidad).toLocaleString()}</span>
                   </div>
+                  <FaTrash onClick={() => setCarrito(carrito.filter(i => i.id_producto !== item.id_producto))} />
                 </div>
               ))
             )}
           </div>
-
           {carrito.length > 0 && (
             <div className="cart-drawer-footer">
-              <div className="cart-total-section">
-                <div className="total-row">
-                  <span>Total:</span>
-                  <strong>
-                    ${carrito.reduce((acc, i) => acc + (i.precioProducto || 0) * i.cantidad, 0).toLocaleString()} COP
-                  </strong>
-                </div>
-              </div>
-              <button className="btn-checkout-pro" onClick={finalizarCompra}>
-                FINALIZAR COMPRA
-              </button>
+              <button className="btn-checkout-pro" onClick={finalizarCompra}>PAGAR</button>
             </div>
           )}
         </div>

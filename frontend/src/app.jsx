@@ -1,6 +1,6 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Catalogo from "./catalogo"; // En minúscula como tus archivos
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Catalogo from "./catalogo"; 
 import Inventario from "./inventario"; 
 import Login from './login';
 import Home from './home';
@@ -11,30 +11,42 @@ import Recuperar from './recuperar';
 import Perfil from './perfil'; 
 
 function App() {
+  // Función para obtener el rol actual de forma segura
+  const getRol = () => localStorage.getItem('rol');
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* 1. Ruta inicial: Login */}
+        {/* 1. Rutas Públicas */}
         <Route path="/" element={<Login />} />
-        
-        {/* 2. Rutas de Auth */}
         <Route path="/registro" element={<Registro />} />
         <Route path="/recuperar" element={<Recuperar />} />
         
-        {/* 3. Rutas protegidas dentro del Home */}
+        {/* 2. Estructura de Home con Rutas Hijas */}
         <Route path="/home" element={<Home />}>
+          {/* Al entrar a /home, se muestra Bienvenida */}
           <Route index element={<Bienvenida />} /> 
-          <Route path="clientes" element={<Clientes />} />
           <Route path="perfil" element={<Perfil />} />
           <Route path="catalogo" element={<Catalogo />} />
-          <Route path="inventario" element={<Inventario />} />
+
+          {/* PROTECCIÓN DE RUTAS: 
+              Usamos una función o comprobación directa para que React 
+              valide el rol al momento de hacer click.
+          */}
+         <Route 
+  path="clientes" 
+  element={localStorage.getItem('rol') === 'admin' ? <Clientes /> : <Navigate to="/home/catalogo" />} 
+/>
+<Route 
+  path="inventario" 
+  element={localStorage.getItem('rol') === 'admin' ? <Inventario /> : <Navigate to="/home/catalogo" />} />
         </Route>
 
-        {/* 4. Ruta directa para admin si la necesitas */}
-        <Route path="/admin" element={<Inventario />} />
+        {/* 3. Redirección por defecto para cualquier ruta no válida */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
 }
 
-export default App; 
+export default App;
