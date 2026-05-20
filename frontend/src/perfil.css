@@ -1,0 +1,116 @@
+.perfil-full-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    background: #f8f9fa;
+    padding: 20px;
+}
+
+.perfil-glass-card {
+    background: white;
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    text-align: center;
+    animation: fadeInSlide 0.5s ease-out;
+}
+
+@keyframes fadeInSlide {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.perfil-avatar {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #c41230 0%, #000 100%);
+    color: white;
+    font-size: 2.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    box-shadow: 0 8px 15px rgba(196, 18, 48, 0.2);
+}
+
+.perfil-main-title {
+    font-size: 1.6rem;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.perfil-user-email {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+.perfil-modern-form {
+    text-align: left;
+}
+
+.modern-input-group {
+    margin-bottom: 20px;
+}
+
+.modern-input-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #c41230; /* Rojo Levi's */
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.modern-input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    outline: none;
+}
+
+.modern-input-group input:focus {
+    border-color: #c41230;
+    box-shadow: 0 0 10px rgba(196, 18, 48, 0.1);
+}
+
+.input-hint {
+    font-size: 0.75rem;
+    color: #aaa;
+    display: block;
+    margin-top: 5px;
+}
+
+.btn-perfil-submit {
+    width: 100%;
+    padding: 15px;
+    background: #000;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+.btn-perfil-submit:hover:not(:disabled) {
+    background: #c41230;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(196, 18, 48, 0.3);
+}
+
+.btn-perfil-submit:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}

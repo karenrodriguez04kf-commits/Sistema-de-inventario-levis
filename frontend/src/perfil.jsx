@@ -1,79 +1,101 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './api'; 
 import { jwtDecode } from "jwt-decode";
-import './Perfil.css'; // Importación del CSS
+import './Perfil.css';
 
 const Perfil = () => {
     const [nombre, setNombre] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
+    const [cargando, setCargando] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                setEmail(decoded.email || '');
+                // Extraemos el email del token
+                const userEmail = decoded.email;
+                setEmail(userEmail);
                 
-                // Traemos los datos actuales para llenar el formulario
-                axios.get(`http://localhost:3001/perfil/${decoded.email}`)
+                // Traemos los datos actuales desde la base de datos
+                api.get(`/auth/perfil/${userEmail}`)
                     .then(res => {
                         setNombre(res.data.nombre || '');
                     })
-                    .catch(err => console.log("Error al obtener datos:", err));
+                    .catch(err => console.error("Error al obtener datos:", err));
             } catch (error) {
-                console.error("Error al decodificar:", error);
+                console.error("Error al decodificar token:", error);
             }
         }
     }, []);
 
-    const handleUpdate = (e) => {
+    const handleUpdate = async (e) => {
         e.preventDefault();
-        axios.put('http://localhost:3001/perfil/actualizar', { nombre, password, email })
-            .then(res => {
-                if (res.data.Status === "Exito") {
-                    // Guardamos el nuevo token (que contiene el nombre actualizado)
-                    localStorage.setItem('token', res.data.Token);
-                    
-                    alert("¡Perfil actualizado con éxito! ✨");
-                    setPassword(''); 
-
-                    // Refrescamos para que el Header y Bienvenida lean el nuevo nombre
-                    window.location.href = '/home'; 
+        setCargando(true);
+        try {
+            const response = await api.put('/auth/perfil/actualizar', { 
+               nombre: nombre, 
+               password: password, 
+               email: email
+            });
+            
+            if (response.data.Status === "Exito") {
+                // GUARDAMOS EL NUEVO TOKEN (Contiene el nombre actualizado)
+                if (response.data.Token) {
+                    localStorage.setItem('token', response.data.Token);
                 }
-            })
-            .catch(err => alert("Error al actualizar datos"));
+                
+                alert("✨ ¡Perfil actualizado con éxito! ✨");
+                
+                // Redirigir a Home para ver el cambio en el mensaje de bienvenida
+                window.location.href = '/home'; 
+            }
+        } catch (err) {
+            console.error(err);
+            alert("❌ Error al actualizar: Verifica la conexión con el servidor");
+        } finally {
+            setCargando(false);
+        }
     };
 
     return (
-        <div className="perfil-card">
-            <h2 className="perfil-titulo">Configuración de Perfil</h2>
-            
-            <form onSubmit={handleUpdate} className="perfil-form">
-                <div className="form-group">
-                    <label>Nombre de Usuario:</label>
-                    <input 
-                        type="text" 
-                        value={nombre || ''} 
-                        onChange={e => setNombre(e.target.value)} 
-                        required 
-                    />
+        <div className="perfil-full-screen">
+            <div className="perfil-glass-card">
+                <div className="perfil-avatar">
+                    {nombre ? nombre.charAt(0).toUpperCase() : 'U'}
                 </div>
+                <h2 className="perfil-main-title">Configuración de Perfil</h2>
+                <p className="perfil-user-email">{email}</p>
 
-                <div className="form-group">
-                    <label>Nueva Contraseña:</label>
-                    <input 
-                        type="password" 
-                        value={password || ''} 
-                        onChange={e => setPassword(e.target.value)} 
-                        placeholder="Dejar en blanco para no cambiar" 
-                    />
-                </div>
+                <form onSubmit={handleUpdate} className="perfil-modern-form">
+                    <div className="modern-input-group">
+                        <label>Nombre de Usuario</label>
+                        <input 
+                            type="text" 
+                            value={nombre} 
+                            onChange={e => setNombre(e.target.value)} 
+                            placeholder="Escribe tu nombre"
+                            required 
+                        />
+                    </div>
 
-                <button type="submit" className="btn-save-perfil">
-                    GUARDAR CAMBIOS
-                </button>
-            </form>
+                    <div className="modern-input-group">
+                        <label>Nueva Contraseña</label>
+                        <input 
+                            type="password" 
+                            value={password} 
+                            onChange={e => setPassword(e.target.value)} 
+                            placeholder="Dejar en blanco para no cambiar"
+                        />
+                        <span className="input-hint">Solo si deseas cambiarla</span>
+                    </div>
+
+                    <button type="submit" className="btn-perfil-submit" disabled={cargando}>
+                        {cargando ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };

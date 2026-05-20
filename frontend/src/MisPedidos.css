@@ -1,0 +1,120 @@
+.pedidos-history-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 3px solid #000;
+    padding-bottom: 15px;
+}
+
+.btn-return {
+    padding: 10px 20px;
+    background: #000;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-return:hover { background: #c41230; }
+
+.pedido-group-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.pedido-group-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed #ccc;
+}
+
+.order-number {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #c41230;
+    margin-right: 15px;
+}
+
+.order-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.order-total-badge {
+    background: #000;
+    color: #fff;
+    padding: 6px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.pedido-items-list {
+    padding: 10px 20px;
+}
+
+.pedido-item-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.pedido-item-row:last-child { border-bottom: none; }
+
+.item-mini-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.item-info { flex: 1; }
+
+.item-name {
+    margin: 0;
+    font-weight: 600;
+    color: #333;
+}
+
+.item-qty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.item-subtotal {
+    font-weight: bold;
+    color: #333;
+}
+
+.pedido-group-footer {
+    padding: 10px 20px;
+    background: #fff;
+    text-align: right;
+    border-top: 1px solid #eee;
+}
+
+.status-label {
+    font-size: 0.75rem;
+    font-weight: 900;
+    color: #2e7d32;
+    background: #e8f5e9;
+    padding: 4px 10px;
+    border-radius: 4px;
+}

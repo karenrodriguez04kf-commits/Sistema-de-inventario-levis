@@ -85,3 +85,42 @@ exports.recuperar = (req, res) => {
     });
   });
 };
+
+// --- ACTUALIZACIÓN DE PERFIL CON GENERACIÓN DE TOKEN ---
+exports.actualizarPerfil = (req, res) => {
+    const { nombre, password, email } = req.body;
+
+    const finalizarUpdate = (err, result) => {
+        if (err) return res.status(500).json(err);
+        
+        // Buscamos los datos actualizados para generar un nuevo token real
+        const sqlUser = "SELECT * FROM usuarios WHERE email = ?";
+        db.query(sqlUser, [email], (err, users) => {
+            if (err || users.length === 0) return res.status(200).json({ Status: "Exito" });
+            
+            const user = users[0];
+            const nuevoToken = jwt.sign({ 
+                id: user.id_usuario,
+                email: user.email, 
+                rol: user.rol, 
+                nombre: user.nombre 
+            }, SECRET_KEY, { expiresIn: '1h' });
+
+            return res.status(200).json({ 
+                Status: "Exito", 
+                Token: nuevoToken 
+            });
+        });
+    };
+
+    if (password && password.trim() !== "") {
+        bcrypt.hash(password.toString(), saltRounds, (err, hash) => {
+            if (err) return res.status(500).json({ Message: "Error al procesar contraseña" });
+            const sql = "UPDATE usuarios SET nombre = ?, password = ? WHERE email = ?";
+            db.query(sql, [nombre, hash, email], finalizarUpdate);
+        });
+    } else {
+        const sql = "UPDATE usuarios SET nombre = ? WHERE email = ?";
+        db.query(sql, [nombre, email], finalizarUpdate);
+    }
+};

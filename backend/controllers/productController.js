@@ -18,11 +18,9 @@ exports.getAllProducts = (req, res) => {
   });
 };
 
-// 3. CREAR PRODUCTO (MODIFICADO PARA IMÁGENES)
+// 3. CREAR PRODUCTO
 exports.createProduct = (req, res) => {
   const { nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero } = req.body;
-  
-  // Si Multer procesó una imagen, el nombre del archivo está en req.file
   const imagen = req.file ? `/images/${req.file.filename}` : req.body.imagen;
 
   const sql = 'INSERT INTO productos (nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
@@ -33,12 +31,11 @@ exports.createProduct = (req, res) => {
   });
 };
 
-// 4. ACTUALIZAR PRODUCTO (ESTO ES LO QUE TE FALTABA PARA EVITAR EL 404)
+// 4. ACTUALIZAR PRODUCTO
 exports.updateProduct = (req, res) => {
   const { id } = req.params;
   const { nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero } = req.body;
   
-  // Lógica para la imagen: si hay una nueva foto, se actualiza; si no, se mantiene la anterior
   let sql = 'UPDATE productos SET nombreProducto=?, descripcionProducto=?, precioProducto=?, stockProducto=?, categoria=?, talla=?, genero=?';
   let params = [nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero];
 
@@ -56,16 +53,74 @@ exports.updateProduct = (req, res) => {
   });
 };
 
+// 5. ELIMINAR PRODUCTO
 exports.deleteProduct = (req, res) => {
-  const { id } = req.params; // Este 'id' viene de la URL /api/productos/1
-  
+  const { id } = req.params;
   const sql = 'DELETE FROM productos WHERE id_producto = ?';
-  
   db.query(sql, [id], (err, result) => {
-    if (err) {
-      console.error("Error al eliminar:", err);
-      return res.status(500).json({ error: err.message });
-    }
+    if (err) return res.status(500).json({ error: err.message });
     res.json({ Status: "Exito", Message: "Producto eliminado correctamente" });
   });
+};
+
+// 6. FINALIZAR COMPRA (CON ACTUALIZACIÓN DE STOCK)
+exports.finalizarCompra = (req, res) => {
+    const { id_usuario, total, productos } = req.body;
+
+    if (!productos || productos.length === 0) {
+        return res.status(400).json({ Message: "El carrito está vacío" });
+    }
+
+    // PASO 1: Crear el registro del Pedido
+    const sqlPedido = "INSERT INTO pedidos (id_usuario, total) VALUES (?, ?)";
+    
+    db.query(sqlPedido, [id_usuario, total], (err, result) => {
+        if (err) return res.status(500).json({ error: "Error al crear pedido", details: err.message });
+
+        const id_pedido = result.insertId;
+
+        // PASO 2: Preparar los datos para los detalles
+        const valoresDetalles = productos.map(p => [
+            id_pedido, 
+            p.id_producto, 
+            p.cantidad, 
+            p.precioProducto
+        ]);
+
+        const sqlDetalle = "INSERT INTO detalle_pedidos (id_pedido, id_producto, cantidad, precio_unitario) VALUES ?";
+        
+        db.query(sqlDetalle, [valoresDetalles], (err) => {
+            if (err) return res.status(500).json({ error: "Error al guardar detalles", details: err.message });
+
+            // PASO 3: Restar el Stock de cada producto comprado
+            const sqlUpdateStock = "UPDATE productos SET stockProducto = stockProducto - ? WHERE id_producto = ?";
+            
+            // Usamos una promesa para asegurarnos de que todo se procese
+            productos.forEach(p => {
+                db.query(sqlUpdateStock, [p.cantidad, p.id_producto], (errStock) => {
+                    if (errStock) console.error("Error actualizando stock para producto " + p.id_producto, errStock);
+                });
+            });
+
+            res.json({ Status: "Exito", Message: "Compra realizada correctamente y stock actualizado", id_pedido });
+        });
+    });
+};
+
+// 7. OBTENER PEDIDOS POR USUARIO
+exports.getPedidosUsuario = (req, res) => {
+    const { id_usuario } = req.params;
+    
+    const sql = `
+        SELECT p.id_pedido, p.total, p.fecha, dp.cantidad, dp.precio_unitario, pr.nombreProducto, pr.imagen 
+        FROM pedidos p
+        JOIN detalle_pedidos dp ON p.id_pedido = dp.id_pedido
+        JOIN productos pr ON dp.id_producto = pr.id_producto
+        WHERE p.id_usuario = ?
+        ORDER BY p.fecha DESC`;
+
+    db.query(sql, [id_usuario], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
 };

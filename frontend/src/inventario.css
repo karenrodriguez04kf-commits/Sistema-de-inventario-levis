@@ -1,220 +1,206 @@
-/* CONTENEDOR PRINCIPAL - Se adapta al Outlet del Home */
-.inventory-page-container {
-    width: 100%;
-    animation: fadeIn 0.5s ease;
+/* frontend/src/inventario.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+.admin-main-wrapper {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    padding: 40px;
+    display: flex;
+    justify-content: center; /* Centrado horizontal */
+    align-items: flex-start;
 }
 
-.inventory-header-actions {
+/* Efecto Glassmorphism para las tarjetas */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    width: 100%;
+    max-width: 1100px;
+    overflow: hidden;
+    animation: slideInUp 0.5s ease-out;
+}
+
+/* Estilos de la Vista Home (Bienvenida) */
+.dashboard-home {
+    text-align: center;
+    padding: 60px;
+}
+
+.welcome-box h1 { font-size: 2.5rem; font-weight: 800; color: #1a1a1a; margin-top: 10px;}
+.welcome-box p { color: #666; margin-bottom: 30px; }
+
+/* Botón 'Gestionar' Negro Levi's */
+.btn-primary-levis {
+    background: #000;
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-primary-levis:hover {
+    background: #333;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+/* Estilos de la Vista Tabla (Existencias) */
+.inventory-list-view {
+    padding: 30px;
+}
+
+.inventory-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #e5e5e5;
+    border-bottom: 2px solid #eee;
 }
 
-.admin-title {
-    font-size: 1.8rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #000;
-}
+.inventory-header h2 { font-weight: 800; color: #1a1a1a; margin: 0; }
 
-.inventory-tools {
-    display: flex;
-    gap: 15px;
-}
+/* Botones Modernos */
+.btn-back { background: none; border: none; color: #888; cursor: pointer; font-weight: 600; }
+.btn-back:hover { color: #000; }
 
-.search-box {
-    display: flex;
-    align-items: center;
-    background: white;
-    padding: 8px 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.search-box input {
-    border: none;
-    outline: none;
-    padding-left: 10px;
-    width: 250px;
-}
-
-.btn-add-main {
-    background-color: #c41230; /* Rojo Levi's */
+.btn-add-item {
+    background: #c41230; /* Rojo Levi's */
     color: white;
     border: none;
     padding: 10px 20px;
-    font-weight: bold;
+    border-radius: 8px;
+    font-weight: 600;
     cursor: pointer;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
-/* GRILLA DE CARDS */
-.inventory-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
-}
-
-.inventory-card {
-    background: white;
-    border: 1px solid #eee;
-    transition: 0.3s;
-    position: relative;
-}
-
-.inventory-card:hover {
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-.card-img-container {
-    position: relative;
+/* Tabla Moderna */
+.levis-table {
     width: 100%;
-    height: 300px;
-    background: #f9f9f9;
+    border-collapse: collapse;
 }
 
-.card-img-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.stock-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.8);
-    color: white;
-    padding: 4px 10px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    border-radius: 20px;
-}
-
-.card-details {
-    padding: 20px;
-}
-
-.card-details h4 {
-    margin: 0 0 10px 0;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-}
-
-.p-meta {
-    font-size: 0.85rem;
-    color: #666;
-    margin-bottom: 10px;
-}
-
-.p-price {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: #c41230;
-    margin-bottom: 15px;
-}
-
-/* BOTONES DE ACCIÓN */
-.card-btns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.btn-edit-action, .btn-delete-action {
-    border: none;
-    padding: 10px;
-    font-weight: bold;
-    cursor: pointer;
+.levis-table th {
+    text-align: left;
+    padding: 15px;
+    color: #888;
     font-size: 0.8rem;
+    text-transform: uppercase;
+    background: rgba(240, 242, 245, 0.5);
+}
+
+.levis-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    vertical-align: middle;
+}
+
+.levis-table tr:hover { background: rgba(255,255,255,0.5); }
+
+/* Miniatura de Imagen */
+.product-img-mini {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.stock-tag {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.stock-ok { background: #e6f4ea; color: #1e7e34; }
+.stock-low { background: #fce8e8; color: #c41230; }
+
+/* Iconos de acción */
+.btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; margin: 0 5px; opacity: 0.6; }
+.btn-icon:hover { opacity: 1; }
+.btn-icon.edit { color: #007bff; }
+.btn-icon.delete { color: #dc3545; }
+
+/* Estilos del Modal (Añadir/Editar) */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 5px;
-    border-radius: 2px;
-}
-
-.btn-edit-action {
-    background: #000;
-    color: white;
-}
-
-.btn-delete-action {
-    background: #f4f4f4;
-    color: #c41230;
-    border: 1px solid #c41230;
-}
-
-.btn-edit-action:hover { background: #333; }
-.btn-delete-action:hover { background: #c41230; color: white; }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* --- NUEVOS ESTILOS PARA LOS BOTONES DEL PANEL --- */
-
-.panel-acciones {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-    justify-content: flex-start; /* O center si lo quieres centrado como en la otra imagen */
-}
-
-.btn-gestion-negro {
-    background-color: #000; /* Negro puro */
-    color: #fff;
-    padding: 12px 25px;
-    font-size: 0.9rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    text-decoration: none;
-    border: none;
-    border-radius: 4px; /* Un poco redondeado para que pegue con tus otros botones */
-    display: flex;
     align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
 }
 
-.btn-gestion-negro:hover {
-    background-color: #333;
-    transform: translateY(-2px); /* Efecto sutil al pasar el mouse */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    color: #fff; /* Asegura que el texto siga blanco */
+.modal-card {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    animation: zoomIn 0.3s ease-out;
 }
 
-/* Opcional: Si quieres que el de "Cerrar Sesión" sea rojo como el otro */
-.btn-gestion-rojo {
-    background-color: #c41230;
-    color: white;
-    padding: 12px 25px;
-    font-weight: bold;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: 4px;
-}
-.btn-upload-estilo {
+.modal-card h3 { font-weight: 800; margin-bottom: 25px; text-align: center;}
+
+/* Inputs Modernos y Visibles */
+.form-group { margin-bottom: 15px; text-align: left;}
+.form-group label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px; font-weight: 600;}
+.form-group input, .form-group select {
     width: 100%;
     padding: 12px;
-    background: #f4f4f4;
-    border: 2px dashed #c41230; /* El rojo Levi's que usas en el backend */
-    color: #c41230;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 4px;
-    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: 0.3s;
+    background-color: #fafafa; /* Ligeramente gris para que se note */
 }
 
-.btn-upload-estilo:hover {
-    background: #c41230;
-    color: white;
+.form-group input:focus {
+    border-color: #000;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
 }
+
+/* Botón de Subir Imagen Diseñado */
+.btn-upload-styled {
+    background: #f0f2f5;
+    color: #555;
+    border: 2px dashed #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    width: 100%;
+    display: block;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+.btn-upload-styled:hover { border-color: #c41230; color: #c41230; }
+
+.modal-footer {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.btn-save { background: #000; color: white; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: 600; cursor: pointer;}
+.btn-cancel { background: #eee; color: #333; border: none; padding: 12px; border-radius: 8px; flex: 1; font-weight: 600; cursor: pointer;}
+.btn-save:hover { background: #c41230; }
+
+/* Animaciones */
+@keyframes slideInUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }

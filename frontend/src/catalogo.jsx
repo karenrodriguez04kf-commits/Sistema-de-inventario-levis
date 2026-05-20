@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from "react";
-// CORRECCIÓN: Importamos api (default) y BASE_URL (nombrada)
 import api, { BASE_URL } from "./api"; 
 import "./catalogo.css";
-import { FaShoppingCart, FaTrash, FaSearch } from "react-icons/fa";
+import { FaShoppingCart, FaTrash, FaSearch, FaPlus, FaMinus, FaReceipt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function Catalogo() {
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [generosSeleccionados, setGenerosSeleccionados] = useState([]);
-  const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
   const [tallasSeleccionadas, setTallasSeleccionadas] = useState([]);
   const [carrito, setCarrito] = useState([]);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const navigate = useNavigate();
 
-  // --- CARGA DE DATOS USANDO AXIOS (API) ---
   useEffect(() => {
     fetchProductos();
   }, []);
@@ -56,22 +53,42 @@ function Catalogo() {
     );
   };
 
+  const calcularTotal = () => {
+    return carrito.reduce((acc, p) => acc + (p.precioProducto * p.cantidad), 0);
+  };
+
+  // --- LÓGICA DE PAGO CONEXIÓN CON BACKEND ---
   const finalizarCompra = async () => {
     if (carrito.length === 0) return alert("El carrito está vacío");
+
+    const idUsuarioLogueado = localStorage.getItem("id_usuario");
+
+    if (!idUsuarioLogueado) {
+      alert("Debes iniciar sesión para realizar la compra");
+      navigate("/login");
+      return;
+    }
+
     try {
-      const response = await api.post("/productos/finalizar-compra", { 
+      const datosParaEnviar = { 
+        id_usuario: idUsuarioLogueado,
+        total: calcularTotal(),
         productos: carrito 
-      });
+      };
+
+      const response = await api.post("/productos/finalizar-compra", datosParaEnviar);
 
       if (response.status === 200) {
-        alert("¡Compra finalizada con éxito en Levi's! ✨");
+        alert("¡Compra finalizada con éxito! ✨"); // Modificado para ser más profesional
         setCarrito([]);
         setMostrarCarrito(false);
-        fetchProductos();
+        fetchProductos(); 
+        // CORRECCIÓN 1: Ruta completa para evitar redirección al login
+        navigate("/home/mis-pedidos");
       }
     } catch (error) {
-      console.error(error);
-      alert("Error al procesar la compra");
+      console.error("Error en el pago:", error);
+      alert(error.response?.data?.Message || "Error al procesar la compra");
     }
   };
 
@@ -83,20 +100,9 @@ function Catalogo() {
     normalizarTexto(p.nombreProducto).includes(normalizarTexto(busqueda))
   );
 
- if (generosSeleccionados.length > 0) {
-  productosFiltrados = productosFiltrados.filter((p) =>
-    // Comparamos el género del producto con los que el usuario seleccionó
-    generosSeleccionados.some(
-      (g) => g.toLowerCase() === p.genero?.toLowerCase()
-    )
-  );
-}
-
-  if (categoriasSeleccionadas.length > 0) {
+  if (generosSeleccionados.length > 0) {
     productosFiltrados = productosFiltrados.filter((p) =>
-      categoriasSeleccionadas.some(
-        (c) => normalizarTexto(c) === normalizarTexto(p.categoria)
-      )
+      generosSeleccionados.some((g) => g.toLowerCase() === p.genero?.toLowerCase())
     );
   }
 
@@ -106,9 +112,7 @@ function Catalogo() {
 
   if (tallasSeleccionadas.length > 0) {
     productosFiltrados = productosFiltrados.filter((p) =>
-      tallasSeleccionadas.some(
-        (t) => normalizarTexto(t) === normalizarTexto(p.talla)
-      )
+      tallasSeleccionadas.some((t) => normalizarTexto(t) === normalizarTexto(p.talla))
     );
   }
 
@@ -125,53 +129,40 @@ function Catalogo() {
           />
         </div>
 
-        <div className="cart-trigger" onClick={() => setMostrarCarrito(!mostrarCarrito)}>
-          <FaShoppingCart size={22} />
-          {carrito.length > 0 && (
-            <span className="cart-badge">
-              {carrito.reduce((acc, p) => acc + p.cantidad, 0)}
-            </span>
-          )}
+        <div className="header-actions">
+          {/* CORRECCIÓN 2: Ruta completa en el botón de la cabecera */}
+          <button className="btn-orders" onClick={() => navigate("/home/mis-pedidos")}>
+            <FaReceipt size={20} /> <span>Mis Pedidos</span>
+          </button>
+
+          <div className="cart-trigger" onClick={() => setMostrarCarrito(!mostrarCarrito)}>
+            <FaShoppingCart size={22} />
+            {carrito.length > 0 && (
+              <span className="cart-badge">
+                {carrito.reduce((acc, p) => acc + p.cantidad, 0)}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
       <div className="catalogo-layout">
-  <aside className="catalogo-sidebar">
-    <h3 className="sidebar-title">Género</h3>
-<div className="filter-group">
-  <label>
-    <input
-      type="checkbox"
-      onChange={(e) =>
-        e.target.checked
-          ? setGenerosSeleccionados([...generosSeleccionados, "hombre"])
-          : setGenerosSeleccionados(generosSeleccionados.filter((g) => g !== "hombre"))
-      }
-    />Hombre
-  </label>
-  
-  <label>
-    <input
-      type="checkbox"
-      onChange={(e) =>
-        e.target.checked
-          ? setGenerosSeleccionados([...generosSeleccionados, "mujer"])
-          : setGenerosSeleccionados(generosSeleccionados.filter((g) => g !== "mujer"))
-      }
-    /> Mujer
-  </label>
-
-  <label>
-    <input
-      type="checkbox"
-      onChange={(e) =>
-        e.target.checked
-          ? setGenerosSeleccionados([...generosSeleccionados, "niños"])
-          : setGenerosSeleccionados(generosSeleccionados.filter((g) => g !== "niños"))
-      }
-    /> Niños
-  </label>
-</div>
+        <aside className="catalogo-sidebar">
+          <h3 className="sidebar-title">Género</h3>
+          <div className="filter-group">
+            {["Hombre", "Mujer", "Niños"].map((g) => (
+              <label key={g}>
+                <input
+                  type="checkbox"
+                  onChange={(e) =>
+                    e.target.checked
+                      ? setGenerosSeleccionados([...generosSeleccionados, g])
+                      : setGenerosSeleccionados(generosSeleccionados.filter((item) => item !== g))
+                  }
+                /> {g}
+              </label>
+            ))}
+          </div>
 
           <h3 className="sidebar-title">Tallas</h3>
           <div className="tallas-flex">
@@ -197,7 +188,6 @@ function Catalogo() {
               {productosFiltrados.map((p) => (
                 <div className="producto-card" key={p.id_producto}>
                   <div className="img-wrapper">
-                    {/* CORRECCIÓN: Concatenamos BASE_URL con la ruta de la imagen */}
                     <img 
                       src={p.imagen ? `${BASE_URL}${p.imagen}` : "/img/default.jpg"} 
                       alt={p.nombreProducto} 
@@ -221,35 +211,43 @@ function Catalogo() {
         </main>
       </div>
 
-      {/* --- CARRITO FLOTANTE (Drawer) --- */}
-      {mostrarCarrito && (
-        <div className="cart-drawer open">
-          <div className="cart-drawer-header">
-            <h3>TU CARRITO ({carrito.length})</h3>
-            <button className="btn-close-cart" onClick={() => setMostrarCarrito(false)}>✕</button>
-          </div>
-          <div className="cart-drawer-body">
-            {carrito.length === 0 ? (
-              <p>El carrito está vacío</p>
-            ) : (
-              carrito.map(item => (
-                <div key={item.id_producto} className="cart-item-pro">
-                  <div className="cart-item-info">
-                    <p>{item.nombreProducto} (x{item.cantidad})</p>
-                    <span>${(item.precioProducto * item.cantidad).toLocaleString()}</span>
+      <div className={`cart-drawer ${mostrarCarrito ? "open" : ""}`}>
+        <div className="cart-drawer-header">
+          <h3>TU CARRITO ({carrito.length})</h3>
+          <button className="btn-close-cart" onClick={() => setMostrarCarrito(false)}>✕</button>
+        </div>
+        <div className="cart-drawer-body">
+          {carrito.length === 0 ? (
+            <p className="empty-msg">El carrito está vacío</p>
+          ) : (
+            carrito.map(item => (
+              <div key={item.id_producto} className="cart-item-pro">
+                <div className="cart-item-info">
+                  <p className="item-name">{item.nombreProducto}</p>
+                  <div className="qty-controls">
+                    <button onClick={() => modificarCantidad(item.id_producto, "menos")}><FaMinus size={10}/></button>
+                    <span>{item.cantidad}</span>
+                    <button onClick={() => modificarCantidad(item.id_producto, "mas")}><FaPlus size={10}/></button>
                   </div>
-                  <FaTrash onClick={() => setCarrito(carrito.filter(i => i.id_producto !== item.id_producto))} />
+                  <span className="item-subtotal">
+                    Subtotal: ${(item.precioProducto * item.cantidad).toLocaleString()}
+                  </span>
                 </div>
-              ))
-            )}
-          </div>
-          {carrito.length > 0 && (
-            <div className="cart-drawer-footer">
-              <button className="btn-checkout-pro" onClick={finalizarCompra}>PAGAR</button>
-            </div>
+                <FaTrash className="btn-remove" onClick={() => setCarrito(carrito.filter(i => i.id_producto !== item.id_producto))} />
+              </div>
+            ))
           )}
         </div>
-      )}
+        {carrito.length > 0 && (
+          <div className="cart-drawer-footer">
+            <div className="cart-total-section">
+              <span>TOTAL A PAGAR:</span>
+              <span className="total-amount">${calcularTotal().toLocaleString()} COP</span>
+            </div>
+            <button className="btn-checkout-pro" onClick={finalizarCompra}>PAGAR</button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
