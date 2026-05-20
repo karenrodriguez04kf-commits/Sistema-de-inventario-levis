@@ -273,6 +273,7 @@
   height: 25px;
   border-radius: 50%;
   cursor: pointer;
+  color: #333;
 }
 
 .item-subtotal {
