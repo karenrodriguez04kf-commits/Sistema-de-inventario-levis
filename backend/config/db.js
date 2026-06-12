@@ -5,7 +5,7 @@ const db = mysql.createPool({ // Usamos Pool para mejor manejo de múltiples con
   user: 'root',
   password: '',
   database: 'levis_db',
-  port: 3307,
+  port: 3306,
   waitForConnections: true,
   connectionLimit: 10
 });

@@ -9,7 +9,8 @@ function Catalogo() {
   const [busqueda, setBusqueda] = useState("");
   const [generosSeleccionados, setGenerosSeleccionados] = useState([]);
   const [tallasSeleccionadas, setTallasSeleccionadas] = useState([]);
-  const [carrito, setCarrito] = useState([]);
+  const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
+  const [carrito, setCarrito]   = useState([]);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const navigate = useNavigate();
 
@@ -26,7 +27,6 @@ function Catalogo() {
     }
   };
 
-  // --- LÓGICA DEL CARRITO ---
   const agregarAlCarrito = (p) => {
     setCarrito((prev) => {
       const existe = prev.find((item) => item.id_producto === p.id_producto);
@@ -57,7 +57,6 @@ function Catalogo() {
     return carrito.reduce((acc, p) => acc + (p.precioProducto * p.cantidad), 0);
   };
 
-  // --- LÓGICA DE PAGO CONEXIÓN CON BACKEND ---
   const finalizarCompra = async () => {
     if (carrito.length === 0) return alert("El carrito está vacío");
 
@@ -79,11 +78,10 @@ function Catalogo() {
       const response = await api.post("/productos/finalizar-compra", datosParaEnviar);
 
       if (response.status === 200) {
-        alert("¡Compra finalizada con éxito! ✨"); // Modificado para ser más profesional
+        alert("¡Compra finalizada con éxito! ✨");
         setCarrito([]);
         setMostrarCarrito(false);
         fetchProductos(); 
-        // CORRECCIÓN 1: Ruta completa para evitar redirección al login
         navigate("/home/mis-pedidos");
       }
     } catch (error) {
@@ -92,10 +90,10 @@ function Catalogo() {
     }
   };
 
-  // --- LÓGICA DE FILTROS ---
   const normalizarTexto = (texto) =>
     texto?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
 
+  // ✅ Filtros aplicados en orden
   let productosFiltrados = productos.filter((p) =>
     normalizarTexto(p.nombreProducto).includes(normalizarTexto(busqueda))
   );
@@ -106,15 +104,30 @@ function Catalogo() {
     );
   }
 
-  const tallasDisponibles = Array.from(
-    new Set(productos.map((p) => p.talla?.trim()).filter(Boolean))
-  ).sort();
-
   if (tallasSeleccionadas.length > 0) {
     productosFiltrados = productosFiltrados.filter((p) =>
       tallasSeleccionadas.some((t) => normalizarTexto(t) === normalizarTexto(p.talla))
     );
   }
+
+  // ✅ Filtro de categoría
+  if (categoriasSeleccionadas.length > 0) {
+    productosFiltrados = productosFiltrados.filter((p) =>
+      categoriasSeleccionadas.some((c) => normalizarTexto(c) === normalizarTexto(p.categoria))
+    );
+  }
+
+  const tallasDisponibles = Array.from(
+    new Set(productos.map((p) => p.talla?.trim()).filter(Boolean))
+  ).sort();
+
+  const toggleFiltro = (valor, lista, setLista) => {
+    if (lista.includes(valor)) {
+      setLista(lista.filter((i) => i !== valor));
+    } else {
+      setLista([...lista, valor]);
+    }
+  };
 
   return (
     <div className="catalogo-page">
@@ -130,11 +143,9 @@ function Catalogo() {
         </div>
 
         <div className="header-actions">
-          {/* CORRECCIÓN 2: Ruta completa en el botón de la cabecera */}
           <button className="btn-orders" onClick={() => navigate("/home/mis-pedidos")}>
             <FaReceipt size={20} /> <span>Mis Pedidos</span>
           </button>
-
           <div className="cart-trigger" onClick={() => setMostrarCarrito(!mostrarCarrito)}>
             <FaShoppingCart size={22} />
             {carrito.length > 0 && (
@@ -148,17 +159,30 @@ function Catalogo() {
 
       <div className="catalogo-layout">
         <aside className="catalogo-sidebar">
+
+          {/* ✅ Filtro de categoría */}
+          <h3 className="sidebar-title">Categoría</h3>
+          <div className="filter-group">
+            {["pantalon", "camiseta", "chaqueta", "accesorio"].map((cat) => (
+              <label key={cat}>
+                <input
+                  type="checkbox"
+                  checked={categoriasSeleccionadas.includes(cat)}
+                  onChange={() => toggleFiltro(cat, categoriasSeleccionadas, setCategoriasSeleccionadas)}
+                />
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </label>
+            ))}
+          </div>
+
           <h3 className="sidebar-title">Género</h3>
           <div className="filter-group">
             {["Hombre", "Mujer", "Niños"].map((g) => (
               <label key={g}>
                 <input
                   type="checkbox"
-                  onChange={(e) =>
-                    e.target.checked
-                      ? setGenerosSeleccionados([...generosSeleccionados, g])
-                      : setGenerosSeleccionados(generosSeleccionados.filter((item) => item !== g))
-                  }
+                  checked={generosSeleccionados.includes(g)}
+                  onChange={() => toggleFiltro(g, generosSeleccionados, setGenerosSeleccionados)}
                 /> {g}
               </label>
             ))}
@@ -170,11 +194,8 @@ function Catalogo() {
               <label key={talla} className="talla-chip">
                 <input
                   type="checkbox"
-                  onChange={(e) =>
-                    e.target.checked
-                      ? setTallasSeleccionadas([...tallasSeleccionadas, talla])
-                      : setTallasSeleccionadas(tallasSeleccionadas.filter((t) => t !== talla))
-                  }
+                  checked={tallasSeleccionadas.includes(talla)}
+                  onChange={() => toggleFiltro(talla, tallasSeleccionadas, setTallasSeleccionadas)}
                 />
                 <span>{talla}</span>
               </label>
@@ -252,4 +273,4 @@ function Catalogo() {
   );
 }
 
-export default Catalogo;
+export default Catalogo;  

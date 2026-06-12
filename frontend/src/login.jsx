@@ -47,8 +47,8 @@ const Login = () => {
                     required 
                 />
                 <input 
-                    type="password" 
-                    placeholder="PASSWORD" 
+                    type="contraseña" 
+                    placeholder="CONTRASEÑA" 
                     onChange={e => setPassword(e.target.value)} 
                     required 
                 />

@@ -71,53 +71,52 @@ exports.finalizarCompra = (req, res) => {
         return res.status(400).json({ Message: "El carrito está vacío" });
     }
 
-    // PASO 1: Crear el registro del Pedido
-    const sqlPedido = "INSERT INTO pedidos (id_usuario, total) VALUES (?, ?)";
+    // PASO 1: Crear el registro de Venta
+    const sqlVenta = "INSERT INTO venta (id_usuario, total) VALUES (?, ?)";
     
-    db.query(sqlPedido, [id_usuario, total], (err, result) => {
-        if (err) return res.status(500).json({ error: "Error al crear pedido", details: err.message });
+    db.query(sqlVenta, [id_usuario, total], (err, result) => {
+        if (err) return res.status(500).json({ error: "Error al crear venta", details: err.message });
 
-        const id_pedido = result.insertId;
+        const id_venta = result.insertId;
 
-        // PASO 2: Preparar los datos para los detalles
+        // PASO 2: Insertar detalles de venta
         const valoresDetalles = productos.map(p => [
-            id_pedido, 
+            id_venta, 
             p.id_producto, 
             p.cantidad, 
             p.precioProducto
         ]);
 
-        const sqlDetalle = "INSERT INTO detalle_pedidos (id_pedido, id_producto, cantidad, precio_unitario) VALUES ?";
+        const sqlDetalle = "INSERT INTO detalleventa (id_venta, id_producto, cantidad, precioUnitario) VALUES ?";
         
         db.query(sqlDetalle, [valoresDetalles], (err) => {
             if (err) return res.status(500).json({ error: "Error al guardar detalles", details: err.message });
 
-            // PASO 3: Restar el Stock de cada producto comprado
+            // PASO 3: Restar stock
             const sqlUpdateStock = "UPDATE productos SET stockProducto = stockProducto - ? WHERE id_producto = ?";
             
-            // Usamos una promesa para asegurarnos de que todo se procese
             productos.forEach(p => {
                 db.query(sqlUpdateStock, [p.cantidad, p.id_producto], (errStock) => {
                     if (errStock) console.error("Error actualizando stock para producto " + p.id_producto, errStock);
                 });
             });
 
-            res.json({ Status: "Exito", Message: "Compra realizada correctamente y stock actualizado", id_pedido });
+            res.json({ Status: "Exito", Message: "Compra realizada correctamente", id_venta });
         });
     });
-};
+    };
 
 // 7. OBTENER PEDIDOS POR USUARIO
 exports.getPedidosUsuario = (req, res) => {
     const { id_usuario } = req.params;
     
     const sql = `
-        SELECT p.id_pedido, p.total, p.fecha, dp.cantidad, dp.precio_unitario, pr.nombreProducto, pr.imagen 
-        FROM pedidos p
-        JOIN detalle_pedidos dp ON p.id_pedido = dp.id_pedido
-        JOIN productos pr ON dp.id_producto = pr.id_producto
-        WHERE p.id_usuario = ?
-        ORDER BY p.fecha DESC`;
+        SELECT v.id_venta, v.total, v.fecha, dv.cantidad, dv.precioUnitario, pr.nombreProducto, pr.imagen 
+        FROM venta v
+        JOIN detalleventa dv ON v.id_venta = dv.id_venta
+        JOIN productos pr ON dv.id_producto = pr.id_producto
+        WHERE v.id_usuario = ?
+        ORDER BY v.fecha DESC`;
 
     db.query(sql, [id_usuario], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });

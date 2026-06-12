@@ -17,17 +17,17 @@ const MisPedidos = () => {
                 const id_usuario = decoded.id_usuario || decoded.id;
                 const response = await api.get(`/productos/mis-pedidos/${id_usuario}`);
                 
-                // --- LÓGICA DE AGRUPACIÓN POR ID_PEDIDO ---
+                // ✅ Agrupación por id_venta
                 const agrupados = response.data.reduce((acc, item) => {
-                    if (!acc[item.id_pedido]) {
-                        acc[item.id_pedido] = {
-                            id: item.id_pedido,
+                    if (!acc[item.id_venta]) {
+                        acc[item.id_venta] = {
+                            id: item.id_venta,
                             fecha: item.fecha,
-                            totalPedido: item.total, // El total general de la compra
+                            totalPedido: item.total,
                             productos: []
                         };
                     }
-                    acc[item.id_pedido].productos.push(item);
+                    acc[item.id_venta].productos.push(item);
                     return acc;
                 }, {});
 
@@ -79,10 +79,12 @@ const MisPedidos = () => {
                                         />
                                         <div className="item-info">
                                             <p className="item-name">{prod.nombreProducto}</p>
-                                            <p className="item-qty">Cant: {prod.cantidad} x ${Number(prod.precio_unitario).toLocaleString()}</p>
+                                            <p className="item-qty">
+                                                Cant: {prod.cantidad} x ${Number(prod.precioUnitario).toLocaleString()}
+                                            </p>
                                         </div>
                                         <div className="item-subtotal">
-                                            ${Number(prod.cantidad * prod.precio_unitario).toLocaleString()}
+                                            ${Number(prod.cantidad * prod.precioUnitario).toLocaleString()}
                                         </div>
                                     </div>
                                 ))}

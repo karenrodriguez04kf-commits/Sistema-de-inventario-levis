@@ -8,20 +8,22 @@ const Perfil = () => {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [cargando, setCargando] = useState(false);
+    const [telefono, setTelefono] = useState('');
+    const [direccion, setDireccion] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                // Extraemos el email del token
                 const userEmail = decoded.email;
                 setEmail(userEmail);
                 
-                // Traemos los datos actuales desde la base de datos
                 api.get(`/auth/perfil/${userEmail}`)
                     .then(res => {
                         setNombre(res.data.nombre || '');
+                        setTelefono(res.data.telefono || '');
+                        setDireccion(res.data.direccion || '');     
                     })
                     .catch(err => console.error("Error al obtener datos:", err));
             } catch (error) {
@@ -35,20 +37,18 @@ const Perfil = () => {
         setCargando(true);
         try {
             const response = await api.put('/auth/perfil/actualizar', { 
-               nombre: nombre, 
-               password: password, 
-               email: email
+                nombre: nombre, 
+                password: password, 
+                email: email,
+                telefono: telefono,
+                direccion: direccion
             });
             
             if (response.data.Status === "Exito") {
-                // GUARDAMOS EL NUEVO TOKEN (Contiene el nombre actualizado)
                 if (response.data.Token) {
                     localStorage.setItem('token', response.data.Token);
                 }
-                
                 alert("✨ ¡Perfil actualizado con éxito! ✨");
-                
-                // Redirigir a Home para ver el cambio en el mensaje de bienvenida
                 window.location.href = '/home'; 
             }
         } catch (err) {
@@ -89,6 +89,37 @@ const Perfil = () => {
                             placeholder="Dejar en blanco para no cambiar"
                         />
                         <span className="input-hint">Solo si deseas cambiarla</span>
+                    </div>
+
+                    <div className="modern-input-group">
+                        <label>Correo Electrónico</label>
+                        <input 
+                            type="email" 
+                            value={email} 
+                            onChange={e => setEmail(e.target.value)} 
+                            placeholder="Escribe tu email"
+                            required 
+                        />
+                    </div>
+
+                    <div className="modern-input-group">
+                        <label>Teléfono</label>
+                        <input 
+                            type="text" 
+                            value={telefono} 
+                            onChange={e => setTelefono(e.target.value)} 
+                            placeholder="Escribe tu teléfono"
+                        />
+                    </div>
+
+                    <div className="modern-input-group">
+                        <label>Dirección</label>
+                        <input 
+                            type="text" 
+                            value={direccion} 
+                            onChange={e => setDireccion(e.target.value)} 
+                            placeholder="Escribe tu dirección"
+                        />
                     </div>
 
                     <button type="submit" className="btn-perfil-submit" disabled={cargando}>

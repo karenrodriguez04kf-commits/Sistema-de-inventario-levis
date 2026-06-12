@@ -88,7 +88,7 @@ exports.recuperar = (req, res) => {
 
 // --- ACTUALIZACIÓN DE PERFIL CON GENERACIÓN DE TOKEN ---
 exports.actualizarPerfil = (req, res) => {
-    const { nombre, password, email } = req.body;
+    const { nombre, password, email, telefono, direccion } = req.body;
 
     const finalizarUpdate = (err, result) => {
         if (err) return res.status(500).json(err);
@@ -116,11 +116,11 @@ exports.actualizarPerfil = (req, res) => {
     if (password && password.trim() !== "") {
         bcrypt.hash(password.toString(), saltRounds, (err, hash) => {
             if (err) return res.status(500).json({ Message: "Error al procesar contraseña" });
-            const sql = "UPDATE usuarios SET nombre = ?, password = ? WHERE email = ?";
-            db.query(sql, [nombre, hash, email], finalizarUpdate);
+            const sql = "UPDATE usuarios SET nombre = ?, password = ?, telefono = ?, direccion = ? WHERE email = ?";
+            db.query(sql, [nombre, hash, telefono, direccion, email], finalizarUpdate);
         });
     } else {
-        const sql = "UPDATE usuarios SET nombre = ? WHERE email = ?";
-        db.query(sql, [nombre, email], finalizarUpdate);
+        const sql = "UPDATE usuarios SET nombre = ?, telefono = ?, direccion = ? WHERE email = ?";
+        db.query(sql, [nombre, telefono, direccion, email], finalizarUpdate);
     }
 };
