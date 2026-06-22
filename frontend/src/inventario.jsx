@@ -9,7 +9,7 @@ function Inventario() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [editando, setEditando] = useState(false);
   const [idActual, setIdActual] = useState(null);
-  const [proveedores, setProveedores] = useState([]);   
+  const [proveedores, setProveedores] = useState([]);
 
   const [form, setForm] = useState({
     nombreProducto: "",
@@ -19,11 +19,12 @@ function Inventario() {
     talla: "",
     genero: "",
     categoria: "pantalon",
+    id_proveedor: "",
   });
 
   const cargarProductos = async () => {
     try {
-      const res = await api.get("/productos/catalogo");
+      const res = await api.get("/productos"); // ✅ cambiado de /catalogo a /productos
       setProductos(res.data);
     } catch (err) {
       console.error("Error cargando inventario:", err);
@@ -32,17 +33,17 @@ function Inventario() {
 
   const cargarProveedores = async () => {
     try {
-        const res = await api.get("/proveedores");  
-        setProveedores(res.data);                    
+      const res = await api.get("/proveedores");
+      setProveedores(res.data);
     } catch (err) {
-        console.error("Error cargando proveedores:", err);
+      console.error("Error cargando proveedores:", err);
     }
-};
+  };
 
-useEffect(() => {
+  useEffect(() => {
     cargarProductos();
     cargarProveedores();
-}, []);
+  }, []);
 
   const eliminarProducto = async (id) => {
     if (window.confirm("¿Estás seguro de borrar este producto de Levi's?")) {
@@ -73,6 +74,7 @@ useEffect(() => {
         talla: "",
         genero: "",
         categoria: "pantalon",
+        id_proveedor: "",
       });
     }
     setMostrarModal(true);
@@ -80,11 +82,11 @@ useEffect(() => {
 
   const guardarProducto = async () => {
     if (!form.nombreProducto.trim())
-      return alert(" El nombre del producto es obligatorio");
-    if (!form.precioProducto) return alert(" El precio es obligatorio");
+      return alert("El nombre del producto es obligatorio");
+    if (!form.precioProducto) return alert("El precio es obligatorio");
     if (!form.stockProducto) return alert("El stock es obligatorio");
     if (!form.talla.trim()) return alert("La talla es obligatoria");
-    if (!form.genero) return alert(" El género es obligatorio");
+    if (!form.genero) return alert("El género es obligatorio");
 
     const data = new FormData();
     data.append("nombreProducto", form.nombreProducto);
@@ -92,7 +94,7 @@ useEffect(() => {
     data.append("stockProducto", form.stockProducto);
     data.append("talla", form.talla);
     data.append("categoria", form.categoria);
-    data.append("genero", form.genero); 
+    data.append("genero", form.genero);
     data.append("id_proveedor", form.id_proveedor || "");
 
     if (form.imagen) {
@@ -124,7 +126,6 @@ useEffect(() => {
             <div className="welcome-box">
               <span className="brand-badge-red">PANEL ADMINISTRADOR</span>
               <h1>Bienvenid@</h1>
-
               <button
                 onClick={() => {
                   cargarProductos();
@@ -160,6 +161,7 @@ useEffect(() => {
                     <th>CATEGORÍA</th>
                     <th>PRECIO</th>
                     <th>STOCK</th>
+                    <th>PROVEEDOR</th>
                     <th>ACCIONES</th>
                   </tr>
                 </thead>
@@ -187,6 +189,12 @@ useEffect(() => {
                           className={`stock-tag ${prod.stockProducto < 10 ? "stock-low" : "stock-ok"}`}
                         >
                           {prod.stockProducto} und
+                        </span>
+                      </td>
+                      <td>
+                        {/* ✅ corregido */}
+                        <span className="tag">
+                          {prod.nombreProveedor || "Sin proveedor"}
                         </span>
                       </td>
                       <td>
@@ -326,7 +334,7 @@ useEffect(() => {
                   style={{ display: "none" }}
                 />
                 <label htmlFor="file-upload" className="btn-upload-styled">
-                  {form.imagen ? ` ${form.imagen.name}` : "SELECCIONAR ARCHIVO"}
+                  {form.imagen ? `${form.imagen.name}` : "SELECCIONAR ARCHIVO"}
                 </label>
               </div>
             </div>
