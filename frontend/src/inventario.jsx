@@ -39,9 +39,10 @@ function Inventario() {
     }
 };
 
-  useEffect(() => {
+useEffect(() => {
     cargarProductos();
-  }, []);
+    cargarProveedores();
+}, []);
 
   const eliminarProducto = async (id) => {
     if (window.confirm("¿Estás seguro de borrar este producto de Levi's?")) {
