@@ -20,11 +20,11 @@ const upload = multer({ storage: storage });
 
 // --- RUTAS ---
 router.get('/catalogo', productController.getCatalogo);
+router.get('/ReporteVentas', validarToken, productController.getReporteVentas); // ✅ Antes de /:id
 router.post('/finalizar-compra', productController.finalizarCompra);
 router.get('/mis-pedidos/:id_usuario', productController.getPedidosUsuario);
 
 router.get('/', validarToken, productController.getAllProducts);
-// Asegúrate que en el frontend el campo se llame exactamente 'imagen'
 router.post('/', validarToken, upload.single('imagen'), productController.createProduct);
 router.put('/:id', validarToken, upload.single('imagen'), productController.updateProduct);
 router.delete('/:id', validarToken, productController.deleteProduct);

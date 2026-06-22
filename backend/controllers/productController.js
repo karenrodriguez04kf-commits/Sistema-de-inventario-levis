@@ -63,7 +63,7 @@ exports.deleteProduct = (req, res) => {
   });
 };
 
-// 6. FINALIZAR COMPRA (CON ACTUALIZACIÓN DE STOCK)
+
 exports.finalizarCompra = (req, res) => {
     const { id_usuario, total, productos } = req.body;
 
@@ -71,7 +71,7 @@ exports.finalizarCompra = (req, res) => {
         return res.status(400).json({ Message: "El carrito está vacío" });
     }
 
-    // PASO 1: Crear el registro de Venta
+ 
     const sqlVenta = "INSERT INTO venta (id_usuario, total) VALUES (?, ?)";
     
     db.query(sqlVenta, [id_usuario, total], (err, result) => {
@@ -79,7 +79,7 @@ exports.finalizarCompra = (req, res) => {
 
         const id_venta = result.insertId;
 
-        // PASO 2: Insertar detalles de venta
+     
         const valoresDetalles = productos.map(p => [
             id_venta, 
             p.id_producto, 
@@ -92,7 +92,7 @@ exports.finalizarCompra = (req, res) => {
         db.query(sqlDetalle, [valoresDetalles], (err) => {
             if (err) return res.status(500).json({ error: "Error al guardar detalles", details: err.message });
 
-            // PASO 3: Restar stock
+  
             const sqlUpdateStock = "UPDATE productos SET stockProducto = stockProducto - ? WHERE id_producto = ?";
             
             productos.forEach(p => {
@@ -105,9 +105,7 @@ exports.finalizarCompra = (req, res) => {
         });
     });
     };
-
-// 7. OBTENER PEDIDOS POR USUARIO
-exports.getPedidosUsuario = (req, res) => {
+    exports.getPedidosUsuario = (req, res) => {
     const { id_usuario } = req.params;
     
     const sql = `
@@ -119,6 +117,32 @@ exports.getPedidosUsuario = (req, res) => {
         ORDER BY v.fecha DESC`;
 
     db.query(sql, [id_usuario], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+};
+
+
+
+exports.getReporteVentas = (req, res) => {
+    const sql = `
+        SELECT 
+            v.id_venta,
+            v.total AS total_venta,
+            v.fecha,
+            u.nombre AS nombre_usuario,
+            u.email AS email_usuario,
+            dv.cantidad,
+            dv.precioUnitario,
+            pr.nombreProducto,
+            pr.imagen
+        FROM venta v
+        JOIN detalleventa dv ON v.id_venta = dv.id_venta
+        JOIN productos pr ON dv.id_producto = pr.id_producto
+        JOIN usuarios u ON v.id_usuario = u.id_usuario
+        ORDER BY v.fecha DESC`;
+
+    db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });

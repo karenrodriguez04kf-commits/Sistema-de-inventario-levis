@@ -26,7 +26,10 @@ const Clientes = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!nombre || !email) return alert("Mano, llena los campos obligatorios");
+        if(!nombre.trim) return alert("El nombre es obligatorio");
+        if(!email.trim) return alert("El email es obligatorio");
+        if(!direccion.trim) return alert("La dirección es obligatoria");
+        if(!telefono.trim) return alert("El teléfono es obligatorio");
 
         const datosCliente = { 
             nombre, 
@@ -84,10 +87,10 @@ const Clientes = () => {
             <h2 className="seccion-titulo">Administración de Base de Datos</h2>
 
             <form onSubmit={handleSubmit} className="clientes-form">
-                <input type="text" placeholder="NOMBRE" value={nombre} onChange={e => setNombre(e.target.value)} />
-                <input type="email" placeholder="EMAIL" value={email} onChange={e => setEmail(e.target.value)} />
-                <input type="text" placeholder="TELÉFONO" value={telefono} onChange={e => setTelefono(e.target.value)} />
-                <input type="text" placeholder="DIRECCIÓN" value={direccion} onChange={e => setDireccion(e.target.value)} />
+                <input type="text" placeholder="NOMBRE" value={nombre} onChange={e => setNombre(e.target.value)}required />
+                <input type="email" placeholder="EMAIL" value={email} onChange={e => setEmail(e.target.value)} required/>
+                <input type="text" placeholder="TELÉFONO" value={telefono} onChange={e => setTelefono(e.target.value)}required />
+                <input type="text" placeholder="DIRECCIÓN" value={direccion} onChange={e => setDireccion(e.target.value)}required />
                 
                 <button type="submit" className={`btn-submit ${editandoId ? 'btn-editar' : 'btn-agregar'}`}>
                     {editandoId ? 'GUARDAR CAMBIOS' : '+ AGREGAR CLIENTE'}
