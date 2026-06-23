@@ -1,6 +1,7 @@
 const mysql = require('mysql2');
 
 const db = mysql.createPool({ // Usamos Pool para mejor manejo de múltiples conexiones
+  
   host: 'localhost',
   user: 'root',
   password: '',

@@ -3,8 +3,12 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const path = require('path');
+<<<<<<< Updated upstream
 
 // 1. IMPORTACIÓN DE RUTAS
+=======
+const usuariosRoutes = require('./routes/usuariosRoutes');
+>>>>>>> Stashed changes
 const authRoutes = require('./routes/authRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const productRoutes = require('./routes/productRoutes');
@@ -39,9 +43,22 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/api/auth', authRoutes);
 app.use('/api/clientes', clientRoutes);
 app.use('/api/productos', productRoutes);
+<<<<<<< Updated upstream
 app.use('/api/proveedores', proveedorRoutes);
 
 // 6. MANEJO DE ERRORES GLOBAL
+=======
+app.use('/api/usuarios', usuariosRoutes);
+app.get('/', (req, res) => {
+    res.send(`
+        <div style="text-align:center; font-family: sans-serif; margin-top: 50px;">
+            <h1 style="color: #c41230;">LEVI'S BACKEND ACTIVE 🚀</h1>
+            <p>Servidor en puerto 3002.</p>
+        </div>
+    `);
+});
+
+>>>>>>> Stashed changes
 app.use((err, req, res, next) => {
     console.error("❌ Error interno:", err.stack);
     res.status(500).json({ Status: "Error", Message: "Ocurrió un error en el servidor" });
