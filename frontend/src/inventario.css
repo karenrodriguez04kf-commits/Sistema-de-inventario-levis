@@ -123,13 +123,13 @@
 .stock-ok { background: #e6f4ea; color: #1e7e34; }
 .stock-low { background: #fce8e8; color: #c41230; }
 
-/* Iconos de acción */
+
 .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; margin: 0 5px; opacity: 0.6; }
 .btn-icon:hover { opacity: 1; }
 .btn-icon.edit { color: #007bff; }
 .btn-icon.delete { color: #dc3545; }
 
-/* Estilos del Modal (Añadir/Editar) */
+
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -146,6 +146,8 @@
     background: white;
     width: 100%;
     max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
     border-radius: 20px;
     padding: 35px;
     box-shadow: 0 20px 50px rgba(0,0,0,0.2);
@@ -154,7 +156,6 @@
 
 .modal-card h3 { font-weight: 800; margin-bottom: 25px; text-align: center;}
 
-/* Inputs Modernos y Visibles */
 .form-group { margin-bottom: 15px; text-align: left;}
 .form-group label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px; font-weight: 600;}
 .form-group input, .form-group select {
@@ -173,7 +174,6 @@
     box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
 }
 
-/* Botón de Subir Imagen Diseñado */
 .btn-upload-styled {
     background: #f0f2f5;
     color: #555;

@@ -11,46 +11,50 @@ exports.getCatalogo = (req, res) => {
 
 // 2. OBTENER TODOS LOS PRODUCTOS (ADMIN)
 exports.getAllProducts = (req, res) => {
-  const sql = 'SELECT * FROM productos';
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(results);
-  });
+    const sql = `
+        SELECT p.*, pr.nombre AS nombreProveedor 
+        FROM productos p
+        LEFT JOIN proveedores pr ON p.id_proveedor = pr.id_proveedor
+    `;
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
 };
 
 // 3. CREAR PRODUCTO
 exports.createProduct = (req, res) => {
-  const { nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero } = req.body;
-  const imagen = req.file ? `/images/${req.file.filename}` : req.body.imagen;
+    const { nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, id_proveedor } = req.body;
+    const imagen = req.file ? `/images/${req.file.filename}` : req.body.imagen;
 
-  const sql = 'INSERT INTO productos (nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-  
-  db.query(sql, [nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, imagen], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ Status: "Exito", Message: "Producto guardado con éxito" });
-  });
+    const sql = 'INSERT INTO productos (nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, imagen, id_proveedor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    
+    db.query(sql, [nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, imagen, id_proveedor || null], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ Status: "Exito", Message: "Producto guardado con éxito" });
+    });
 };
 
 // 4. ACTUALIZAR PRODUCTO
 exports.updateProduct = (req, res) => {
-  const { id } = req.params;
-  const { nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero } = req.body;
-  
-  let sql = 'UPDATE productos SET nombreProducto=?, descripcionProducto=?, precioProducto=?, stockProducto=?, categoria=?, talla=?, genero=?';
-  let params = [nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero];
+    const { id } = req.params;
+    const { nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, id_proveedor } = req.body;
+    
+    let sql = 'UPDATE productos SET nombreProducto=?, descripcionProducto=?, precioProducto=?, stockProducto=?, categoria=?, talla=?, genero=?, id_proveedor=?';
+    let params = [nombreProducto, descripcionProducto, precioProducto, stockProducto, categoria, talla, genero, id_proveedor || null];
 
-  if (req.file) {
-    sql += ', imagen=?';
-    params.push(`/images/${req.file.filename}`);
-  }
+    if (req.file) {
+        sql += ', imagen=?';
+        params.push(`/images/${req.file.filename}`);
+    }
 
-  sql += ' WHERE id_producto=?';
-  params.push(id);
+    sql += ' WHERE id_producto=?';
+    params.push(id);
 
-  db.query(sql, params, (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ Status: "Exito", Message: "Producto actualizado correctamente" });
-  });
+    db.query(sql, params, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ Status: "Exito", Message: "Producto actualizado correctamente" });
+    });
 };
 
 // 5. ELIMINAR PRODUCTO
