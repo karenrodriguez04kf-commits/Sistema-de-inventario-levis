@@ -3,27 +3,20 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const path = require('path');
-<<<<<<< Updated upstream
 
-// 1. IMPORTACIÓN DE RUTAS
-=======
-const usuariosRoutes = require('./routes/usuariosRoutes');
->>>>>>> Stashed changes
 const authRoutes = require('./routes/authRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const productRoutes = require('./routes/productRoutes');
 const proveedorRoutes = require('./routes/proveedorRoutes');
+const usuariosRoutes = require('./routes/usuariosRoutes');
 
 const app = express();
 
-// 2. MIDDLEWARES GLOBALES
 app.use(cors());
 app.use(express.json());
 
-// CONFIGURACIÓN DE CARPETA PÚBLICA PARA IMÁGENES
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-// 3. CONFIGURACIÓN DE SWAGGER
 const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
@@ -39,16 +32,12 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// 4. REGISTRO DE RUTAS
 app.use('/api/auth', authRoutes);
 app.use('/api/clientes', clientRoutes);
 app.use('/api/productos', productRoutes);
-<<<<<<< Updated upstream
 app.use('/api/proveedores', proveedorRoutes);
-
-// 6. MANEJO DE ERRORES GLOBAL
-=======
 app.use('/api/usuarios', usuariosRoutes);
+
 app.get('/', (req, res) => {
     res.send(`
         <div style="text-align:center; font-family: sans-serif; margin-top: 50px;">
@@ -58,13 +47,11 @@ app.get('/', (req, res) => {
     `);
 });
 
->>>>>>> Stashed changes
 app.use((err, req, res, next) => {
     console.error("❌ Error interno:", err.stack);
     res.status(500).json({ Status: "Error", Message: "Ocurrió un error en el servidor" });
 });
 
-// 7. ARRANQUE DEL SERVIDOR
 const PORT = 3002;
 app.listen(PORT, () => {
     console.log("-----------------------------------------");
