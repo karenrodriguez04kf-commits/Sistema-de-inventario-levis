@@ -1,93 +1,213 @@
-
-.clientes-page {
-    font-family: Arial, sans-serif;
-    padding: 20px;
+/* ==========================================
+   ESTILOS PARA GESTIÓN DE CLIENTES (LEVI'S)
+   ========================================== */
+:root {
+  --bg-main: #111111;
+  --bg-secondary: #1C1C1C;
+  --bg-card: #2B2B2B;
+  --text-main: #FAFAFA;
+  --text-muted: #A0A0A0;
+  --primary-red: #C41230;
+  --primary-red-hover: #E53B52;
+  --border-color: #333333;
+  --shadow-neon: 0 10px 35px rgba(196, 18, 48, 0.15);
+  --shadow-hover-neon: 0 0 25px rgba(196, 18, 48, 0.3);
 }
 
+.clientes-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  min-height: 100vh;
+  padding: 30px 40px;
+}
 
+/* Header interno */
 .clientes-header {
-    background-color: black;
-    color: white;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-secondary);
+  padding: 15px 25px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 25px;
+  box-shadow: var(--shadow-neon);
 }
 
 .logo-levis {
-    background-color: #c41230;
-    padding: 5px 15px;
-    font-weight: bold;
-    letter-spacing: 1px;
+  color: var(--primary-red);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 2px;
+}
+
+.clientes-header span {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .seccion-titulo {
-    border-left: 4px solid #c41230;
-    padding-left: 10px;
-    margin-top: 30px;
-    text-transform: uppercase;
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
+/* Formulario */
 .clientes-form {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
+  display: flex;
+  gap: 12px;
+  background: var(--bg-secondary);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .clientes-form input {
-    padding: 12px;
-    flex: 1;
-    border: 1px solid #ccc;
-    outline: none;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 15px;
+  color: var(--text-main);
+  font-size: 14px;
+  flex: 1;
+  min-width: 180px;
+  outline: none;
+  transition: all 0.3s;
 }
 
 .clientes-form input:focus {
-    border-color: #c41230;
+  border-color: var(--primary-red);
+  box-shadow: 0 0 10px rgba(196, 18, 48, 0.2);
 }
 
+/* Botones del formulario */
 .btn-submit {
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.3s;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s;
+  letter-spacing: 0.5px;
 }
 
-.btn-agregar { background-color: #28a745; }
-.btn-editar { background-color: #ffc107; color: black; }
+.btn-agregar {
+  background: var(--primary-red);
+  color: white;
+  box-shadow: 0 4px 15px rgba(196, 18, 48, 0.4);
+}
+
+.btn-agregar:hover {
+  background: var(--primary-red-hover);
+  box-shadow: var(--shadow-hover-neon);
+}
+
+.btn-editar {
+  background: #f39c12;
+  color: white;
+}
+
+.btn-editar:hover {
+  background: #f1c40f;
+}
+
+.btn-cancelar {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 12px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-cancelar:hover {
+  border-color: var(--text-main);
+  color: var(--text-main);
+}
+
+/* Tabla de datos */
+.tabla-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-neon);
+}
 
 .tabla-clientes {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
 }
 
-.tabla-clientes thead tr {
-    background-color: black;
-    color: white;
+.tabla-clientes th {
+  background: var(--bg-main);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 15px 20px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.tabla-clientes th, .tabla-clientes td {
-    padding: 12px;
-    text-align: left;
+.tabla-clientes td {
+  padding: 15px 20px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
 }
 
-.tabla-clientes tbody tr {
-    border-bottom: 1px solid #eee;
+.tabla-clientes tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .tabla-clientes tbody tr:hover {
-    background-color: #f9f9f9;
+  background: rgba(255, 255, 255, 0.02);
 }
 
+.bold {
+  font-weight: 700;
+}
+
+/* Botones dentro de la tabla */
 .btn-tabla {
-    border: none;
-    padding: 6px 12px;
-    cursor: pointer;
-    margin-right: 5px;
-    font-size: 13px;
-    font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  margin-right: 8px;
+  transition: all 0.2s;
 }
 
-.btn-edit { background-color: #ffc107; color: black; }
-.btn-delete { background-color: #dc3545; color: white; }
+.btn-edit {
+  background: rgba(52, 152, 219, 0.15);
+  color: #3498db;
+  border: 1px solid rgba(52, 152, 219, 0.3);
+}
+
+.btn-edit:hover {
+  background: #3498db;
+  color: white;
+}
+
+.btn-delete {
+  background: rgba(196, 18, 48, 0.15);
+  color: var(--primary-red-hover);
+  border: 1px solid rgba(196, 18, 48, 0.3);
+}
+
+.btn-delete:hover {
+  background: var(--primary-red);
+  color: white;
+}

@@ -1,85 +1,106 @@
-/* Contenedor principal de Recuperación */
 .recuperar-container {
-    text-align: center;
-    margin-top: 100px;
-    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    background-color: #0a0a0a;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
 }
 
-/* Logo Estilo Levi's */
+.recuperar-box {
+    text-align: center;
+    padding: 50px 40px;
+    background-color: rgba(255,255,255,0.03);
+    border: 1px solid rgba(196, 18, 48, 0.3);
+    width: 340px;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 .recuperar-logo {
     background-color: #c41230;
     color: white;
-    padding: 15px 25px;
+    padding: 12px 24px;
     display: inline-block;
     font-weight: bold;
-    font-size: 24px;
-    letter-spacing: 2px;
-}
-
-.recuperar-titulo {
-    margin-top: 20px;
-    font-size: 18px;
-    color: #333;
-    text-transform: uppercase;
-}
-
-.recuperar-instrucciones {
-    font-size: 14px;
-    color: #666;
+    font-size: 26px;
+    letter-spacing: 4px;
+    box-shadow: 0 4px 20px rgba(196, 18, 48, 0.4);
     margin-bottom: 20px;
 }
 
-/* Formulario */
+.recuperar-titulo {
+    color: white;
+    font-size: 14px;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+}
+
+.recuperar-instrucciones {
+    color: #555;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+
 .recuperar-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 320px;
+    gap: 14px;
 }
 
 .recuperar-form input {
     padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    color: white;
     outline: none;
     transition: border-color 0.3s;
+    font-size: 14px;
+}
+
+.recuperar-form input::placeholder {
+    color: #666;
+    letter-spacing: 1px;
 }
 
 .recuperar-form input:focus {
     border-color: #c41230;
 }
 
-/* Botón de Acción */
 .btn-actualizar {
-    background-color: black;
+    background-color: #c41230;
     color: white;
-    padding: 12px;
+    padding: 13px;
     border: none;
     cursor: pointer;
     font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     transition: background-color 0.3s;
+    margin-top: 6px;
 }
 
 .btn-actualizar:hover {
-    background-color: #333;
+    background-color: #a00f28;
 }
 
-/* Enlace de retorno */
-.link-volver {
-    margin-top: 15px;
-    color: black;
-    text-decoration: none;
-    font-size: 14px;
+.recuperar-footer {
+    margin-top: 6px;
 }
 
-.link-volver b {
+.link-login {
     color: #c41230;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 1px;
 }
 
-.link-volver:hover text-decoration {
+.link-login:hover {
     text-decoration: underline;
 }

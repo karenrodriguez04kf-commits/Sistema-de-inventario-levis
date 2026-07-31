@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from "jwt-decode"; 
-import './Bienvenida.css';
+import { jwtDecode } from "jwt-decode";
+import './bienvenida.css';
 
 const Bienvenida = () => {
     const [nombreUsuario, setNombreUsuario] = useState('');
+    const [visible, setVisible] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -12,44 +13,40 @@ const Bienvenida = () => {
         if (token) {
             try {
                 const decoded = jwtDecode(token);
-                // Buscamos el nombre en el token, si no, usamos 'USUARIO'
                 const displayUser = decoded.nombre || decoded.email || 'USUARIO';
                 setNombreUsuario(displayUser);
             } catch (error) {
-                console.error("Error al leer token:", error);
                 setNombreUsuario('USUARIO');
             }
         }
+        setTimeout(() => setVisible(true), 100);
     }, []);
 
     return (
         <div className="bienvenida-container">
-            <h1 className="bienvenida-titulo">
-                BIENVENID@ A LEVIS {nombreUsuario.toUpperCase()}
-            </h1>
+            {/* Luces neon de fondo */}
+            <div className="neon-orb orb-1" />
+            <div className="neon-orb orb-2" />
+            <div className="neon-orb orb-3" />
 
-            <div className="bienvenida-botones">
-                {/* BOTÓN PARA EL CATÁLOGO */}
-                <button 
-                    onClick={() => navigate('/home/catalogo')}
-                    className="btn-gestion"
-                >
-                    🛒 VER CATÁLOGO
-                </button>
-                {/* BOTÓN PARA SALIR */}
-                <button 
-                    onClick={() => {
-                        localStorage.removeItem('token');
-                        navigate('/');
-                    }}
-                    className="btn-logout"
-                >
-                    🚪 CERRAR SESIÓN
-                </button>
+            <div className={`bienvenida-card ${visible ? 'visible' : ''}`}>
+                <div className="bienvenida-badge">LEVI'S®</div>
+
+                <p className="bienvenida-saludo">Bienvenid@,</p>
+                <h1 className="bienvenida-nombre">{nombreUsuario.toUpperCase()}</h1>
+                <div className="bienvenida-divider" />
+                <p className="bienvenida-subtexto">
+                    Explora nuestra colección y encuentra tu estilo
+                </p>
+
+                <div className="bienvenida-botones">
+                    <button onClick={() => navigate('/home/catalogo')} className="btn-catalogo">
+                        VER CATÁLOGO →
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
-// ESTO ES LO MÁS IMPORTANTE PARA QUE APP.JSX NO DE ERROR:
 export default Bienvenida;

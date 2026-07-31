@@ -10,7 +10,7 @@ function Catalogo() {
   const [generosSeleccionados, setGenerosSeleccionados] = useState([]);
   const [tallasSeleccionadas, setTallasSeleccionadas] = useState([]);
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
-  const [carrito, setCarrito]   = useState([]);
+  const [carrito, setCarrito]  = useState([]);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   const navigate = useNavigate();
 
@@ -60,7 +60,7 @@ function Catalogo() {
   const finalizarCompra = async () => {
     if (carrito.length === 0) return alert("El carrito está vacío");
 
-    const idUsuarioLogueado = localStorage.getItem("id_usuario");
+    const idUsuarioLogueado = localStorage.getItem("id_usuario") || localStorage.getItem("usuario_id");
 
     if (!idUsuarioLogueado) {
       alert("Debes iniciar sesión para realizar la compra");
@@ -70,14 +70,19 @@ function Catalogo() {
 
     try {
       const datosParaEnviar = { 
-        id_usuario: idUsuarioLogueado,
+        id_usuario: !isNaN(idUsuarioLogueado) ? Number(idUsuarioLogueado) : idUsuarioLogueado,
         total: calcularTotal(),
-        productos: carrito 
+        productos: carrito.map(item => ({
+          id_producto: item.id_producto,
+          cantidad: item.cantidad,
+          precioProducto: item.precioProducto,
+          talla: item.talla || "Única"
+        }))
       };
 
       const response = await api.post("/productos/finalizar-compra", datosParaEnviar);
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         alert("¡Compra finalizada con éxito! ✨");
         setCarrito([]);
         setMostrarCarrito(false);
@@ -86,14 +91,13 @@ function Catalogo() {
       }
     } catch (error) {
       console.error("Error en el pago:", error);
-      alert(error.response?.data?.Message || "Error al procesar la compra");
+      alert(error.response?.data?.Message || error.response?.data?.error || "Error al procesar la compra");
     }
   };
 
   const normalizarTexto = (texto) =>
     texto?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
 
-  // ✅ Filtros aplicados en orden
   let productosFiltrados = productos.filter((p) =>
     normalizarTexto(p.nombreProducto).includes(normalizarTexto(busqueda))
   );
@@ -110,7 +114,6 @@ function Catalogo() {
     );
   }
 
-  // ✅ Filtro de categoría
   if (categoriasSeleccionadas.length > 0) {
     productosFiltrados = productosFiltrados.filter((p) =>
       categoriasSeleccionadas.some((c) => normalizarTexto(c) === normalizarTexto(p.categoria))
@@ -144,7 +147,7 @@ function Catalogo() {
 
         <div className="header-actions">
           <button className="btn-orders" onClick={() => navigate("/home/mis-pedidos")}>
-            <FaReceipt size={20} /> <span>Mis Pedidos</span>
+            <FaReceipt size={18} /> <span>Mis Pedidos</span>
           </button>
           <div className="cart-trigger" onClick={() => setMostrarCarrito(!mostrarCarrito)}>
             <FaShoppingCart size={22} />
@@ -158,48 +161,66 @@ function Catalogo() {
       </div>
 
       <div className="catalogo-layout">
+        {/* SIDEBAR DE FILTROS REDISEÑADO Y ESTÉTICO */}
         <aside className="catalogo-sidebar">
-
-          {/* ✅ Filtro de categoría */}
-          <h3 className="sidebar-title">Categoría</h3>
-          <div className="filter-group">
-            {["pantalon", "camiseta", "chaqueta", "accesorio"].map((cat) => (
-              <label key={cat}>
-                <input
-                  type="checkbox"
-                  checked={categoriasSeleccionadas.includes(cat)}
-                  onChange={() => toggleFiltro(cat, categoriasSeleccionadas, setCategoriasSeleccionadas)}
-                />
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </label>
-            ))}
+          <div className="sidebar-header-filter">
+            <h3>Filtros de Búsqueda</h3>
           </div>
 
-          <h3 className="sidebar-title">Género</h3>
-          <div className="filter-group">
-            {["Hombre", "Mujer", "Niños"].map((g) => (
-              <label key={g}>
-                <input
-                  type="checkbox"
-                  checked={generosSeleccionados.includes(g)}
-                  onChange={() => toggleFiltro(g, generosSeleccionados, setGenerosSeleccionados)}
-                /> {g}
-              </label>
-            ))}
+          <div className="filter-section">
+            <h4 className="sidebar-title">Categoría</h4>
+            <div className="filter-options-list">
+              {["pantalon", "camiseta", "chaqueta", "accesorio"].map((cat) => (
+                <label 
+                  key={cat} 
+                  className={`custom-checkbox-label ${categoriasSeleccionadas.includes(cat) ? 'active' : ''}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={categoriasSeleccionadas.includes(cat)}
+                    onChange={() => toggleFiltro(cat, categoriasSeleccionadas, setCategoriasSeleccionadas)}
+                  />
+                  <span className="checkbox-custom"></span>
+                  <span className="checkbox-text">{cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
-          <h3 className="sidebar-title">Tallas</h3>
-          <div className="tallas-flex">
-            {tallasDisponibles.map((talla) => (
-              <label key={talla} className="talla-chip">
-                <input
-                  type="checkbox"
-                  checked={tallasSeleccionadas.includes(talla)}
-                  onChange={() => toggleFiltro(talla, tallasSeleccionadas, setTallasSeleccionadas)}
-                />
-                <span>{talla}</span>
-              </label>
-            ))}
+          <div className="filter-section">
+            <h4 className="sidebar-title">Género</h4>
+            <div className="filter-options-list">
+              {["Hombre", "Mujer", "Niños"].map((g) => (
+                <label 
+                  key={g} 
+                  className={`custom-checkbox-label ${generosSeleccionados.includes(g) ? 'active' : ''}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={generosSeleccionados.includes(g)}
+                    onChange={() => toggleFiltro(g, generosSeleccionados, setGenerosSeleccionados)}
+                  />
+                  <span className="checkbox-custom"></span>
+                  <span className="checkbox-text">{g}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-section">
+            <h4 className="sidebar-title">Tallas</h4>
+            <div className="tallas-flex">
+              {tallasDisponibles.map((talla) => (
+                <button
+                  type="button"
+                  key={talla}
+                  className={`talla-chip-btn ${tallasSeleccionadas.includes(talla) ? "active" : ""}`}
+                  onClick={() => toggleFiltro(talla, tallasSeleccionadas, setTallasSeleccionadas)}
+                >
+                  {talla}
+                </button>
+              ))}
+            </div>
           </div>
         </aside>
 
@@ -217,7 +238,7 @@ function Catalogo() {
                   </div>
                   <div className="producto-info">
                     <h4>{p.nombreProducto}</h4>
-                    <p className="p-talla">Talla: {p.talla}</p>
+                    <p className="p-talla">Talla: {p.talla || "Única"}</p>
                     <p className="p-precio">${(p.precioProducto || 0).toLocaleString()} COP</p>
                     <button className="btn-add-cart" onClick={() => agregarAlCarrito(p)}>
                       Añadir al carrito
@@ -227,7 +248,9 @@ function Catalogo() {
               ))}
             </div>
           ) : (
-            <p className="no-results">No se encontraron productos.</p>
+            <div className="no-results-box">
+              <p className="no-results">No se encontraron productos con estos filtros.</p>
+            </div>
           )}
         </main>
       </div>
@@ -273,4 +296,4 @@ function Catalogo() {
   );
 }
 
-export default Catalogo;  
+export default Catalogo;

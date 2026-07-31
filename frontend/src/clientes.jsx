@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import api from './api'; // Usamos tu instancia configurada
-import './Clientes.css'; 
+import './clientes.css'; 
 
 const Clientes = () => {
     const [clientes, setClientes] = useState([]);
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
     const [telefono, setTelefono] = useState('');
-    const [direccion, setDireccion] = useState(''); // Agregamos dirección
+    const [direccion, setDireccion] = useState('');
     const [editandoId, setEditandoId] = useState(null);
 
     useEffect(() => {
@@ -16,7 +16,6 @@ const Clientes = () => {
 
     const cargarClientes = async () => {
         try {
-            // La instancia api ya sabe que la base es http://localhost:3002/api
             const res = await api.get('/clientes');
             setClientes(res.data);
         } catch (err) {
@@ -26,10 +25,10 @@ const Clientes = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if(!nombre.trim) return alert("El nombre es obligatorio");
-        if(!email.trim) return alert("El email es obligatorio");
-        if(!direccion.trim) return alert("La dirección es obligatoria");
-        if(!telefono.trim) return alert("El teléfono es obligatorio");
+        if (!nombre.trim()) return alert("El nombre es obligatorio");
+        if (!email.trim()) return alert("El email es obligatorio");
+        if (!direccion.trim()) return alert("La dirección es obligatoria");
+        if (!telefono.trim()) return alert("El teléfono es obligatorio");
 
         const datosCliente = { 
             nombre, 
@@ -48,8 +47,11 @@ const Clientes = () => {
                 await api.post('/clientes', datosCliente);
                 alert("Cliente registrado ✅");
             }
-            // Limpiar formulario
-            setNombre(''); setEmail(''); setTelefono(''); setDireccion('');
+            // Limpiar formulario completo
+            setNombre(''); 
+            setEmail(''); 
+            setTelefono(''); 
+            setDireccion('');
             cargarClientes();
         } catch (err) {
             console.error("Error en la operación:", err);
@@ -58,7 +60,6 @@ const Clientes = () => {
     };
 
     const iniciarEdicion = (cliente) => {
-        // Importante: usar id_usuario que viene de la DB
         setEditandoId(cliente.id_usuario);
         setNombre(cliente.nombre);
         setEmail(cliente.email);
@@ -87,15 +88,23 @@ const Clientes = () => {
             <h2 className="seccion-titulo">Administración de Base de Datos</h2>
 
             <form onSubmit={handleSubmit} className="clientes-form">
-                <input type="text" placeholder="NOMBRE" value={nombre} onChange={e => setNombre(e.target.value)}required />
-                <input type="email" placeholder="EMAIL" value={email} onChange={e => setEmail(e.target.value)} required/>
-                <input type="text" placeholder="TELÉFONO" value={telefono} onChange={e => setTelefono(e.target.value)}required />
-                <input type="text" placeholder="DIRECCIÓN" value={direccion} onChange={e => setDireccion(e.target.value)}required />
+                <input type="text" placeholder="NOMBRE" value={nombre} onChange={e => setNombre(e.target.value)} required />
+                <input type="email" placeholder="EMAIL" value={email} onChange={e => setEmail(e.target.value)} required />
+                <input type="text" placeholder="TELÉFONO" value={telefono} onChange={e => setTelefono(e.target.value)} required />
+                <input type="text" placeholder="DIRECCIÓN" value={direccion} onChange={e => setDireccion(e.target.value)} required />
                 
                 <button type="submit" className={`btn-submit ${editandoId ? 'btn-editar' : 'btn-agregar'}`}>
                     {editandoId ? 'GUARDAR CAMBIOS' : '+ AGREGAR CLIENTE'}
                 </button>
-                {editandoId && <button type="button" onClick={() => {setEditandoId(null); setNombre(''); setEmail('');}} className="btn-cancelar">Cancelar</button>}
+                {editandoId && (
+                    <button 
+                        type="button" 
+                        onClick={() => { setEditandoId(null); setNombre(''); setEmail(''); setTelefono(''); setDireccion(''); }} 
+                        className="btn-cancelar"
+                    >
+                        Cancelar
+                    </button>
+                )}
             </form>
 
             <div className="tabla-container">
@@ -108,7 +117,6 @@ const Clientes = () => {
                             <th>TELÉFONO</th>
                             <th>DIRECCIÓN</th>
                             <th>ACCIONES</th>
-                        
                         </tr>
                     </thead>
                     <tbody>
@@ -120,7 +128,6 @@ const Clientes = () => {
                                 <td>{cliente.telefono || 'N/A'}</td>
                                 <td>{cliente.direccion || 'N/A'}</td>
                                 <td>
-
                                     <button onClick={() => iniciarEdicion(cliente)} className="btn-tabla btn-edit">Editar</button>
                                     <button onClick={() => eliminarCliente(cliente.id_usuario)} className="btn-tabla btn-delete">Eliminar</button>
                                 </td>

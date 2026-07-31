@@ -5,25 +5,26 @@ const validarToken = require('../middlewares/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
-// Configuración ultra-simple para evitar fallos de escritura
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/images');
   },
   filename: (req, file, cb) => {
-    // Usamos el formato que tenías: fecha-nombre
     cb(null, Date.now() + path.extname(file.originalname));
   }
 });
 
 const upload = multer({ storage: storage });
 
-// --- RUTAS ---
+// --- RUTAS ESPECÍFICAS PRIMERO ---
 router.get('/catalogo', productController.getCatalogo);
-router.get('/ReporteVentas', validarToken, productController.getReporteVentas); // ✅ Antes de /:id
-router.post('/finalizar-compra', productController.finalizarCompra);
-router.get('/mis-pedidos/:id_usuario', productController.getPedidosUsuario);
+router.get('/ReporteVentas', validarToken, productController.getReporteVentas);
+router.get('/categorias', productController.getCategorias);
+router.post('/finalizarCompra', validarToken, productController.finalizarCompra);
+router.post('/finalizar-compra', validarToken, productController.finalizarCompra);
+router.get('/mis-pedidos/:id_usuario', validarToken, productController.getPedidosUsuario);
 
+// --- RUTAS GENERALES ---
 router.get('/', validarToken, productController.getAllProducts);
 router.post('/', validarToken, upload.single('imagen'), productController.createProduct);
 router.put('/:id', validarToken, upload.single('imagen'), productController.updateProduct);
