@@ -1,0 +1,80 @@
+.landing-container {
+    min-height: 100vh;
+    background-color: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+}
+
+.landing-content {
+    text-align: center;
+    padding: 70px 60px;
+    max-width: 600px;
+    animation: fadeIn 1.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.landing-logo {
+    background-color: #c41230;
+    color: white;
+    padding: 18px 40px;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 48px;
+    letter-spacing: 8px;
+    box-shadow: 0 8px 30px rgba(196, 18, 48, 0.5);
+    margin-bottom: 30px;
+}
+
+.landing-divider {
+    width: 60px;
+    height: 2px;
+    background-color: #c41230;
+    margin: 24px auto;
+}
+
+.landing-titulo {
+    color: #ffffff;
+    font-size: 13px;
+    letter-spacing: 6px;
+    font-weight: normal;
+    margin: 0;
+}
+
+.landing-descripcion {
+    color: #aaaaaa;
+    font-size: 15px;
+    line-height: 1.8;
+    margin: 0;
+}
+
+.landing-slogan {
+    color: #555;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+}
+
+.btn-landing-login {
+    background-color: #c41230;
+    color: white;
+    padding: 16px 48px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-landing-login:hover {
+    background-color: #a00f28;
+    box-shadow: 0 4px 20px rgba(196, 18, 48, 0.4);
+}

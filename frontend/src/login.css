@@ -1,65 +1,83 @@
-/* Contenedor principal del Login */
 .login-container {
-    text-align: center;
-    margin-top: 100px;
-    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    background-color: #0a0a0a;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
 }
 
-/* Logo Estilo Levi's */
+.login-box {
+    text-align: center;
+    padding: 50px 40px;
+    background-color: rgba(255,255,255,0.03);
+    border: 1px solid rgba(196, 18, 48, 0.3);
+    width: 340px;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 .login-logo {
     background-color: #c41230;
     color: white;
-    padding: 15px 25px;
+    padding: 12px 24px;
     display: inline-block;
     font-weight: bold;
-    font-size: 24px;
-    letter-spacing: 2px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 26px;
+    letter-spacing: 4px;
+    box-shadow: 0 4px 20px rgba(196, 18, 48, 0.4);
+    margin-bottom: 30px;
 }
 
-/* Formulario */
 .login-form {
-    margin-top: 30px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 320px;
+    gap: 14px;
 }
 
 .login-form input {
     padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    color: white;
     outline: none;
     transition: border-color 0.3s;
+    font-size: 14px;
+}
+
+.login-form input::placeholder {
+    color: #666;
+    letter-spacing: 1px;
 }
 
 .login-form input:focus {
     border-color: #c41230;
 }
 
-/* Botón de Ingreso */
 .btn-login {
-    background-color: black;
+    background-color: #c41230;
     color: white;
-    padding: 12px;
+    padding: 13px;
     border: none;
     cursor: pointer;
     font-weight: bold;
+    font-size: 13px;
+    letter-spacing: 2px;
     text-transform: uppercase;
     transition: background-color 0.3s;
+    margin-top: 6px;
 }
 
 .btn-login:hover {
-    background-color: #333;
+    background-color: #a00f28;
 }
 
-/* Enlaces inferiores */
 .login-footer {
-    margin-top: 15px;
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -69,7 +87,8 @@
     color: #c41230;
     text-decoration: none;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
 }
 
 .link-registro:hover {
@@ -77,12 +96,12 @@
 }
 
 .link-recuperar {
-    color: #666;
+    color: #555;
     text-decoration: none;
-    font-size: 13px;
+    font-size: 12px;
     transition: color 0.3s;
 }
 
 .link-recuperar:hover {
-    color: #000;
+    color: #aaa;
 }

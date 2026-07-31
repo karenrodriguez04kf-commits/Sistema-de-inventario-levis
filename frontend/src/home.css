@@ -71,22 +71,22 @@
     background-color: #ffffff;
     color: #000000;
 }
-
-/* 5. ÁREA DE CONTENIDO DINÁMICO (OJO AQUÍ) */
+/* 5. ÁREA DE CONTENIDO DINÁMICO OSCURO */
 .main-content {
     flex: 1;
-    background-color: #f4f4f4; /* Fondo gris claro para que resalten las cards */
+    background-color: #111111; /* Cambiado a negro total */
     display: flex;
-    justify-content: center; /* Centra el contenido horizontalmente */
+    justify-content: center;
     width: 100%;
 }
 
-/* Este contenedor es el que recibe el catálogo e inventario */
+/* Este contenedor ahora es completamente plano y oscuro */
 .content-container {
     width: 100%;
-    max-width: 1400px; /* Evita que se estire infinito en monitores grandes */
-    padding: 40px 20px;
+    max-width: 100%; /* Opcional: si quieres que ocupe todo el ancho sin límite de 1400px */
+    padding: 20px;
     box-sizing: border-box;
+    background-color: #111111;
 }
 
 /* 6. CORRECCIÓN DE DESORDEN (Asegura que el hijo fluya bien) */

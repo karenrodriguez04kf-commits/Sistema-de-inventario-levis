@@ -7,109 +7,149 @@ const saltRounds = 10;
 
 // 1. REGISTRO
 exports.register = (req, res) => {
-  const { nombre, email, password, telefono, direccion } = req.body;
-  const rol = req.body.rol || 'cliente';
+    const { nombre, email, password, telefono, direccion } = req.body;
+    const rol = req.body.rol || 'cliente';
 
-  if (!nombre || !email || !password) {
-    return res.status(400).json({ Message: "Faltan campos obligatorios" });
-  }
+    // Validaciones
+    if (!nombre || !email || !password) {
+        return res.status(400).json({ Message: "Faltan campos obligatorios" });
+    }
 
-  bcrypt.hash(password.toString(), saltRounds, (err, hash) => {
-    if (err) return res.status(500).json({ Message: "Error al procesar contraseña" });
+    if (password.length < 6) {
+        return res.status(400).json({ Message: "La contraseña debe tener mínimo 6 caracteres" });
+    }
 
-    const sql = "INSERT INTO usuarios (nombre, email, password, rol, telefono, direccion) VALUES (?, ?, ?, ?, ?, ?)";
-    db.query(sql, [nombre, email, hash, rol, telefono, direccion], (err, result) => {
-      if (err) return res.status(500).json({ Message: "Error en la base de datos", Detail: err.sqlMessage });
-      return res.status(200).json({ Status: "Exito" });
+    if (password.length > 20) {
+        return res.status(400).json({ Message: "La contraseña no puede tener más de 20 caracteres" });
+    }
+
+    // Verificar correo duplicado
+    db.query("SELECT id_usuario FROM usuarios WHERE email = ?", [email], (err, result) => {
+        if (err) return res.status(500).json({ Message: "Error en el servidor" });
+
+        if (result.length > 0) {
+            return res.status(400).json({ Message: "Este correo ya está registrado" });
+        }
+
+        bcrypt.hash(password.toString(), saltRounds, (err, hash) => {
+            if (err) return res.status(500).json({ Message: "Error al procesar contraseña" });
+
+            const sql = "INSERT INTO usuarios (nombre, email, password, rol, telefono, direccion) VALUES (?, ?, ?, ?, ?, ?)";
+            db.query(sql, [nombre, email, hash, rol, telefono || null, direccion || null], (err) => {
+                if (err) return res.status(500).json({ Message: "Error en la base de datos", Detail: err.sqlMessage });
+                return res.status(200).json({ Status: "Exito", Message: "Usuario registrado correctamente" });
+            });
+        });
     });
-  });
 };
 
 // 2. LOGIN
 exports.login = (req, res) => {
-  const { email, password } = req.body;
-  const sql = "SELECT * FROM usuarios WHERE email = ?";
-  
-  db.query(sql, [email], (err, result) => {
-    if (err) return res.status(500).json({ Message: "Error en el servidor" });
-    
-    if (result.length > 0) {
-      const user = result[0]; 
-      bcrypt.compare(password.toString(), user.password, (err, coinciden) => {
-        if (coinciden) {
-          const token = jwt.sign({ 
-            id: user.id_usuario,
-            email: user.email, 
-            rol: user.rol, 
-            nombre: user.nombre 
-          }, SECRET_KEY, { expiresIn: '1h' });
+    const { email, password } = req.body;
 
-          return res.status(200).json({ 
-            Status: "Exito", 
-            Token: token, 
-            Rol: user.rol, 
-            id_usuario: user.id_usuario 
-          });
-        } else {
-          return res.status(401).json({ Message: "Contraseña incorrecta" });
-        }
-      });
-    } else {
-      return res.status(401).json({ Message: "Usuario no encontrado" });
+    if (!email || !password) {
+        return res.status(400).json({ Message: "Email y contraseña son obligatorios" });
     }
-  });
-};
 
-// 3. OBTENER PERFIL (getPerfil)
-exports.getPerfil = (req, res) => {
-  const sql = "SELECT nombre, email, rol, telefono, direccion FROM usuarios WHERE email = ?";
-  db.query(sql, [req.params.email], (err, result) => {
-    if (err) return res.status(500).json(err);
-    if (result.length === 0) return res.status(404).json({ Message: "No existe" });
-    return res.status(200).json(result[0]);
-  });
-};
+    const sql = "SELECT * FROM usuarios WHERE email = ?";
 
-// 4. RECUPERAR CONTRASEÑA 
-exports.recuperar = (req, res) => {
-  const { nombre, email, newPassword } = req.body;
-  
-  bcrypt.hash(newPassword.toString(), saltRounds, (err, hash) => {
-    if (err) return res.status(500).json({ Message: "Error al procesar clave" });
-    
-    const sql = "UPDATE usuarios SET password = ? WHERE email = ? AND nombre = ?";
-    db.query(sql, [hash, email, nombre], (err, result) => {
-      if (err) return res.status(500).json(err);
-      if (result.affectedRows === 0) return res.status(404).json({ Message: "Datos no coinciden" });
-      return res.status(200).json({ Status: "Exito" });
+    db.query(sql, [email], (err, result) => {
+        if (err) return res.status(500).json({ Message: "Error en el servidor" });
+
+        if (result.length === 0) {
+            return res.status(401).json({ Message: "No existe una cuenta con este correo" });
+        }
+
+        const user = result[0];
+        bcrypt.compare(password.toString(), user.password, (err, coinciden) => {
+            if (coinciden) {
+                const token = jwt.sign({
+                    id: user.id_usuario,
+                    email: user.email,
+                    rol: user.rol,
+                    nombre: user.nombre
+                }, SECRET_KEY, { expiresIn: '1h' });
+
+                return res.status(200).json({
+                    Status: "Exito",
+                    Token: token,
+                    Rol: user.rol,
+                    id_usuario: user.id_usuario
+                });
+            } else {
+                return res.status(401).json({ Message: "Contraseña incorrecta" });
+            }
+        });
     });
-  });
 };
 
-// --- ACTUALIZACIÓN DE PERFIL CON GENERACIÓN DE TOKEN ---
+// 3. OBTENER PERFIL
+exports.getPerfil = (req, res) => {
+    const sql = "SELECT nombre, email, rol, telefono, direccion FROM usuarios WHERE email = ?";
+    db.query(sql, [req.params.email], (err, result) => {
+        if (err) return res.status(500).json(err);
+        if (result.length === 0) return res.status(404).json({ Message: "No existe" });
+        return res.status(200).json(result[0]);
+    });
+};
+
+// 4. RECUPERAR CONTRASEÑA
+exports.recuperar = (req, res) => {
+    const { nombre, email, newPassword } = req.body;
+
+    if (!nombre || !email || !newPassword) {
+        return res.status(400).json({ Message: "Todos los campos son obligatorios" });
+    }
+
+    if (newPassword.length < 6) {
+        return res.status(400).json({ Message: "La contraseña debe tener mínimo 6 caracteres" });
+    }
+
+    if (newPassword.length > 20) {
+        return res.status(400).json({ Message: "La contraseña no puede tener más de 20 caracteres" });
+    }
+
+    bcrypt.hash(newPassword.toString(), saltRounds, (err, hash) => {
+        if (err) return res.status(500).json({ Message: "Error al procesar clave" });
+
+        const sql = "UPDATE usuarios SET password = ? WHERE email = ? AND nombre = ?";
+        db.query(sql, [hash, email, nombre], (err, result) => {
+            if (err) return res.status(500).json(err);
+            if (result.affectedRows === 0) return res.status(404).json({ Message: "Nombre o correo incorrectos" });
+            return res.status(200).json({ Status: "Exito", Message: "Contraseña actualizada correctamente" });
+        });
+    });
+};
+
+// 5. ACTUALIZAR PERFIL
 exports.actualizarPerfil = (req, res) => {
     const { nombre, password, email, telefono, direccion } = req.body;
 
-    const finalizarUpdate = (err, result) => {
+    if (password && password.trim() !== "") {
+        if (password.length < 6) {
+            return res.status(400).json({ Message: "La contraseña debe tener mínimo 6 caracteres" });
+        }
+        if (password.length > 20) {
+            return res.status(400).json({ Message: "La contraseña no puede tener más de 20 caracteres" });
+        }
+    }
+
+    const finalizarUpdate = (err) => {
         if (err) return res.status(500).json(err);
-        
-        // Buscamos los datos actualizados para generar un nuevo token real
+
         const sqlUser = "SELECT * FROM usuarios WHERE email = ?";
         db.query(sqlUser, [email], (err, users) => {
             if (err || users.length === 0) return res.status(200).json({ Status: "Exito" });
-            
+
             const user = users[0];
-            const nuevoToken = jwt.sign({ 
+            const nuevoToken = jwt.sign({
                 id: user.id_usuario,
-                email: user.email, 
-                rol: user.rol, 
-                nombre: user.nombre 
+                email: user.email,
+                rol: user.rol,
+                nombre: user.nombre
             }, SECRET_KEY, { expiresIn: '1h' });
 
-            return res.status(200).json({ 
-                Status: "Exito", 
-                Token: nuevoToken 
-            });
+            return res.status(200).json({ Status: "Exito", Token: nuevoToken });
         });
     };
 

@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import api from './api'; 
+import api, { BASE_URL } from './api'; 
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
+import { FaShoppingBag, FaCalendarAlt, FaArrowLeft, FaReceipt, FaBoxOpen } from "react-icons/fa";
 import './MisPedidos.css';
 
 const MisPedidos = () => {
     const [pedidosAgrupados, setPedidosAgrupados] = useState({});
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPedidos = async () => {
             const token = localStorage.getItem('token');
-            if (!token) return;
+            if (!token) {
+                navigate("/login");
+                return;
+            }
 
             try {
                 const decoded = jwtDecode(token);
                 const id_usuario = decoded.id_usuario || decoded.id;
                 const response = await api.get(`/productos/mis-pedidos/${id_usuario}`);
                 
-                // ✅ Agrupación por id_venta
                 const agrupados = response.data.reduce((acc, item) => {
                     if (!acc[item.id_venta]) {
                         acc[item.id_venta] = {
@@ -40,57 +45,75 @@ const MisPedidos = () => {
         };
 
         fetchPedidos();
-    }, []);
+    }, [navigate]);
 
-    if (loading) return <div className="loader-pedidos">Consultando historial...</div>;
+    if (loading) {
+        return (
+            <div className="catalogo-page neon-loader-container">
+                <div className="neon-loader-text">CONSULTANDO HISTORIAL...</div>
+            </div>
+        );
+    }
 
     return (
-        <div className="pedidos-history-container">
-            <div className="history-header">
-                <h2>Mis Compras Realizadas 🛍️</h2>
-                <button onClick={() => window.location.href='/home/catalogo'} className="btn-return">
-                    ← Volver a la Tienda
+        <div className="catalogo-page pedidos-page-wrapper">
+            <div className="history-header-neon">
+                <div className="header-title-box">
+                    <h2>Mis Compras Realizadas <FaShoppingBag className="icon-pulse" /></h2>
+                    <p>Historial interactivo y seguimiento de tus pedidos en tiempo real.</p>
+                </div>
+                <button onClick={() => navigate('/home/catalogo')} className="btn-return-neon">
+                    <FaArrowLeft /> Volver a la Tienda
                 </button>
             </div>
 
             {Object.keys(pedidosAgrupados).length === 0 ? (
-                <div className="empty-history">No tienes pedidos registrados aún.</div>
+                <div className="empty-history-neon">
+                    <FaReceipt size={50} className="empty-icon-glow" />
+                    <p>No tienes pedidos registrados aún.</p>
+                    <button onClick={() => navigate('/home/catalogo')} className="btn-explore-neon">
+                        Explorar Catálogo
+                    </button>
+                </div>
             ) : (
-                <div className="pedidos-list">
-                    {Object.values(pedidosAgrupados).sort((a,b) => b.id - a.id).map((pedido) => (
-                        <div key={pedido.id} className="pedido-group-card">
-                            <div className="pedido-group-header">
-                                <div className="header-info">
-                                    <span className="order-number">PEDIDO #{pedido.id}</span>
-                                    <span className="order-date">🗓️ {new Date(pedido.fecha).toLocaleDateString()}</span>
-                                </div>
-                                <div className="order-total-badge">
-                                    TOTAL: ${Number(pedido.totalPedido).toLocaleString()} COP
-                                </div>
+                <div className="pedidos-grid-neon">
+                    {Object.values(pedidosAgrupados).sort((a, b) => b.id - a.id).map((pedido) => (
+                        <div key={pedido.id} className="pedido-card-neon">
+                            <div className="card-neon-top">
+                                <span className="order-tag">PEDIDO #{pedido.id}</span>
+                                <span className="order-date-tag">
+                                    <FaCalendarAlt /> {new Date(pedido.fecha).toLocaleDateString()}
+                                </span>
                             </div>
 
-                            <div className="pedido-items-list">
+                            <div className="card-neon-body">
                                 {pedido.productos.map((prod, idx) => (
-                                    <div key={idx} className="pedido-item-row">
-                                        <img 
-                                            src={`http://localhost:3002${prod.imagen}`} 
-                                            alt={prod.nombreProducto} 
-                                            className="item-mini-img"
-                                        />
-                                        <div className="item-info">
-                                            <p className="item-name">{prod.nombreProducto}</p>
-                                            <p className="item-qty">
-                                                Cant: {prod.cantidad} x ${Number(prod.precioUnitario).toLocaleString()}
-                                            </p>
+                                    <div key={idx} className="product-row-neon">
+                                        <div className="img-container-neon">
+                                            <img 
+                                                src={prod.imagen ? `${BASE_URL}${prod.imagen}` : "/img/default.jpg"} 
+                                                alt={prod.nombreProducto} 
+                                                onError={(e) => { e.target.src = "/img/default.jpg"; }}
+                                            />
                                         </div>
-                                        <div className="item-subtotal">
+                                        <div className="product-info-neon">
+                                            <h4>{prod.nombreProducto}</h4>
+                                            <span className="prod-qty-price">Cant: {prod.cantidad} × ${Number(prod.precioUnitario).toLocaleString()}</span>
+                                        </div>
+                                        <div className="product-subtotal-neon">
                                             ${Number(prod.cantidad * prod.precioUnitario).toLocaleString()}
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                            <div className="pedido-group-footer">
-                                <span className="status-label">ESTADO: ENTREGADO</span>
+
+                            <div className="card-neon-footer">
+                                <div className="status-neon-pill">
+                                    <span className="dot-pulse"></span> ESTADO: ENTREGADO
+                                </div>
+                                <div className="total-neon-box">
+                                    TOTAL: <span>${Number(pedido.totalPedido).toLocaleString()} COP</span>
+                                </div>
                             </div>
                         </div>
                     ))}

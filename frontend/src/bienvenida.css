@@ -1,55 +1,142 @@
-/* Estilos para el panel de bienvenida */
 .bienvenida-container {
+    margin: -40px -20px;
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Georgia', serif;
+    background-color: #f8f8f8;
+    position: relative;
+    overflow: hidden;
+}
+
+.neon-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: flotar 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.orb-1 {
+    width: 300px;
+    height: 300px;
+    background: rgba(196, 18, 48, 0.12);
+    top: -80px;
+    left: -80px;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 200px;
+    height: 200px;
+    background: rgba(196, 18, 48, 0.08);
+    bottom: -60px;
+    right: 10%;
+    animation-delay: 2s;
+}
+
+.orb-3 {
+    width: 150px;
+    height: 150px;
+    background: rgba(196, 18, 48, 0.06);
+    top: 40%;
+    right: -40px;
+    animation-delay: 4s;
+}
+
+@keyframes flotar {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-20px) scale(1.05); }
+}
+
+.bienvenida-card {
+    position: relative;
+    z-index: 1;
     text-align: center;
-    margin-top: 50px;
+    padding: 60px 70px;
+    background: white;
+    border: 1px solid rgba(196, 18, 48, 0.15);
+    border-radius: 2px;
+    box-shadow: 0 4px 30px rgba(196, 18, 48, 0.08), 0 1px 4px rgba(0,0,0,0.06);
+    max-width: 520px;
+    width: 90%;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.bienvenida-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.bienvenida-badge {
+    display: inline-block;
+    background-color: #c41230;
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    padding: 6px 18px;
+    margin-bottom: 32px;
     font-family: Arial, sans-serif;
 }
 
-.bienvenida-titulo {
-    color: #c41230;
-    font-size: 36px;
-    font-weight: bold;
+.bienvenida-saludo {
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    color: #999;
+    margin: 0 0 8px 0;
+    font-style: italic;
+    letter-spacing: 1px;
 }
 
-.bienvenida-subtitulo {
-    color: #666;
-    font-size: 18px;
-    margin-top: 10px;
+.bienvenida-nombre {
+    font-family: Arial, sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: #111;
+    margin: 0 0 24px 0;
+    letter-spacing: 4px;
+}
+
+.bienvenida-divider {
+    width: 40px;
+    height: 2px;
+    background-color: #c41230;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 0 8px rgba(196, 18, 48, 0.5);
+}
+
+.bienvenida-subtexto {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: #888;
+    letter-spacing: 1px;
+    margin-bottom: 36px;
 }
 
 .bienvenida-botones {
-    margin-top: 40px;
     display: flex;
     justify-content: center;
-    gap: 20px;
 }
 
-.btn-gestion {
-    background-color: black;
-    color: white;
-    padding: 15px 30px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-
-.btn-gestion:hover {
-    background-color: #333;
-}
-
-.btn-logout {
+.btn-catalogo {
     background-color: #c41230;
     color: white;
-    padding: 15px 30px;
+    padding: 14px 40px;
     border: none;
     cursor: pointer;
     font-weight: bold;
-    border-radius: 4px;
-    transition: opacity 0.3s;
+    font-size: 13px;
+    letter-spacing: 3px;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(196, 18, 48, 0.3);
 }
 
-.btn-logout:hover {
-    opacity: 0.9;
+.btn-catalogo:hover {
+    background-color: #a00f28;
+    box-shadow: 0 6px 20px rgba(196, 18, 48, 0.5);
 }

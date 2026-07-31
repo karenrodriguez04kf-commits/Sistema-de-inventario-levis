@@ -19,13 +19,10 @@ const Login = () => {
             localStorage.setItem('rol', res.data.Rol);
             localStorage.setItem('id_usuario', res.data.id_usuario);
 
-            // 2. CORRECCIÓN DE DIRECCIONES AQUÍ:
-            if (res.data.Rol === 'admin') {
-                // Le pones el "/home/" adelante porque en App.jsx son rutas hijas
-                navigate('/home/inventario'); 
-            } else {
-                navigate('/home/catalogo'); 
-            }
+// Si es administrador va a la bienvenida.
+// Si es cliente va directamente al catálogo.
+navigate(res.data.Rol === 'admin' ? '/home' : '/home/catalogo');
+
         }
     } catch (err) {
         const mensaje = err.response?.data?.Message || "Error al conectar con el servidor";
@@ -33,47 +30,26 @@ const Login = () => {
     }
 };
 
-    return (
-        <div className="login-container">
-            <div className="login-logo">
-                LEVI'S
-            </div>
-            
+  return (
+    <div className="login-container">
+        <div className="login-box">
+            <div className="login-logo">LEVI'S</div>
             <form onSubmit={handleLogin} className="login-form">
-                <input 
-                    type="email" 
-                    placeholder="EMAIL" 
-                    onChange={e => setEmail(e.target.value)} 
-                    required 
-                />
-                <input 
-                    type="contraseña" 
-                    placeholder="CONTRASEÑA" 
-                    onChange={e => setPassword(e.target.value)} 
-                    required 
-                />
-                
-                <button type="submit" className="btn-login">
-                    INGRESAR
-                </button>
-
+                <input type="email" placeholder="EMAIL" onChange={e => setEmail(e.target.value)} required />
+                <input type="password" placeholder="CONTRASEÑA" onChange={e => setPassword(e.target.value)} required />
+                <button type="submit" className="btn-login">INGRESAR</button>
                 <div className="login-footer">
                     <div>
-                        <span style={{ fontSize: '14px' }}>¿No tienes cuenta? </span>
-                        <Link to="/registro" className="link-registro">
-                            Regístrate aquí
-                        </Link>
+                        <span style={{ color: '#666', fontSize: '13px' }}>¿No tienes cuenta? </span>
+                        <Link to="/registro" className="link-registro">Regístrate aquí</Link>
                     </div>
-
-                    <div>
-                        <Link to="/recuperar" className="link-recuperar">
-                            ¿Olvidaste tu contraseña?
-                        </Link>
-                    </div>
+                    <Link to="/recuperar" className="link-recuperar">¿Olvidaste tu contraseña?</Link>
+                    <Link to="/" className="link-recuperar">← Volver al inicio</Link>
                 </div>
             </form>
         </div>
-    );
+    </div>
+);
 };
 
 export default Login;

@@ -65,3 +65,16 @@
   transform: translateY(-3px);
   box-shadow: 0 5px 15px rgba(196, 18, 48, 0.4);
 }
+/* Forzar que el layout principal dentro de Home cubra todo en oscuro */
+.home-container, .home-layout, div[class*="home"] {
+  background-color: #111111 !important;
+  color: #FAFAFA !important;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Forzar la barra de navegación superior de Home a fondo negro con texto blanco */
+nav, .navbar-home, header {
+  background-color: #111111 !important;
+  border-bottom: 1px solid #333333;
+}

@@ -1,116 +1,146 @@
+/* ==========================================
+   ESTILOS CONFIGURACIÓN DE PERFIL (ESTILO NEÓN LEVI'S)
+   ========================================== */
+:root {
+  --bg-main: #111111;
+  --bg-secondary: #1C1C1C;
+  --bg-card: #2B2B2B;
+  --text-main: #FAFAFA;
+  --text-muted: #A0A0A0;
+  --primary-red: #C41230;
+  --primary-red-hover: #E53B52;
+  --border-color: #333333;
+  --shadow-neon: 0 10px 35px rgba(196, 18, 48, 0.15);
+  --shadow-hover-neon: 0 0 25px rgba(196, 18, 48, 0.3);
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+}
+
 .perfil-full-screen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 90vh;
-    background: #f8f9fa;
-    padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  background-color: var(--bg-main);
+  padding: 20px;
 }
 
 .perfil-glass-card {
-    background: white;
-    width: 100%;
-    max-width: 420px;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    text-align: center;
-    animation: fadeInSlide 0.5s ease-out;
+  background: var(--bg-secondary);
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-neon);
+  text-align: center;
+  animation: fadeInSlide 0.5s ease-out;
 }
 
 @keyframes fadeInSlide {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .perfil-avatar {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #c41230 0%, #000 100%);
-    color: white;
-    font-size: 2.2rem;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    margin: 0 auto 15px;
-    box-shadow: 0 8px 15px rgba(196, 18, 48, 0.2);
+  width: 80px;
+  height: 80px;
+  background: var(--primary-red);
+  color: white;
+  font-size: 2.2rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  box-shadow: 0 4px 20px rgba(196, 18, 48, 0.4);
 }
 
 .perfil-main-title {
-    font-size: 1.6rem;
-    color: #1a1a1a;
-    margin-bottom: 5px;
-    font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--text-main);
+  margin-bottom: 5px;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 
 .perfil-user-email {
-    color: #777;
-    font-size: 0.9rem;
-    margin-bottom: 30px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 30px;
 }
 
 .perfil-modern-form {
-    text-align: left;
+  text-align: left;
 }
 
 .modern-input-group {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .modern-input-group label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #c41230; /* Rojo Levi's */
-    text-transform: uppercase;
-    margin-bottom: 8px;
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--primary-red-hover);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
 
 .modern-input-group input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #eee;
-    border-radius: 10px;
-    font-size: 1rem;
-    transition: all 0.3s;
-    outline: none;
+  width: 100%;
+  padding: 12px 15px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-size: 1rem;
+  transition: all 0.3s;
+  outline: none;
 }
 
 .modern-input-group input:focus {
-    border-color: #c41230;
-    box-shadow: 0 0 10px rgba(196, 18, 48, 0.1);
+  border-color: var(--primary-red);
+  box-shadow: 0 0 10px rgba(196, 18, 48, 0.2);
 }
 
 .input-hint {
-    font-size: 0.75rem;
-    color: #aaa;
-    display: block;
-    margin-top: 5px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 5px;
 }
 
 .btn-perfil-submit {
-    width: 100%;
-    padding: 15px;
-    background: #000;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-top: 10px;
+  width: 100%;
+  padding: 15px;
+  background: var(--primary-red);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(196, 18, 48, 0.4);
+  letter-spacing: 0.5px;
 }
 
 .btn-perfil-submit:hover:not(:disabled) {
-    background: #c41230;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(196, 18, 48, 0.3);
+  background: var(--primary-red-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover-neon);
 }
 
 .btn-perfil-submit:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+  background: var(--border-color);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
 }

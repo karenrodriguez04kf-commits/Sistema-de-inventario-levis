@@ -1,19 +1,37 @@
 :root {
-  --levis-red: #c41230;
-  --levis-black: #000000;
-  --levis-gray: #f5f5f5;
-  --levis-white: #ffffff;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --levis-red: #C41230;
+  --levis-black: #111111;
+  --levis-gray: #1C1C1C;
+  --levis-white: #FAFAFA;
+  --shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
 }
 
-body {
+/* Reseteo general para eliminar bordes blancos y asegurar pantalla completa */
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #111111 !important;
+  color: #FAFAFA;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: var(--levis-gray);
-  color: var(--levis-black);
 }
 
 button {
   cursor: pointer;
   transition: all 0.3s ease;
+}
+/* Forzar contenedor principal y barras de navegación a fondo oscuro */
+header, .navbar, .main-layout, .app-container {
+  background-color: #111111 !important;
+  color: #FAFAFA !important;
+}
+
+/* Eliminar restricciones de ancho o fondos blancos en contenedores raíz */
+div[class*="container"], main {
+  background-color: transparent;
 }

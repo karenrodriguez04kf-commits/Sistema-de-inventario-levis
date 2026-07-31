@@ -12,9 +12,8 @@ import Perfil from './perfil';
 import MisPedidos from "./MisPedidos";
 import ReporteVentas from "./ReporteVentas";
 import Proveedores from './proveedores';
+import Landing from './landing';
 
-    
-// ✅ Componente que verifica el rol en cada render
 const RutaAdmin = ({ children }) => {
   const rol = localStorage.getItem('rol');
   return rol === 'admin' ? children : <Navigate to="/home/catalogo" />;
@@ -25,7 +24,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* 1. Rutas Públicas */}
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/recuperar" element={<Recuperar />} />
@@ -37,7 +36,6 @@ function App() {
           <Route path="catalogo" element={<Catalogo />} />
           <Route path="mis-pedidos" element={<MisPedidos />} />
 
-          {/* ✅ Rutas protegidas solo para admin */}
           <Route path="clientes" element={
             <RutaAdmin><Clientes /></RutaAdmin>
           } />
@@ -48,8 +46,8 @@ function App() {
             <RutaAdmin><ReporteVentas /></RutaAdmin>
           } />
           <Route path="proveedores" element={
-    <RutaAdmin><Proveedores /></RutaAdmin>
-} />
+            <RutaAdmin><Proveedores /></RutaAdmin>
+          } />
         </Route>
 
         {/* 3. Redirección por defecto */}

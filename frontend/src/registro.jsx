@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from './api';
 import { useNavigate, Link } from 'react-router-dom';
-import './Registro.css'; // Importación del CSS
+import './Registro.css';
 
 const Registro = () => {
     const [nombre, setNombre] = useState('');
@@ -9,63 +9,36 @@ const Registro = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-const handleRegistro = async (e) => {
+    const handleRegistro = async (e) => {
         e.preventDefault();
         try {
-            // USAMOS 'api' y la ruta completa del controlador de auth
-            const response = await api.post('/auth/register', {
-                nombre,
-                email,
-                password
-            });
-
+            const response = await api.post('/auth/register', { nombre, email, password });
             if (response.data.Status === "Exito") {
                 alert("¡Usuario registrado con éxito en Levi's! ✅");
-                navigate('/'); 
+                navigate('/login');
             }
         } catch (error) {
-            console.error("Error al registrar:", error);
             alert(error.response?.data?.Message || "Error al conectar con el servidor");
         }
     };
 
     return (
         <div className="registro-container">
-            <div className="registro-logo">
-                LEVI'S
+            <div className="registro-box">
+                <div className="registro-logo">LEVI'S</div>
+                <form onSubmit={handleRegistro} className="registro-form">
+                    <input type="text" placeholder="NOMBRE COMPLETO" onChange={e => setNombre(e.target.value)} required />
+                    <input type="email" placeholder="EMAIL" onChange={e => setEmail(e.target.value)} required />
+                    <input type="password" placeholder="CONTRASEÑA" onChange={e => setPassword(e.target.value)} required />
+                    <button type="submit" className="btn-registro">CREAR CUENTA</button>
+                    <div className="registro-footer">
+                        <span style={{ color: '#666', fontSize: '13px' }}>¿Ya tienes cuenta? </span>
+                        <Link to="/login" className="link-login">Inicia sesión</Link>
+                    </div>
+                </form>
             </div>
-            
-            <form onSubmit={handleRegistro} className="registro-form">
-                <input 
-                    type="text" 
-                    placeholder="NOMBRE COMPLETO" 
-                    onChange={e => setNombre(e.target.value)} 
-                    required 
-                />
-                <input 
-                    type="email" 
-                    placeholder="EMAIL" 
-                    onChange={e => setEmail(e.target.value)} 
-                    required 
-                />
-                <input 
-                    type="password" 
-                    placeholder="PASSWORD" 
-                    onChange={e => setPassword(e.target.value)} 
-                    required 
-                />
-                <button type="submit" className="btn-registro">
-                    CREAR CUENTA
-                </button>
-
-                <div className="registro-footer">
-                    <Link to="/">
-                        ¿Ya tienes cuenta? <b>Inicia sesión</b>
-                    </Link>
-                </div>
-            </form>
         </div>
     );
-}
+};
 
 export default Registro;

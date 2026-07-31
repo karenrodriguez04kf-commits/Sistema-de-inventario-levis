@@ -1,120 +1,318 @@
-.pedidos-history-container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0 20px;
+/* CONTENEDOR GENERAL */
+.pedidos-page-wrapper {
+  padding: 40px 6%;
+  background-color: #111111;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.history-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    border-bottom: 3px solid #000;
-    padding-bottom: 15px;
+/* CABECERA */
+.history-header-neon {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 35px;
+  border-bottom: 1px solid rgba(196, 18, 48, 0.3);
+  padding-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-.btn-return {
-    padding: 10px 20px;
-    background: #000;
-    color: #fff;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
+.header-title-box h2 {
+  color: #fff;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(196, 18, 48, 0.4);
 }
 
-.btn-return:hover { background: #c41230; }
-
-.pedido-group-card {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+.header-title-box p {
+  color: #888;
+  font-size: 0.9rem;
+  margin: 6px 0 0 0;
 }
 
-.pedido-group-header {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px dashed #ccc;
+.icon-pulse {
+  color: #c41230;
+  animation: pulseIcon 2s infinite ease-in-out;
 }
 
-.order-number {
-    font-weight: 800;
-    font-size: 1.1rem;
-    color: #c41230;
-    margin-right: 15px;
+@keyframes pulseIcon {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px #c41230); }
+  50% { transform: scale(1.12); filter: drop-shadow(0 0 8px #c41230); }
 }
 
-.order-date {
-    color: #666;
-    font-size: 0.9rem;
+/* BOTÓN VOLVER */
+.btn-return-neon {
+  background: rgba(26, 26, 26, 0.8);
+  color: #fff;
+  border: 1px solid #444;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
 }
 
-.order-total-badge {
-    background: #000;
-    color: #fff;
-    padding: 6px 15px;
-    border-radius: 5px;
-    font-weight: bold;
+.btn-return-neon:hover {
+  background: #c41230;
+  border-color: #c41230;
+  box-shadow: 0 0 12px rgba(196, 18, 48, 0.6);
+  transform: translateY(-2px);
 }
 
-.pedido-items-list {
-    padding: 10px 20px;
+/* GRID DE PEDIDOS DINÁMICO */
+.pedidos-grid-neon {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+  gap: 25px;
 }
 
-.pedido-item-row {
-    display: flex;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
+@media (max-width: 768px) {
+  .pedidos-grid-neon {
+    grid-template-columns: 1fr;
+  }
 }
 
-.pedido-item-row:last-child { border-bottom: none; }
-
-.item-mini-img {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-right: 15px;
+/* TARJETA NEÓN */
+.pedido-card-neon {
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  position: relative;
 }
 
-.item-info { flex: 1; }
-
-.item-name {
-    margin: 0;
-    font-weight: 600;
-    color: #333;
+.pedido-card-neon:hover {
+  transform: translateY(-5px);
+  border-color: rgba(196, 18, 48, 0.6);
+  box-shadow: 0 0 20px rgba(196, 18, 48, 0.25), inset 0 0 10px rgba(196, 18, 48, 0.05);
 }
 
-.item-qty {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #777;
+/* HEADER DE LA TARJETA */
+.card-neon-top {
+  background: #111;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #222;
 }
 
-.item-subtotal {
-    font-weight: bold;
-    color: #333;
+.order-tag {
+  color: #c41230;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(196, 18, 48, 0.4);
 }
 
-.pedido-group-footer {
-    padding: 10px 20px;
-    background: #fff;
-    text-align: right;
-    border-top: 1px solid #eee;
+.order-date-tag {
+  color: #888;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.status-label {
-    font-size: 0.75rem;
-    font-weight: 900;
-    color: #2e7d32;
-    background: #e8f5e9;
-    padding: 4px 10px;
-    border-radius: 4px;
+/* CUERPO CON IMÁGENES DESTACADAS */
+.card-neon-body {
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.product-row-neon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1c1c1c;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #252525;
+  transition: border-color 0.2s;
+}
+
+.product-row-neon:hover {
+  border-color: #444;
+}
+
+.img-container-neon {
+  width: 65px;
+  height: 75px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+  border: 1px solid #333;
+}
+
+.img-container-neon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-row-neon:hover .img-container-neon img {
+  transform: scale(1.1);
+}
+
+.product-info-neon {
+  flex-grow: 1;
+  padding: 0 15px;
+}
+
+.product-info-neon h4 {
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prod-qty-price {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.product-subtotal-neon {
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.95rem;
+  text-shadow: 0 0 5px rgba(255,255,255,0.1);
+}
+
+/* FOOTER DE LA TARJETA */
+.card-neon-footer {
+  background: #111;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #222;
+}
+
+.status-neon-pill {
+  color: #2ecc71;
+  font-size: 0.75rem;
+  font-weight: bold;
+  background: rgba(46, 204, 113, 0.1);
+  border: 1px solid rgba(46, 204, 113, 0.3);
+  padding: 5px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.5px;
+}
+
+.dot-pulse {
+  width: 7px;
+  height: 7px;
+  background-color: #2ecc71;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #2ecc71;
+  animation: pulseDot 1.5s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #2ecc71; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.total-neon-box {
+  color: #aaa;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.total-neon-box span {
+  color: #c41230;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(196, 18, 48, 0.5);
+}
+
+/* ESTADO VACÍO */
+.empty-history-neon {
+  text-align: center;
+  padding: 70px 20px;
+  background: #161616;
+  border-radius: 12px;
+  border: 1px solid #2a2a2a;
+  max-width: 500px;
+  margin: 40px auto;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.empty-icon-glow {
+  color: #444;
+  margin-bottom: 15px;
+  filter: drop-shadow(0 0 8px rgba(196, 18, 48, 0.2));
+}
+
+.empty-history-neon p {
+  color: #bbb;
+  font-size: 1.05rem;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.btn-explore-neon {
+  background: #c41230;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  box-shadow: 0 0 10px rgba(196, 18, 48, 0.4);
+}
+
+.btn-explore-neon:hover {
+  background: #a00f28;
+  box-shadow: 0 0 18px rgba(196, 18, 48, 0.7);
+  transform: translateY(-2px);
+}
+
+.neon-loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.neon-loader-text {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(196, 18, 48, 0.8);
+  animation: pulseText 1.5s infinite alternate;
+}
+
+@keyframes pulseText {
+  from { opacity: 0.4; }
+  to { opacity: 1; text-shadow: 0 0 20px rgba(196, 18, 48, 1); }
 }
