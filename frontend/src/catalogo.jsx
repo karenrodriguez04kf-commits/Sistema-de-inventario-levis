@@ -1,21 +1,31 @@
 import React, { useEffect, useState } from "react";
 import api, { BASE_URL } from "./api"; 
 import "./catalogo.css";
-import { FaShoppingCart, FaTrash, FaSearch, FaPlus, FaMinus, FaReceipt } from "react-icons/fa";
+import { FaShoppingCart, FaTrash, FaSearch, FaPlus, FaMinus, FaReceipt, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function Catalogo() {
   const [productos, setProductos] = useState([]);
+  const [categoriasDB, setCategoriasDB] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [generosSeleccionados, setGenerosSeleccionados] = useState([]);
   const [tallasSeleccionadas, setTallasSeleccionadas] = useState([]);
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
+  const [coloresSeleccionados, setColoresSeleccionados] = useState([]);
   const [carrito, setCarrito]  = useState([]);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
+  
+  // Estados para controlar los menús desplegables de los filtros
+  const [desplegadoCat, setDesplegadoCat] = useState(true);
+  const [desplegadoGen, setDesplegadoGen] = useState(true);
+  const [desplegadoCol, setDesplegadoCol] = useState(true);
+  const [desplegadoTal, setDesplegadoTal] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchProductos();
+    fetchCategorias();
   }, []);
 
   const fetchProductos = async () => {
@@ -24,6 +34,15 @@ function Catalogo() {
       setProductos(response.data);
     } catch (err) {
       console.error("Error al traer productos:", err);
+    }
+  };
+
+  const fetchCategorias = async () => {
+    try {
+      const response = await api.get("/categorias"); // Asumiendo este endpoint, o usa el que tengas en tu backend
+      setCategoriasDB(response.data);
+    } catch (err) {
+      console.error("Error al traer categorías de BD:", err);
     }
   };
 
@@ -96,21 +115,29 @@ function Catalogo() {
   };
 
   const normalizarTexto = (texto) =>
-    texto?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
+    texto?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() || "";
 
+  const obtenerTallasProducto = (p) => {
+    if (!p.tallas) return [p.talla || "Única"];
+    try {
+      const parsed = typeof p.tallas === 'string' ? JSON.parse(p.tallas) : p.tallas;
+      if (Array.isArray(parsed)) {
+        return parsed.filter(t => t.stock > 0).map(t => t.talla);
+      }
+    } catch (e) {
+      return [p.talla || "Única"];
+    }
+    return [p.talla || "Única"];
+  };
+
+  // Filtrado general
   let productosFiltrados = productos.filter((p) =>
     normalizarTexto(p.nombreProducto).includes(normalizarTexto(busqueda))
   );
 
   if (generosSeleccionados.length > 0) {
     productosFiltrados = productosFiltrados.filter((p) =>
-      generosSeleccionados.some((g) => g.toLowerCase() === p.genero?.toLowerCase())
-    );
-  }
-
-  if (tallasSeleccionadas.length > 0) {
-    productosFiltrados = productosFiltrados.filter((p) =>
-      tallasSeleccionadas.some((t) => normalizarTexto(t) === normalizarTexto(p.talla))
+      generosSeleccionados.some((g) => normalizarTexto(g) === normalizarTexto(p.genero))
     );
   }
 
@@ -120,9 +147,46 @@ function Catalogo() {
     );
   }
 
+  if (tallasSeleccionadas.length > 0) {
+    productosFiltrados = productosFiltrados.filter((p) => {
+      const tallasProd = obtenerTallasProducto(p);
+      return tallasSeleccionadas.some((t) => 
+        tallasProd.some(tp => normalizarTexto(tp) === normalizarTexto(t))
+      );
+    });
+  }
+
+  if (coloresSeleccionados.length > 0) {
+    productosFiltrados = productosFiltrados.filter((p) =>
+      coloresSeleccionados.some((col) => normalizarTexto(col) === normalizarTexto(p.color))
+    );
+  }
+
+  // Listas únicas capitalizadas y limpias para evitar duplicados por mayúsculas/minúsculas
+  const limpiarYCapitalizar = (arr) => {
+    const unicos = new Set();
+    arr.forEach(item => {
+      if (item) {
+        let limpio = item.trim();
+        limpio = limpio.charAt(0).toUpperCase() + limpio.slice(1).toLowerCase();
+        unicos.add(limpio);
+      }
+    });
+    return Array.from(unicos).sort();
+  };
+
+  // Usamos las categorías de la BD si están disponibles, si no, del catálogo
+  const listaCatRaw = categoriasDB.length > 0 
+    ? categoriasDB.map(c => c.nombre) 
+    : productos.map(p => p.categoria);
+
+  const categoriasDisponibles = limpiarYCapitalizar(listaCatRaw);
+  const generosDisponibles = limpiarYCapitalizar(productos.map(p => p.genero));
+  const coloresDisponibles = limpiarYCapitalizar(productos.map(p => p.color));
+
   const tallasDisponibles = Array.from(
-    new Set(productos.map((p) => p.talla?.trim()).filter(Boolean))
-  ).sort();
+    new Set(productos.flatMap((p) => obtenerTallasProducto(p)))
+  ).filter(Boolean).sort();
 
   const toggleFiltro = (valor, lista, setLista) => {
     if (lista.includes(valor)) {
@@ -161,66 +225,103 @@ function Catalogo() {
       </div>
 
       <div className="catalogo-layout">
-        {/* SIDEBAR DE FILTROS REDISEÑADO Y ESTÉTICO */}
+        {/* SIDEBAR CON MENÚS DESPLEGABLES */}
         <aside className="catalogo-sidebar">
           <div className="sidebar-header-filter">
             <h3>Filtros de Búsqueda</h3>
           </div>
 
+          {/* Categoría Desplegable */}
           <div className="filter-section">
-            <h4 className="sidebar-title">Categoría</h4>
-            <div className="filter-options-list">
-              {["pantalon", "camiseta", "chaqueta", "accesorio"].map((cat) => (
-                <label 
-                  key={cat} 
-                  className={`custom-checkbox-label ${categoriasSeleccionadas.includes(cat) ? 'active' : ''}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={categoriasSeleccionadas.includes(cat)}
-                    onChange={() => toggleFiltro(cat, categoriasSeleccionadas, setCategoriasSeleccionadas)}
-                  />
-                  <span className="checkbox-custom"></span>
-                  <span className="checkbox-text">{cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
-                </label>
-              ))}
+            <div className="accordion-header" onClick={() => setDesplegadoCat(!desplegadoCat)}>
+              <h4 className="sidebar-title">Categoría</h4>
+              {desplegadoCat ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
             </div>
+            {desplegadoCat && (
+              <div className="filter-options-list">
+                {categoriasDisponibles.map((cat) => (
+                  <label key={cat} className={`custom-checkbox-label ${categoriasSeleccionadas.includes(cat) ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={categoriasSeleccionadas.includes(cat)}
+                      onChange={() => toggleFiltro(cat, categoriasSeleccionadas, setCategoriasSeleccionadas)}
+                    />
+                    <span className="checkbox-custom"></span>
+                    <span className="checkbox-text">{cat}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
+          {/* Género Desplegable */}
           <div className="filter-section">
-            <h4 className="sidebar-title">Género</h4>
-            <div className="filter-options-list">
-              {["Hombre", "Mujer", "Niños"].map((g) => (
-                <label 
-                  key={g} 
-                  className={`custom-checkbox-label ${generosSeleccionados.includes(g) ? 'active' : ''}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={generosSeleccionados.includes(g)}
-                    onChange={() => toggleFiltro(g, generosSeleccionados, setGenerosSeleccionados)}
-                  />
-                  <span className="checkbox-custom"></span>
-                  <span className="checkbox-text">{g}</span>
-                </label>
-              ))}
+            <div className="accordion-header" onClick={() => setDesplegadoGen(!desplegadoGen)}>
+              <h4 className="sidebar-title">Género</h4>
+              {desplegadoGen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
             </div>
+            {desplegadoGen && (
+              <div className="filter-options-list">
+                {generosDisponibles.map((g) => (
+                  <label key={g} className={`custom-checkbox-label ${generosSeleccionados.includes(g) ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={generosSeleccionados.includes(g)}
+                      onChange={() => toggleFiltro(g, generosSeleccionados, setGenerosSeleccionados)}
+                    />
+                    <span className="checkbox-custom"></span>
+                    <span className="checkbox-text">{g}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="filter-section">
-            <h4 className="sidebar-title">Tallas</h4>
-            <div className="tallas-flex">
-              {tallasDisponibles.map((talla) => (
-                <button
-                  type="button"
-                  key={talla}
-                  className={`talla-chip-btn ${tallasSeleccionadas.includes(talla) ? "active" : ""}`}
-                  onClick={() => toggleFiltro(talla, tallasSeleccionadas, setTallasSeleccionadas)}
-                >
-                  {talla}
-                </button>
-              ))}
+          {/* Color Desplegable */}
+          {coloresDisponibles.length > 0 && (
+            <div className="filter-section">
+              <div className="accordion-header" onClick={() => setDesplegadoCol(!desplegadoCol)}>
+                <h4 className="sidebar-title">Color</h4>
+                {desplegadoCol ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+              </div>
+              {desplegadoCol && (
+                <div className="filter-options-list">
+                  {coloresDisponibles.map((color) => (
+                    <label key={color} className={`custom-checkbox-label ${coloresSeleccionados.includes(color) ? 'active' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={coloresSeleccionados.includes(color)}
+                        onChange={() => toggleFiltro(color, coloresSeleccionados, setColoresSeleccionados)}
+                      />
+                      <span className="checkbox-custom"></span>
+                      <span className="checkbox-text">{color}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
+          )}
+
+          {/* Tallas Desplegable */}
+          <div className="filter-section">
+            <div className="accordion-header" onClick={() => setDesplegadoTal(!desplegadoTal)}>
+              <h4 className="sidebar-title">Tallas</h4>
+              {desplegadoTal ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+            </div>
+            {desplegadoTal && (
+              <div className="tallas-flex">
+                {tallasDisponibles.map((talla) => (
+                  <button
+                    type="button"
+                    key={talla}
+                    className={`talla-chip-btn ${tallasSeleccionadas.includes(talla) ? "active" : ""}`}
+                    onClick={() => toggleFiltro(talla, tallasSeleccionadas, setTallasSeleccionadas)}
+                  >
+                    {talla}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </aside>
 
@@ -238,7 +339,7 @@ function Catalogo() {
                   </div>
                   <div className="producto-info">
                     <h4>{p.nombreProducto}</h4>
-                    <p className="p-talla">Talla: {p.talla || "Única"}</p>
+                    <p className="p-talla">Color: {p.color || "N/A"} | Gen: {p.genero || "N/A"}</p>
                     <p className="p-precio">${(p.precioProducto || 0).toLocaleString()} COP</p>
                     <button className="btn-add-cart" onClick={() => agregarAlCarrito(p)}>
                       Añadir al carrito

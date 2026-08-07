@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { BASE_URL } from "./api";
-import { FaBoxes, FaPlus, FaEdit, FaTrash, FaArrowLeft, FaUpload, FaTag, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import { FaBoxes, FaPlus, FaEdit, FaTrash, FaArrowLeft, FaUpload, FaTag } from "react-icons/fa";
 import "./inventario.css";
 
 const TALLAS_DEFAULT = ["S", "M", "L", "XL", "XXL"];
@@ -18,7 +18,6 @@ function Inventario() {
 
   const [form, setForm] = useState({
     nombreProducto: "",
-    descripcionProducto: "",
     precioProducto: "",
     color: "",
     genero: "",
@@ -88,7 +87,6 @@ function Inventario() {
         : TALLAS_DEFAULT.map(t => ({ talla: t, stock: 0 }));
       setForm({
         nombreProducto: prod.nombreProducto || "",
-        descripcionProducto: prod.descripcionProducto || "",
         precioProducto: prod.precioProducto || "",
         color: prod.color || "",
         genero: prod.genero || "",
@@ -101,7 +99,6 @@ function Inventario() {
       setEditando(false);
       setForm({
         nombreProducto: "",
-        descripcionProducto: "",
         precioProducto: "",
         color: "",
         genero: "",
@@ -127,7 +124,6 @@ function Inventario() {
 
     const data = new FormData();
     data.append("nombreProducto", form.nombreProducto);
-    data.append("descripcionProducto", form.descripcionProducto);
     data.append("precioProducto", form.precioProducto);
     data.append("color", form.color);
     data.append("genero", form.genero);
@@ -160,7 +156,6 @@ function Inventario() {
       {view === "listar" && (
         <div className="inventory-list-view">
           
-          {/* CABECERA IDÉNTICA A MIS PEDIDOS */}
           <div className="history-header-neon">
             <div className="header-title-box">
               <h2>GESTIÓN DE INVENTARIO <FaBoxes className="icon-pulse" /></h2>
@@ -176,7 +171,6 @@ function Inventario() {
             </div>
           </div>
 
-          {/* GRID DE PRODUCTOS EN TARJETAS NEÓN */}
           {productos.length === 0 ? (
             <div className="empty-history-neon">
               <FaBoxes size={50} className="empty-icon-glow" />
@@ -196,7 +190,6 @@ function Inventario() {
                 return (
                   <div key={prod.id_producto} className="pedido-card-neon">
                     
-                    {/* TOP DE LA TARJETA */}
                     <div className="card-neon-top">
                       <span className="order-tag">REF #{prod.id_producto}</span>
                       <span className="order-date-tag">
@@ -204,7 +197,6 @@ function Inventario() {
                       </span>
                     </div>
 
-                    {/* CUERPO DE LA TARJETA */}
                     <div className="card-neon-body">
                       <div className="product-row-neon">
                         <div className="img-container-neon">
@@ -231,7 +223,6 @@ function Inventario() {
                       </div>
                     </div>
 
-                    {/* FOOTER DE LA TARJETA CON ESTADO DE STOCK Y ACCIONES */}
                     <div className="card-neon-footer">
                       <div className={`status-neon-pill ${totalStk < 10 ? "stock-warning" : ""}`} style={{ color: totalStk < 10 ? "#c41230" : "#2ecc71", background: totalStk < 10 ? "rgba(196, 18, 48, 0.1)" : "rgba(46, 204, 113, 0.1)", borderColor: totalStk < 10 ? "rgba(196, 18, 48, 0.3)" : "rgba(46, 204, 113, 0.3)" }}>
                         <span className="dot-pulse" style={{ backgroundColor: totalStk < 10 ? "#c41230" : "#2ecc71", boxShadow: `0 0 8px ${totalStk < 10 ? "#c41230" : "#2ecc71"}` }}></span> 
@@ -266,7 +257,6 @@ function Inventario() {
         </div>
       )}
 
-      {/* MODAL OSCURO NEÓN */}
       {mostrarModal && (
         <div className="modal-overlay">
           <div className="modal-card">
@@ -278,13 +268,6 @@ function Inventario() {
                 <input type="text" value={form.nombreProducto}
                   onChange={(e) => setForm({ ...form, nombreProducto: e.target.value })}
                   placeholder="Ej: Jeans 501 Original" />
-              </div>
-
-              <div className="form-group">
-                <label>Descripción</label>
-                <input type="text" value={form.descripcionProducto}
-                  onChange={(e) => setForm({ ...form, descripcionProducto: e.target.value })}
-                  placeholder="Descripción del producto" />
               </div>
 
               <div style={{ display: "flex", gap: "15px" }}>
@@ -312,7 +295,7 @@ function Inventario() {
                         min="0"
                         value={t.stock}
                         onChange={(e) => actualizarStockTalla(i, e.target.value)}
-                        style={{ width: "50px", textAlign: "center", background: "#1a1a1a", border: "1px solid #444", color: "#fff", borderRadius: "4px", padding: "4px", outline: "none" }}
+                        style={{ width: "50px", textAlign: "center", background: "#1a1a1a", border: "1px solid #444", color: "#fff", borderRadius: "4px", padding: "4px", outline: "none", MozAppearance: "textfield" }}
                       />
                     </div>
                   ))}
@@ -363,7 +346,7 @@ function Inventario() {
                   onChange={(e) => setForm({ ...form, imagen: e.target.files[0] })}
                   id="file-upload" style={{ display: "none" }} />
                 <label htmlFor="file-upload" className="btn-upload-styled">
-                  <FaUpload /> {form.imagen ? form.imagen.name : "SELECCIONAR ARCHIVO"}
+                  <UploadIconWrapper /> {form.imagen ? form.imagen.name : "SELECCIONAR ARCHIVO"}
                 </label>
               </div>
             </div>
@@ -377,6 +360,10 @@ function Inventario() {
       )}
     </div>
   );
+}
+
+function UploadIconWrapper() {
+  return <FaUpload />;
 }
 
 export default Inventario;

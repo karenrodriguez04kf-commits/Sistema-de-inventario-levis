@@ -180,20 +180,48 @@ html, body {
 
 .filter-section {
   margin-bottom: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 15px;
+}
+
+.filter-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* ACORDEÓN / MENÚS DESPLEGABLES */
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 5px 0;
+  user-select: none;
+}
+
+.accordion-header:hover .sidebar-title {
+  color: var(--levis-red);
+}
+
+.accordion-header svg {
+  color: #888;
+  transition: transform 0.2s ease;
 }
 
 .sidebar-title {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  margin-bottom: 12px;
+  margin: 0;
   color: #aaa;
+  transition: color 0.2s ease;
 }
 
 .filter-options-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 12px;
 }
 
 .custom-checkbox-label {
@@ -256,6 +284,7 @@ html, body {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 12px;
 }
 
 .talla-chip-btn {
