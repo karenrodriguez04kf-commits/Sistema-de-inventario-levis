@@ -12,7 +12,16 @@ const usuariosRoutes = require('./routes/usuariosRoutes');
 
 const app = express();
 
-app.use(cors());
+// Ocultar la versión de Express por seguridad (resuelve la primera alerta)
+app.disable('x-powered-by');
+
+// Configuración segura de CORS (resuelve la segunda alerta)
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 app.use('/images', express.static(path.join(__dirname, 'public/images')));

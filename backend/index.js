@@ -8,7 +8,13 @@ const app = express();
 app.disable('x-powered-by');
 
 // Configuración de middlewares
-app.use(cors());
+// Configuración segura de CORS
+app.use(cors({
+  origin: 'http://localhost:5173', // O la URL exacta donde corre tu frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 // Conexión a tu base de datos real en phpMyAdmin

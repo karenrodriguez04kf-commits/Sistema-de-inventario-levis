@@ -1,12 +1,12 @@
-    import React, { useState } from 'react';
-    import api from './api';
-    import { useNavigate, Link } from 'react-router-dom';
-    import './Login.css'; // Importación del CSS
+import React, { useState } from 'react';
+import api from './api';
+import { useNavigate, Link } from 'react-router-dom';
+import './Login.css'; // Importación del CSS
 
-    const Login = () => {
-        const [email, setEmail] = useState('');
-        const [password, setPassword] = useState('');
-        const navigate = useNavigate();
+const Login = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -14,12 +14,25 @@
             const res = await api.post('/auth/login', { email, password });
             
             if (res.data.Status === "Exito") {
-                // Sanitizamos los datos convirtiéndolos explícitamente a string para SonarQube
-                localStorage.setItem('token', String(res.data.Token || ''));
-                localStorage.setItem('rol', String(res.data.Rol || ''));
-                localStorage.setItem('id_usuario', String(res.data.id_usuario || ''));
+                // Sanitización estricta para SonarQube
+                const rawToken = res.data.Token;
+                const rawRol = res.data.Rol;
+                const rawId = res.data.id_usuario;
 
-                navigate(res.data.Rol === 'admin' ? '/home' : '/home/catalogo');
+                // Validamos y sanitizamos el token
+                const safeToken = typeof rawToken === 'string' ? rawToken.trim() : '';
+                
+                // Validamos el rol (restringiendo estrictamente a valores permitidos)
+                const safeRol = (rawRol === 'admin' || rawRol === 'cliente') ? rawRol : 'cliente';
+                
+                // Sanitizamos el ID convirtiéndolo a entero seguro en texto
+                const safeId = rawId ? String(parseInt(rawId, 10)) : '';
+
+                localStorage.setItem('token', safeToken);
+                localStorage.setItem('rol', safeRol);
+                localStorage.setItem('id_usuario', safeId);
+
+                navigate(safeRol === 'admin' ? '/home' : '/home/catalogo');
             }
         } catch (err) {
             const mensaje = err.response?.data?.Message || "Error al conectar con el servidor";
@@ -47,6 +60,6 @@
             </div>
         </div>
     );
-    };
+};
 
-    export default Login;
+export default Login;
