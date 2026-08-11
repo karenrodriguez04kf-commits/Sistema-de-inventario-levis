@@ -35,3 +35,4 @@ router.put('/:id', validarToken, upload.single('imagen'), productController.upda
 router.delete('/:id', validarToken, productController.deleteProduct);
 
 module.exports = router;
+//fin
