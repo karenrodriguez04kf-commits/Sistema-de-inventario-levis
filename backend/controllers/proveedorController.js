@@ -2,19 +2,22 @@ const db = require('../config/db');
 
 exports.getProveedores = (req, res) => {
     db.query('SELECT * FROM proveedores', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) return res.status(500).json({ error: "Error al consultar los proveedores" });
         res.json(results);
     });
 };
 
 exports.createProveedor = (req, res) => {
-    console.log("Body recibido:", req.body);
+    // Mensaje genérico seguro para SonarQube sin imprimir el req.body directamente
+    console.log("Procesando creación de proveedor...");
+    
     const { nombre, rol_proveedor, correo } = req.body;
     const sql = 'INSERT INTO proveedores (nombre, rol_proveedor, correo) VALUES (?, ?, ?)';
+    
     db.query(sql, [nombre, rol_proveedor, correo], (err) => {
         if (err) {
-            console.log("Error SQL:", err.message);
-            return res.status(500).json({ error: err.message });
+            console.log("Error en la inserción de proveedor");
+            return res.status(500).json({ error: "Error al registrar el proveedor" });
         }
         res.json({ Status: "Exito", Message: "Proveedor creado con éxito" });
     });
