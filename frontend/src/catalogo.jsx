@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api, { BASE_URL } from "./api"; 
 import "./catalogo.css";
-import { FaShoppingCart, FaTrash, FaSearch, FaPlus, FaMinus, FaReceipt, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaShoppingCart, FaTrash, FaSearch, FaPlus, FaMinus, FaReceipt, FaChevronDown, FaChevronUp, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 function Catalogo() {
@@ -15,6 +15,10 @@ function Catalogo() {
   const [carrito, setCarrito]  = useState([]);
   const [mostrarCarrito, setMostrarCarrito] = useState(false);
   
+  // Estados para el Modal de Selección Múltiple de Tallas
+  const [productoModal, setProductoModal] = useState(null);
+  const [cantidadesModal, setCantidadesModal] = useState({});
+
   // Estados para controlar los menús desplegables de los filtros
   const [desplegadoCat, setDesplegadoCat] = useState(true);
   const [desplegadoGen, setDesplegadoGen] = useState(true);
@@ -39,32 +43,31 @@ function Catalogo() {
 
   const fetchCategorias = async () => {
     try {
-      const response = await api.get("/categorias"); // Asumiendo este endpoint, o usa el que tengas en tu backend
+      const response = await api.get("/categorias");
       setCategoriasDB(response.data);
     } catch (err) {
       console.error("Error al traer categorías de BD:", err);
     }
   };
 
-  const agregarAlCarrito = (p) => {
-    setCarrito((prev) => {
-      const existe = prev.find((item) => item.id_producto === p.id_producto);
-      if (existe) {
-        return prev.map((item) =>
-          item.id_producto === p.id_producto
-            ? { ...item, cantidad: item.cantidad + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...p, cantidad: 1 }];
-    });
+  // Abre el modal de múltiples tallas limpiando las selecciones previas
+  const abrirModalSeleccion = (producto) => {
+    setProductoModal(producto);
+    setCantidadesModal({});
   };
 
-  const modificarCantidad = (id, accion) => {
+  const modificarCantidad = (id_producto, talla, accion) => {
     setCarrito((prev) =>
       prev.map((item) => {
-        if (item.id_producto === id) {
+        if (item.id_producto === id_producto && item.talla === talla) {
           const nuevaCant = accion === "mas" ? item.cantidad + 1 : item.cantidad - 1;
+          const stockMax = item.stockMaximoTalla || 999;
+
+          if (nuevaCant > stockMax) {
+            alert(`Lo sentimos, solo hay ${stockMax} unidades disponibles para la talla ${talla}`);
+            return item;
+          }
+
           return { ...item, cantidad: Math.max(1, nuevaCant) };
         }
         return item;
@@ -73,7 +76,7 @@ function Catalogo() {
   };
 
   const calcularTotal = () => {
-    return carrito.reduce((acc, p) => acc + (p.precioProducto * p.cantidad), 0);
+    return carrito.reduce((acc, p) => acc + ((p.precioProducto || p.precio || 0) * p.cantidad), 0);
   };
 
   const finalizarCompra = async () => {
@@ -94,8 +97,8 @@ function Catalogo() {
         productos: carrito.map(item => ({
           id_producto: item.id_producto,
           cantidad: item.cantidad,
-          precioProducto: item.precioProducto,
-          talla: item.talla || "Única"
+          precioProducto: item.precioProducto || item.precio,
+          talla: item.talla
         }))
       };
 
@@ -117,20 +120,7 @@ function Catalogo() {
   const normalizarTexto = (texto) =>
     texto?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() || "";
 
-  const obtenerTallasProducto = (p) => {
-    if (!p.tallas) return [p.talla || "Única"];
-    try {
-      const parsed = typeof p.tallas === 'string' ? JSON.parse(p.tallas) : p.tallas;
-      if (Array.isArray(parsed)) {
-        return parsed.filter(t => t.stock > 0).map(t => t.talla);
-      }
-    } catch (e) {
-      return [p.talla || "Única"];
-    }
-    return [p.talla || "Única"];
-  };
-
-  // Filtrado general
+  // Filtrado general adaptado al array de tallas
   let productosFiltrados = productos.filter((p) =>
     normalizarTexto(p.nombreProducto).includes(normalizarTexto(busqueda))
   );
@@ -149,10 +139,11 @@ function Catalogo() {
 
   if (tallasSeleccionadas.length > 0) {
     productosFiltrados = productosFiltrados.filter((p) => {
-      const tallasProd = obtenerTallasProducto(p);
-      return tallasSeleccionadas.some((t) => 
-        tallasProd.some(tp => normalizarTexto(tp) === normalizarTexto(t))
-      );
+      if (!p.tallas) return false;
+      return tallasSeleccionadas.some((t) => {
+        const encontrada = p.tallas.find(item => item.talla.toUpperCase() === t.toUpperCase());
+        return encontrada && Number(encontrada.stock) > 0;
+      });
     });
   }
 
@@ -162,7 +153,6 @@ function Catalogo() {
     );
   }
 
-  // Listas únicas capitalizadas y limpias para evitar duplicados por mayúsculas/minúsculas
   const limpiarYCapitalizar = (arr) => {
     const unicos = new Set();
     arr.forEach(item => {
@@ -175,7 +165,6 @@ function Catalogo() {
     return Array.from(unicos).sort();
   };
 
-  // Usamos las categorías de la BD si están disponibles, si no, del catálogo
   const listaCatRaw = categoriasDB.length > 0 
     ? categoriasDB.map(c => c.nombre) 
     : productos.map(p => p.categoria);
@@ -183,10 +172,7 @@ function Catalogo() {
   const categoriasDisponibles = limpiarYCapitalizar(listaCatRaw);
   const generosDisponibles = limpiarYCapitalizar(productos.map(p => p.genero));
   const coloresDisponibles = limpiarYCapitalizar(productos.map(p => p.color));
-
-  const tallasDisponibles = Array.from(
-    new Set(productos.flatMap((p) => obtenerTallasProducto(p)))
-  ).filter(Boolean).sort();
+  const tallasDisponibles = ["S", "M", "L", "XL", "XXL"];
 
   const toggleFiltro = (valor, lista, setLista) => {
     if (lista.includes(valor)) {
@@ -225,13 +211,12 @@ function Catalogo() {
       </div>
 
       <div className="catalogo-layout">
-        {/* SIDEBAR CON MENÚS DESPLEGABLES */}
+        {/* SIDEBAR DE FILTROS */}
         <aside className="catalogo-sidebar">
           <div className="sidebar-header-filter">
             <h3>Filtros de Búsqueda</h3>
           </div>
 
-          {/* Categoría Desplegable */}
           <div className="filter-section">
             <div className="accordion-header" onClick={() => setDesplegadoCat(!desplegadoCat)}>
               <h4 className="sidebar-title">Categoría</h4>
@@ -254,7 +239,6 @@ function Catalogo() {
             )}
           </div>
 
-          {/* Género Desplegable */}
           <div className="filter-section">
             <div className="accordion-header" onClick={() => setDesplegadoGen(!desplegadoGen)}>
               <h4 className="sidebar-title">Género</h4>
@@ -277,7 +261,6 @@ function Catalogo() {
             )}
           </div>
 
-          {/* Color Desplegable */}
           {coloresDisponibles.length > 0 && (
             <div className="filter-section">
               <div className="accordion-header" onClick={() => setDesplegadoCol(!desplegadoCol)}>
@@ -302,7 +285,6 @@ function Catalogo() {
             </div>
           )}
 
-          {/* Tallas Desplegable */}
           <div className="filter-section">
             <div className="accordion-header" onClick={() => setDesplegadoTal(!desplegadoTal)}>
               <h4 className="sidebar-title">Tallas</h4>
@@ -325,6 +307,7 @@ function Catalogo() {
           </div>
         </aside>
 
+        {/* LISTADO DE PRODUCTOS */}
         <main className="productos-container">
           {productosFiltrados.length > 0 ? (
             <div className="productos-grid">
@@ -340,8 +323,26 @@ function Catalogo() {
                   <div className="producto-info">
                     <h4>{p.nombreProducto}</h4>
                     <p className="p-talla">Color: {p.color || "N/A"} | Gen: {p.genero || "N/A"}</p>
-                    <p className="p-precio">${(p.precioProducto || 0).toLocaleString()} COP</p>
-                    <button className="btn-add-cart" onClick={() => agregarAlCarrito(p)}>
+                    
+                    {/* Visualización correcta de tallas desde el array */}
+                    <div className="tallas-badges-catalogo" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', margin: '8px 0' }}>
+                      {p.tallas && p.tallas.length > 0 ? (
+                        p.tallas.map((tItem) => {
+                          if (Number(tItem.stock) <= 0) return null;
+                          return (
+                            <span key={tItem.talla} style={{ background: '#121212', color: '#ff4d4d', border: '1px solid rgba(229, 9, 20, 0.4)', padding: '2px 6px', fontSize: '11px', borderRadius: '4px', fontWeight: 'bold' }}>
+                              {tItem.talla}: {tItem.stock}
+                            </span>
+                          );
+                        })
+                      ) : (
+                        <span style={{ fontSize: '11px', color: '#888' }}>Sin stock</span>
+                      )}
+                    </div>
+
+                    <p className="p-precio">${(p.precioProducto || p.precio || 0).toLocaleString()} COP</p>
+                    
+                    <button className="btn-add-cart" onClick={() => abrirModalSeleccion(p)}>
                       Añadir al carrito
                     </button>
                   </div>
@@ -356,9 +357,139 @@ function Catalogo() {
         </main>
       </div>
 
+      {/* MODAL PARA SELECCIONAR MÚLTIPLES TALLAS Y CANTIDADES */}
+      {productoModal && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
+          <div className="modal-content" style={{ background: '#121212', padding: '30px', borderRadius: '16px', width: '420px', color: '#fff', position: 'relative', border: '1px solid #e50914', boxShadow: '0 0 25px rgba(229, 9, 20, 0.4)' }}>
+            <button onClick={() => setProductoModal(null)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: '#aaa', cursor: 'pointer', transition: '0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#aaa'}>
+              <FaTimes size={18} />
+            </button>
+            
+            <h3 style={{ marginBottom: '8px', fontSize: '20px', color: '#fff', textShadow: '0 0 10px rgba(229, 9, 20, 0.5)' }}>Seleccionar Tallas y Cantidades</h3>
+            <p style={{ fontSize: '13px', color: '#aaa', marginBottom: '20px' }}>{productoModal.nombreProducto}</p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '250px', overflowY: 'auto', paddingRight: '5px', marginBottom: '20px' }}>
+              {productoModal.tallas && productoModal.tallas.length > 0 ? (
+                productoModal.tallas.map((tItem) => {
+                  const stockMax = Number(tItem.stock) || 0;
+                  if (stockMax <= 0) return null;
+
+                  const cantActual = cantidadesModal[tItem.talla] || 0;
+
+                  return (
+                    <div key={tItem.talla} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1a1a1a', padding: '10px 15px', borderRadius: '8px', border: '1px solid #2a2a2a' }}>
+                      <div>
+                        <span style={{ fontWeight: 'bold', fontSize: '15px', color: '#fff' }}>Talla {tItem.talla}</span>
+                        <span style={{ display: 'block', fontSize: '11px', color: '#888' }}>Stock disponible: {stockMax}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            setCantidadesModal(prev => ({
+                              ...prev,
+                              [tItem.talla]: Math.max(0, (prev[tItem.talla] || 0) - 1)
+                            }));
+                          }}
+                          style={{ width: '28px', height: '28px', background: '#222', color: '#fff', border: '1px solid #444', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <FaMinus size={10} />
+                        </button>
+                        
+                        <input 
+                          type="number" 
+                          min="0"
+                          max={stockMax}
+                          value={cantActual}
+                          onChange={(e) => {
+                            const val = Math.max(0, Math.min(stockMax, Number(e.target.value)));
+                            setCantidadesModal(prev => ({ ...prev, [tItem.talla]: val }));
+                          }}
+                          style={{ width: '45px', textAlign: 'center', background: '#0a0a0a', border: '1px solid #444', color: '#fff', borderRadius: '4px', padding: '4px', fontSize: '14px', outline: 'none' }}
+                        />
+
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            if (cantActual < stockMax) {
+                              setCantidadesModal(prev => ({
+                                ...prev,
+                                [tItem.talla]: (prev[tItem.talla] || 0) + 1
+                              }));
+                            }
+                          }}
+                          style={{ width: '28px', height: '28px', background: '#222', color: '#fff', border: '1px solid #444', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <FaPlus size={10} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={{ fontSize: '13px', color: '#e50914', textAlign: 'center' }}>No hay tallas disponibles para este producto.</p>
+              )}
+            </div>
+
+            <button 
+              onClick={() => {
+                const seleccionadas = Object.entries(cantidadesModal).filter(([talla, cantidad]) => cantidad > 0);
+
+                if (seleccionadas.length === 0) {
+                  alert("Por favor selecciona al menos una cantidad mayor a 0 en alguna talla.");
+                  return;
+                }
+
+                setCarrito((prev) => {
+                  let nuevoCarrito = [...prev];
+
+                  seleccionadas.forEach(([talla, cantidad]) => {
+                    const tItemEncontrado = productoModal.tallas.find(t => t.talla === talla);
+                    const stockMaximoTalla = tItemEncontrado ? Number(tItemEncontrado.stock) : 999;
+
+                    const indexExistente = nuevoCarrito.findIndex(
+                      (item) => item.id_producto === productoModal.id_producto && item.talla === talla
+                    );
+
+                    if (indexExistente >= 0) {
+                      const itemActual = nuevoCarrito[indexExistente];
+                      const nuevaCantidadTotal = itemActual.cantidad + cantidad;
+
+                      if (nuevaCantidadTotal > stockMaximoTalla) {
+                        alert(`La cantidad total para la talla ${talla} excede el stock disponible (${stockMaximoTalla})`);
+                        return;
+                      }
+
+                      nuevoCarrito[indexExistente] = { ...itemActual, cantidad: nuevaCantidadTotal };
+                    } else {
+                      nuevoCarrito.push({
+                        ...productoModal,
+                        talla: talla,
+                        cantidad: cantidad,
+                        stockMaximoTalla: stockMaximoTalla
+                      });
+                    }
+                  });
+
+                  return nuevoCarrito;
+                });
+
+                setProductoModal(null);
+              }}
+              style={{ width: '100%', padding: '12px', background: '#e50914', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 0 15px rgba(229, 9, 20, 0.6)', transition: '0.2s' }}
+              onMouseEnter={(e) => e.target.style.background = '#ff1e2b'}
+              onMouseLeave={(e) => e.target.style.background = '#e50914'}
+            >
+              AÑADIR AL CARRITO
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* CARRITO DRAWER */}
       <div className={`cart-drawer ${mostrarCarrito ? "open" : ""}`}>
         <div className="cart-drawer-header">
-          <h3>TU CARRITO ({carrito.length})</h3>
+          <h3>TU CARRITO ({carrito.reduce((acc, i) => acc + i.cantidad, 0)})</h3>
           <button className="btn-close-cart" onClick={() => setMostrarCarrito(false)}>✕</button>
         </div>
         <div className="cart-drawer-body">
@@ -366,19 +497,20 @@ function Catalogo() {
             <p className="empty-msg">El carrito está vacío</p>
           ) : (
             carrito.map(item => (
-              <div key={item.id_producto} className="cart-item-pro">
+              <div key={`${item.id_producto}-${item.talla}`} className="cart-item-pro">
                 <div className="cart-item-info">
                   <p className="item-name">{item.nombreProducto}</p>
+                  <p style={{ fontSize: '12px', color: '#aaa', margin: '2px 0' }}>Talla: <strong>{item.talla}</strong></p>
                   <div className="qty-controls">
-                    <button onClick={() => modificarCantidad(item.id_producto, "menos")}><FaMinus size={10}/></button>
+                    <button onClick={() => modificarCantidad(item.id_producto, item.talla, "menos")}><FaMinus size={10}/></button>
                     <span>{item.cantidad}</span>
-                    <button onClick={() => modificarCantidad(item.id_producto, "mas")}><FaPlus size={10}/></button>
+                    <button onClick={() => modificarCantidad(item.id_producto, item.talla, "mas")}><FaPlus size={10}/></button>
                   </div>
                   <span className="item-subtotal">
-                    Subtotal: ${(item.precioProducto * item.cantidad).toLocaleString()}
+                    Subtotal: ${((item.precioProducto || item.precio || 0) * item.cantidad).toLocaleString()}
                   </span>
                 </div>
-                <FaTrash className="btn-remove" onClick={() => setCarrito(carrito.filter(i => i.id_producto !== item.id_producto))} />
+                <FaTrash className="btn-remove" onClick={() => setCarrito(carrito.filter(i => !(i.id_producto === item.id_producto && i.talla === item.talla)))} />
               </div>
             ))
           )}
