@@ -17,7 +17,7 @@ const Landing = () => {
                 </p>
                 <div className="landing-divider" />
                 <p className="landing-slogan">QUALITY NEVER GOES OUT OF STYLE.</p>
-                <button className="btn-landing-login" onClick={() => navigate('/login')}>
+                <button type="button" className="btn-landing-login" onClick={() => navigate('/login')}>
                     INGRESAR A LA TIENDA
                 </button>
             </div>

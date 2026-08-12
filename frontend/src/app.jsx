@@ -4,7 +4,7 @@ import Catalogo from "./catalogo";
 import Inventario from "./inventario"; 
 import Login from './login';
 import Home from './home';
-import Clientes from './clientes';
+import Usuarios from './usuarios';
 import Bienvenida from './bienvenida';
 import Registro from './registro'; 
 import Recuperar from './recuperar';
@@ -36,9 +36,10 @@ function App() {
           <Route path="catalogo" element={<Catalogo />} />
           <Route path="mis-pedidos" element={<MisPedidos />} />
 
-          <Route path="clientes" element={
-            <RutaAdmin><Clientes /></RutaAdmin>
-          } />
+          <Route path="usuarios" element={
+           <RutaAdmin><Usuarios /></RutaAdmin>
+            } />
+
           <Route path="inventario" element={
             <RutaAdmin><Inventario /></RutaAdmin>
           } />

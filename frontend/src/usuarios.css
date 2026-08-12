@@ -1,5 +1,5 @@
 /* ==========================================
-   ESTILOS PARA GESTIÓN DE CLIENTES (LEVI'S)
+   ESTILOS PARA GESTIÓN DE USUARIOS (LEVI'S)
    ========================================== */
 :root {
   --bg-main: #111111;
@@ -85,6 +85,31 @@
 .clientes-form input:focus {
   border-color: var(--primary-red);
   box-shadow: 0 0 10px rgba(196, 18, 48, 0.2);
+}
+
+/* Selector de Rol oscuro integrado */
+.select-rol {
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 15px;
+  color: var(--text-main);
+  font-size: 14px;
+  flex: 1;
+  min-width: 150px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.select-rol:focus {
+  border-color: var(--primary-red);
+  box-shadow: 0 0 10px rgba(196, 18, 48, 0.2);
+}
+
+.select-rol option {
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
 }
 
 /* Botones del formulario */
@@ -176,6 +201,27 @@
 
 .bold {
   font-weight: 700;
+}
+
+/* Insignias (Badges) para el ROL */
+.badge-rol {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.badge-admin {
+  background: rgba(196, 18, 48, 0.15);
+  color: var(--primary-red-hover);
+  border: 1px solid rgba(196, 18, 48, 0.3);
+}
+
+.badge-cliente {
+  background: rgba(52, 152, 219, 0.15);
+  color: #3498db;
+  border: 1px solid rgba(52, 152, 219, 0.3);
 }
 
 /* Botones dentro de la tabla */

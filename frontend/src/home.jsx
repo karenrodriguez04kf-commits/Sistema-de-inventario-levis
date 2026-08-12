@@ -37,7 +37,7 @@ const Home = () => {
                     {rol === 'admin' && (
                         <>
                             <Link to="/home/inventario" className="nav-item">INVENTARIO</Link>
-                            <Link to="/home/clientes" className="nav-item">CLIENTES</Link>
+                           <Link to="/home/usuarios" className="nav-item">GESTIÓN DE USUARIOS</Link>
                             <Link to="/home/reporte-ventas" className="nav-item">REPORTE DE VENTAS</Link>
                             <Link to="/home/proveedores" className="nav-item">PROVEEDORES</Link>
                         </>

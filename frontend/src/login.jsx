@@ -58,7 +58,7 @@ const Login = () => {
                     </div>
                 </form>
             </div>
-        </div>git status
+        </div>
     );
 };
 

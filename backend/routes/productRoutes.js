@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
 const validarToken = require('../middlewares/authMiddleware');
+const authAdmin = require('../middlewares/authAdmin'); // <--- 1. Importamos el filtro de admin
 const multer = require('multer');
 const path = require('path');
 
@@ -20,19 +21,21 @@ const upload = multer({
 });
 
 
-// --- RUTAS ESPECÍFICAS PRIMERO ---
+// --- RUTAS PÚBLICAS (Cualquiera las puede ver) ---
 router.get('/catalogo', productController.getCatalogo);
-router.get('/ReporteVentas', validarToken, productController.getReporteVentas);
 router.get('/categorias', productController.getCategorias);
+
+// --- RUTAS PARA CLIENTES LOGUEADOS (Cualquier usuario registrado) ---
 router.post('/finalizarCompra', validarToken, productController.finalizarCompra);
 router.post('/finalizar-compra', validarToken, productController.finalizarCompra);
 router.get('/mis-pedidos/:id_usuario', validarToken, productController.getPedidosUsuario);
 
-// --- RUTAS GENERALES ---
-router.get('/', validarToken, productController.getAllProducts);
-router.post('/', validarToken, upload.single('imagen'), productController.createProduct);
-router.put('/:id', validarToken, upload.single('imagen'), productController.updateProduct);
-router.delete('/:id', validarToken, productController.deleteProduct);
+// --- RUTAS EXCLUSIVAS DE ADMINISTRADORES (Blindadas con authAdmin) ---
+router.get('/ReporteVentas', validarToken, authAdmin, productController.getReporteVentas);
+router.get('/', validarToken, authAdmin, productController.getAllProducts);
+router.post('/', validarToken, authAdmin, upload.single('imagen'), productController.createProduct);
+router.put('/:id', validarToken, authAdmin, upload.single('imagen'), productController.updateProduct);
+router.delete('/:id', validarToken, authAdmin, productController.deleteProduct);
 
 module.exports = router;
 //fin
