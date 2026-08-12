@@ -19,20 +19,25 @@ const Login = () => {
                 const rawRol = res.data.Rol;
                 const rawId = res.data.id_usuario;
 
-                // Validamos y sanitizamos el token
-                const safeToken = typeof rawToken === 'string' ? rawToken.trim() : '';
+                // Validamos y sanitizamos el token (agregando un límite de longitud seguro)
+                const safeToken = (typeof rawToken === 'string' && rawToken.trim() !== '') ? rawToken.trim().slice(0, 500) : '';
                 
                 // Validamos el rol (restringiendo estrictamente a valores permitidos)
-                const safeRol = (rawRol === 'admin' || rawRol === 'cliente') ? rawRol : 'cliente';
+                const safeRol = (rawRol === 'admin' || rawRol === 'cliente') ? rawRol : '';
                 
                 // Sanitizamos el ID convirtiéndolo a entero seguro en texto
-                const safeId = rawId ? String(parseInt(rawId, 10)) : '';
+                const safeId = (rawId !== null && rawId !== undefined && !isNaN(parseInt(rawId, 10))) ? String(parseInt(rawId, 10)) : '';
 
-                localStorage.setItem('token', safeToken);
-                localStorage.setItem('rol', safeRol);
-                localStorage.setItem('id_usuario', safeId);
+                // Condición de seguridad exigida por SonarQube para evitar almacenar datos taint sin validar
+                if (safeToken && safeRol && safeId) {
+                    localStorage.setItem('token', safeToken);
+                    localStorage.setItem('rol', safeRol);
+                    localStorage.setItem('id_usuario', safeId);
 
-                navigate(safeRol === 'admin' ? '/home' : '/home/catalogo');
+                    navigate(safeRol === 'admin' ? '/home' : '/home/catalogo');
+                } else {
+                    alert("Respuesta del servidor inválida o corrupta");
+                }
             }
         } catch (err) {
             const mensaje = err.response?.data?.Message || "Error al conectar con el servidor";
