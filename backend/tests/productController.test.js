@@ -1,62 +1,45 @@
 const productController = require('../controllers/productController');
 const db = require('../config/db');
 
-// 1. Simulamos el módulo de la base de datos
 jest.mock('../config/db');
 
 describe('Pruebas unitarias para productController', () => {
-    
-    // Limpiamos los mocks después de cada prueba
     afterEach(() => {
         jest.clearAllMocks();
     });
 
-    // 🟢 CASO POSITIVO: Obtener categorías correctamente
-    test('Debe obtener las categorías correctamente (Caso Exitoso)', () => {
-        // Arrange (Preparar)
-        const categoriasFalsas = [
-            { id_categoria: 1, nombre: 'Jeans' },
-            { id_categoria: 2, nombre: 'Camisas' }
-        ];
-
+    test('Debe obtener las categorías correctamente', () => {
+        const categoriasFalsas = [{ id_categoria: 1, nombre: 'Jeans' }];
         db.query.mockImplementation((sql, callback) => {
-            callback(null, categoriasFalsas); // error = null, resultados = categoriasFalsas
+            callback(null, categoriasFalsas);
         });
 
         const req = {};
         const res = {
-            json: jest.fn(),
-            status: jest.fn().mockReturnThis()
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
         };
 
-        // Act (Ejecutar)
         productController.getCategorias(req, res);
 
-        // Assert (Comprobar)
         expect(res.json).toHaveBeenCalledWith(categoriasFalsas);
     });
 
-    // 🔴 CASO NEGATIVO: Error en la base de datos al obtener categorías
-    test('Debe retornar un error 500 si falla la base de datos (Caso Negativo)', () => {
-        // Arrange (Preparar)
-        const errorBD = new Error('Error de conexión con MySQL');
-
+    test('Debe retornar error 500 si falla la base de datos al obtener categorías', () => {
+        const errorBD = new Error('Error de conexión');
         db.query.mockImplementation((sql, callback) => {
-            callback(errorBD, null); // error = errorBD, resultados = null
+            callback(errorBD, null);
         });
 
         const req = {};
         const res = {
-            json: jest.fn(),
-            status: jest.fn().mockReturnThis()
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn()
         };
 
-        // Act (Ejecutar)
         productController.getCategorias(req, res);
 
-        // Assert (Comprobar)
         expect(res.status).toHaveBeenCalledWith(500);
         expect(res.json).toHaveBeenCalledWith({ error: errorBD.message });
     });
-
 });
