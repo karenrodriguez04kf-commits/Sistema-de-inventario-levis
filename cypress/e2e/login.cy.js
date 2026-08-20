@@ -87,7 +87,7 @@ describe('Prueba End-to-End - Sistema de Inventario Levis (Compra Talla M)', () 
   cy.url().should('include', '/login');
 
 });
-it('Debe mostrar error cuando la contraseña es incorrecta', () => {
+it('Debe mostrar error cuando el correo no está registrado', () => {
 
   // 1. Visitar la Landing
   cy.visit('http://localhost:5173/');
@@ -95,19 +95,19 @@ it('Debe mostrar error cuando la contraseña es incorrecta', () => {
   // 2. Ir al Login
   cy.get('button').contains('INGRESAR A LA TIENDA').click();
 
-  // 3. Verificar que estamos en Login
+  // 3. Verificar Login
   cy.url().should('include', '/login');
 
-  // 4. Interceptar la petición de login
+  // 4. Interceptar el login
   cy.intercept('POST', '**/api/auth/login').as('login');
 
-  // 5. Ingresar un correo que sí existe
+  // 5. Correo válido pero no registrado
   cy.get("input[placeholder='EMAIL']")
-    .type('gabriel@gmail.com');
+    .type('correoquenoexiste@gmail.com');
 
-  // 6. Ingresar una contraseña incorrecta
+  // 6. Contraseña
   cy.get("input[placeholder='CONTRASEÑA']")
-    .type('contraseña_incorrecta');
+    .type('123456');
 
   // 7. Intentar iniciar sesión
   cy.get('button').contains('INGRESAR').click();
@@ -115,17 +115,17 @@ it('Debe mostrar error cuando la contraseña es incorrecta', () => {
   // 8. Esperar la respuesta del backend
   cy.wait('@login').then((interception) => {
 
-    // Verificar código de respuesta
+    // Verificar código HTTP
     expect(interception.response.statusCode).to.equal(401);
 
     // Verificar mensaje del backend
     expect(interception.response.body.Message)
-      .to.equal('Contraseña incorrecta');
+      .to.equal('No existe una cuenta con este correo');
 
   });
 
   // 9. Verificar que permanece en Login
   cy.url().should('include', '/login');
 
-}); 
+});
 });

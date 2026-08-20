@@ -1,4 +1,5 @@
 describe('Prueba E2E - CRUD de Clientes', () => {
+  //CREAR CLIENTE
   it('Debe crear un cliente correctamente', () => {
 
     cy.visit('http://localhost:5173/');
@@ -66,12 +67,7 @@ describe('Prueba E2E - CRUD de Clientes', () => {
       .should('be.visible');
 
   });
-
-
-  // ==========================================
   // ACTUALIZAR CLIENTE
-  // ==========================================
-
   it('Debe actualizar correctamente los datos de un cliente', () => {
 
     cy.visit('http://localhost:5173/');
@@ -157,7 +153,7 @@ describe('Prueba E2E - CRUD de Clientes', () => {
       .should('be.visible');
 
   });
-
+// ELIMINAR CLIENTE
   it('Debe eliminar correctamente un cliente', () => {
 
     cy.visit('http://localhost:5173/');
