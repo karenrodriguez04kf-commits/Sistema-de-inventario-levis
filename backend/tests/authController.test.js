@@ -11,8 +11,7 @@ describe('Pruebas unitarias para authController', () => {
     });
 
     test('Debe registrar un usuario correctamente (Caso Exitoso)', () => {
-        // 1. Primer db.query: Verifica correo duplicado (devuelve array vacío [])
-        // 2. Segundo db.query: Inserta el usuario exitosamente
+
         db.query
             .mockImplementationOnce((sql, params, callback) => {
                 callback(null, []); 
@@ -21,7 +20,6 @@ describe('Pruebas unitarias para authController', () => {
                 callback(null, { insertId: 1 });
             });
 
-        // Mock de bcrypt.hash para que genere un hash falso sin error
         bcrypt.hash.mockImplementation((pass, rounds, callback) => {
             callback(null, 'falsedhash');
         });
@@ -53,7 +51,6 @@ describe('Pruebas unitarias para authController', () => {
             callback(null, usuarioFalso);
         });
 
-        // Mock de bcrypt.compare para que retorne que las contraseñas coinciden (true)
         bcrypt.compare.mockImplementation((pass, hash, callback) => {
             callback(null, true);
         });

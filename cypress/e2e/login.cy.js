@@ -46,4 +46,86 @@ describe('Prueba End-to-End - Sistema de Inventario Levis (Compra Talla M)', () 
     // Mensaje de éxito visible en el panel de Cypress
     cy.log('Prueba E2E completada al 100% con éxito :D');
   });
+  it('Debe mostrar error cuando la contraseña es incorrecta', () => {
+
+  // 1. Visitar la Landing
+  cy.visit('http://localhost:5173/');
+
+  // 2. Ir al Login
+  cy.get('button').contains('INGRESAR A LA TIENDA').click();
+
+  // 3. Verificar que estamos en Login
+  cy.url().should('include', '/login');
+
+  // 4. Interceptar la petición de login
+  cy.intercept('POST', '**/api/auth/login').as('login');
+
+  // 5. Ingresar un correo que sí existe
+  cy.get("input[placeholder='EMAIL']")
+    .type('gabriel@gmail.com');
+
+  // 6. Ingresar una contraseña incorrecta
+  cy.get("input[placeholder='CONTRASEÑA']")
+    .type('contraseña_incorrecta');
+
+  // 7. Intentar iniciar sesión
+  cy.get('button').contains('INGRESAR').click();
+
+  // 8. Esperar la respuesta del backend
+  cy.wait('@login').then((interception) => {
+
+    // Verificar que el backend rechaza la solicitud
+    expect(interception.response.statusCode).to.equal(401);
+
+    // Verificar el mensaje devuelto
+    expect(interception.response.body.Message)
+      .to.equal('Contraseña incorrecta');
+
+  });
+
+  // 9. Verificar que el usuario permanece en Login
+  cy.url().should('include', '/login');
+
+});
+it('Debe mostrar error cuando la contraseña es incorrecta', () => {
+
+  // 1. Visitar la Landing
+  cy.visit('http://localhost:5173/');
+
+  // 2. Ir al Login
+  cy.get('button').contains('INGRESAR A LA TIENDA').click();
+
+  // 3. Verificar que estamos en Login
+  cy.url().should('include', '/login');
+
+  // 4. Interceptar la petición de login
+  cy.intercept('POST', '**/api/auth/login').as('login');
+
+  // 5. Ingresar un correo que sí existe
+  cy.get("input[placeholder='EMAIL']")
+    .type('gabriel@gmail.com');
+
+  // 6. Ingresar una contraseña incorrecta
+  cy.get("input[placeholder='CONTRASEÑA']")
+    .type('contraseña_incorrecta');
+
+  // 7. Intentar iniciar sesión
+  cy.get('button').contains('INGRESAR').click();
+
+  // 8. Esperar la respuesta del backend
+  cy.wait('@login').then((interception) => {
+
+    // Verificar código de respuesta
+    expect(interception.response.statusCode).to.equal(401);
+
+    // Verificar mensaje del backend
+    expect(interception.response.body.Message)
+      .to.equal('Contraseña incorrecta');
+
+  });
+
+  // 9. Verificar que permanece en Login
+  cy.url().should('include', '/login');
+
+}); 
 });
