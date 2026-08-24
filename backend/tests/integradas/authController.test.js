@@ -1,11 +1,11 @@
-const authController = require('../controllers/authController');
-const db = require('../config/db');
+const authController = require('../../controllers/authController');
+const db = require('../../config/db');
 const bcrypt = require('bcrypt');
 
 jest.mock('../config/db');
 jest.mock('bcrypt');
 
-describe('Pruebas unitarias para authController', () => {
+describe('Pruebas para authController', () => {
     afterEach(() => {
         jest.clearAllMocks();
     });

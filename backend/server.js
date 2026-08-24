@@ -12,10 +12,10 @@ const usuariosRoutes = require('./routes/usuariosRoutes');
 
 const app = express();
 
-// Ocultar la versión de Express por seguridad (resuelve la primera alerta)
+// Ocultar la versión de Express por seguridad
 app.disable('x-powered-by');
 
-// Configuración segura de CORS (resuelve la segunda alerta)
+// Configuración segura de CORS
 app.use(cors({
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -61,11 +61,16 @@ app.use((err, req, res, next) => {
     res.status(500).json({ Status: "Error", Message: "Ocurrió un error en el servidor" });
 });
 
-const PORT = 3002;
-app.listen(PORT, () => {
-    console.log("-----------------------------------------");
-    console.log(`✅ Servidor LEVI'S listo en http://localhost:${PORT}`);
-    console.log(`📖 Documentación: http://localhost:${PORT}/api-docs`);
-    console.log("-----------------------------------------");
-});
-//fin
+// Levantar el puerto solo si el archivo se ejecuta directamente (ej: node server.js)
+if (require.main === module) {
+    const PORT = process.env.PORT || 3002;
+    app.listen(PORT, () => {
+        console.log("-----------------------------------------");
+        console.log(`✅ Servidor LEVI'S listo en http://localhost:${PORT}`);
+        console.log(`📖 Documentación: http://localhost:${PORT}/api-docs`);
+        console.log("-----------------------------------------");
+    });
+}
+
+// Exportar app para Jest y Supertest
+module.exports = app;

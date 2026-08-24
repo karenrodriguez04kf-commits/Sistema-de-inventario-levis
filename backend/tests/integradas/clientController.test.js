@@ -1,5 +1,6 @@
-const clientController = require('../controllers/clientController');
-const db = require('../config/db');
+const clientController = require('../../controllers/clientController');
+const db = require('../../config/db');
+const { it } = require('node:test');
 
 jest.mock('../config/db');
 
@@ -7,7 +8,7 @@ describe('Pruebas unitarias para clientController', () => {
     afterEach(() => {
         jest.clearAllMocks();
     });
-
+    
     test('Debe obtener solo los usuarios con rol cliente', () => {
         const clientesFalsos = [{ id_usuario: 1, nombre: 'Cliente 1', rol: 'cliente' }];
         db.query.mockImplementation((sql, callback) => {

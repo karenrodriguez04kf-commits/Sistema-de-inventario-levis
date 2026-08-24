@@ -69,7 +69,7 @@ describe('Prueba End-to-End - Sistema de Inventario Levis (Compra Talla M)', () 
     .type('contraseña_incorrecta');
 
   // 7. Intentar iniciar sesión
-  cy.get('button').contains('INGRESAR').click();
+  cy.get('button').contains('INGRESAR').click(); 
 
   // 8. Esperar la respuesta del backend
   cy.wait('@login').then((interception) => {
