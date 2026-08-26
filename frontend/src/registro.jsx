@@ -11,6 +11,17 @@ const Registro = () => {
 
     const handleRegistro = async (e) => {
         e.preventDefault();
+
+        // Validar longitud (6 a 20) y que sean EXCLUSIVAMENTE números
+        if (password.length < 6 || password.length >  20) {
+            alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
+            return;
+        }
+        if (!/^\d+$/.test(password)) {
+            alert("❌ La contraseña solo debe contener números (no se permiten letras ni caracteres especiales).");
+            return;
+        }
+
         try {
             const response = await api.post('/auth/register', { nombre, email, password });
             if (response.data.Status === "Exito") {
@@ -29,7 +40,7 @@ const Registro = () => {
                 <form onSubmit={handleRegistro} className="registro-form">
                     <input type="text" placeholder="NOMBRE COMPLETO" onChange={e => setNombre(e.target.value)} required />
                     <input type="email" placeholder="EMAIL" onChange={e => setEmail(e.target.value)} required />
-                    <input type="password" placeholder="CONTRASEÑA" onChange={e => setPassword(e.target.value)} required />
+                    <input type="password" placeholder="CONTRASEÑA (Solo números, 6-20)" onChange={e => setPassword(e.target.value)} required />
                     <button type="submit" className="btn-registro">CREAR CUENTA</button>
                     <div className="registro-footer">
                         <span style={{ color: '#666', fontSize: '13px' }}>¿Ya tienes cuenta? </span>

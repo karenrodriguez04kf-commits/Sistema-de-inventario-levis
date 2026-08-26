@@ -23,7 +23,7 @@ const Perfil = () => {
                     .then(res => {
                         setNombre(res.data.nombre || '');
                         setTelefono(res.data.telefono || '');
-                        setDireccion(res.data.direccion || '');     
+                        setDireccion(res.data.direccion || '');    
                     })
                     .catch(err => console.error("Error al obtener datos:", err));
             } catch (error) {
@@ -34,6 +34,18 @@ const Perfil = () => {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+
+        if (password.trim() !== '') {
+            if (password.length < 6 || password.length > 20) {
+                alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
+                return;
+            }
+            if (!/^\d+$/.test(password)) {
+                alert("❌ La contraseña solo debe contener números (sin letras ni caracteres especiales).");
+                return;
+            }
+        }
+
         setCargando(true);
         try {
             const response = await api.put('/auth/perfil/actualizar', { 
@@ -56,6 +68,22 @@ const Perfil = () => {
             alert("❌ Error al actualizar: Verifica la conexión con el servidor");
         } finally {
             setCargando(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (window.confirm("¿Estás seguro de que deseas eliminar tu cuenta permanentemente? Esta acción no se puede deshacer.")) {
+            try {
+                const response = await api.delete('/auth/perfil', { data: { email } });
+                if (response.status === 200 || response.data.Status === "Exito") {
+                    alert("Tu cuenta ha sido eliminada.");
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } catch (err) {
+                console.error("Error al eliminar la cuenta:", err);
+                alert("❌ No se pudo eliminar la cuenta. Inténtalo de nuevo.");
+            }
         }
     };
 
@@ -88,7 +116,7 @@ const Perfil = () => {
                             onChange={e => setPassword(e.target.value)} 
                             placeholder="Dejar en blanco para no cambiar"
                         />
-                        <span className="input-hint">Solo si deseas cambiarla</span>
+                        <span className="input-hint">Solo números (6-20 caracteres)</span>
                     </div>
 
                     <div className="modern-input-group">
@@ -126,6 +154,17 @@ const Perfil = () => {
                         {cargando ? 'GUARDANDO...' : 'GUARDAR CAMBIOS'}
                     </button>
                 </form>
+
+                {/* Botón de eliminar cuenta estilizado de forma profesional */}
+                <div style={{ marginTop: '16px', textAlign: 'center' }}>
+                    <button 
+                        type="button" 
+                        onClick={handleDeleteAccount}
+                        className="btn-perfil-delete"
+                    >
+                        ELIMINAR CUENTA
+                    </button>
+                </div>
             </div>
         </div>
     );

@@ -1,5 +1,5 @@
-const clientController = require('../controllers/clientController');
-const db = require('../config/db');
+const clientController = require('../../controllers/clientController');
+const db = require('../../config/db');
 
 jest.mock('../config/db');
 

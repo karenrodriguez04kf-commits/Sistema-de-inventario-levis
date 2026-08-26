@@ -144,3 +144,26 @@ body {
   cursor: not-allowed;
   box-shadow: none;
 }
+
+/* --- Botón Estilizado para Eliminar Cuenta --- */
+.btn-perfil-delete {
+  width: 100%;
+  padding: 14px;
+  background-color: transparent;
+  color: var(--primary-red-hover);
+  border: 1px solid rgba(196, 18, 48, 0.4);
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-perfil-delete:hover {
+  background-color: rgba(196, 18, 48, 0.15);
+  border-color: var(--primary-red);
+  color: white;
+  box-shadow: 0 0 15px rgba(196, 18, 48, 0.25);
+  transform: translateY(-1px);
+}

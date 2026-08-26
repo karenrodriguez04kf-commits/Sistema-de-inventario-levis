@@ -1,5 +1,5 @@
-const authController = require('../controllers/authController');
-const db = require('../config/db');
+const authController = require('../../controllers/authController');
+const db = require('../../config/db');
 const bcrypt = require('bcrypt');
 
 jest.mock('../config/db');

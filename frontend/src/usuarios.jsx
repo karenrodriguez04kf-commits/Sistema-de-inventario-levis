@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import api from './api'; // Tu instancia configurada de axios
-import './usuarios.css'; // Puedes mantener o renombrar tu archivo CSS
+import api from './api'; 
+import './usuarios.css'; 
 
 const Usuarios = () => {
     const [usuarios, setUsuarios] = useState([]);
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState(''); // Necesario para crear nuevos usuarios
-    const [rol, setRol] = useState('cliente'); // Por defecto se crea como cliente
+    const [password, setPassword] = useState(''); 
+    const [rol, setRol] = useState('cliente'); 
     const [telefono, setTelefono] = useState('');
     const [direccion, setDireccion] = useState('');
     const [editandoId, setEditandoId] = useState(null);
@@ -30,15 +30,33 @@ const Usuarios = () => {
         if (!nombre.trim()) return alert("El nombre es obligatorio");
         if (!email.trim()) return alert("El email es obligatorio");
         
-        // Si estamos creando uno nuevo, exigimos contraseña
-        if (!editandoId && !password.trim()) {
-            return alert("La contraseña es obligatoria para nuevos usuarios");
+        // Si creamos usuario nuevo, exigimos contraseña numérica
+        if (!editandoId) {
+            if (!password.trim()) {
+                return alert("La contraseña es obligatoria para nuevos usuarios");
+            }
+            if (password.length < 6 || password.length > 20) {
+                return alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
+            }
+            if (!/^\d+$/.test(password)) {
+                return alert("❌ La contraseña solo debe contener números (sin letras ni caracteres especiales).");
+            }
+        } else {
+            // Si editamos y se escribió algo en contraseña, validamos igual
+            if (password.trim() !== '') {
+                if (password.length < 6 || password.length > 20) {
+                    return alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
+                }
+                if (!/^\d+$/.test(password)) {
+                    return alert("❌ La contraseña solo debe contener números (sin letras ni caracteres especiales).");
+                }
+            }
         }
 
         const datosUsuario = { 
             nombre, 
             email, 
-            ...(password && { password }), // Solo envía password si se escribió algo
+            ...(password && { password }), 
             rol, 
             telefono, 
             direccion 
@@ -54,7 +72,6 @@ const Usuarios = () => {
                 alert("Usuario registrado exitosamente ✅");
             }
             
-            // Limpiar formulario completo
             setNombre(''); 
             setEmail(''); 
             setPassword('');
@@ -72,7 +89,7 @@ const Usuarios = () => {
         setEditandoId(usuario.id_usuario);
         setNombre(usuario.nombre);
         setEmail(usuario.email);
-        setPassword(''); // Dejamos la contraseña vacía por seguridad al editar
+        setPassword(''); 
         setRol(usuario.rol || 'cliente');
         setTelefono(usuario.telefono || '');
         setDireccion(usuario.direccion || '');
@@ -103,16 +120,14 @@ const Usuarios = () => {
                 <input type="text" placeholder="NOMBRE" value={nombre} onChange={e => setNombre(e.target.value)} required />
                 <input type="email" placeholder="EMAIL" value={email} onChange={e => setEmail(e.target.value)} required />
                 
-                {/* Campo de contraseña (opcional al editar, requerido al crear) */}
                 <input 
                     type="password" 
-                    placeholder={editandoId ? "NUEVA CONTRASEÑA (Opcional)" : "CONTRASEÑA"} 
+                    placeholder={editandoId ? "NUEVA CONTRASEÑA (Opcional, solo números)" : "CONTRASEÑA (Solo números, 6-20)"} 
                     value={password} 
                     onChange={e => setPassword(e.target.value)} 
                     {...(!editandoId && { required: true })}
                 />
 
-                {/* Selector clave para cambiar de rol entre cliente y admin */}
                 <select value={rol} onChange={e => setRol(e.target.value)} required className="select-rol">
                     <option value="cliente">Cliente</option>
                     <option value="admin">Administrador</option>
