@@ -2,7 +2,7 @@ const authController = require('../../controllers/authController');
 const db = require('../../config/db');
 const bcrypt = require('bcrypt');
 
-jest.mock('../config/db');
+jest.mock('../../config/db');
 jest.mock('bcrypt');
 
 describe('Pruebas unitarias para authController', () => {

@@ -1,7 +1,7 @@
 const productController = require('../../controllers/productController');
 const db = require('../../config/db');
 
-jest.mock('../config/db');
+jest.mock('../../config/db');
 
 describe('Pruebas unitarias para productController', () => {
     afterEach(() => {

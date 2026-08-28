@@ -1,7 +1,7 @@
 const proveedorController = require('../../controllers/proveedorController');
 const db = require('../../config/db');
 
-jest.mock('../config/db');
+jest.mock('../../config/db');
 
 describe('Pruebas unitarias para proveedorController', () => {
     afterEach(() => {

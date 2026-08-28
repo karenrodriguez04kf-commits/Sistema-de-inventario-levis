@@ -147,12 +147,30 @@ exports.updateProduct = (req, res) => {
     });
 };
 
-// 5. ELIMINAR PRODUCTO
+// 5. ELIMINAR PRODUCTO (CORREGIDO)
 exports.deleteProduct = (req, res) => {
     const { id } = req.params;
-    db.query('DELETE FROM productos WHERE id_producto = ?', [id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ Status: "Exito", Message: "Producto eliminado correctamente" });
+
+    // Paso 1: Eliminar relaciones en la tabla producto_tallas
+    db.query('DELETE FROM producto_tallas WHERE id_producto = ?', [id], (errTallas) => {
+        if (errTallas) {
+            return res.status(500).json({ error: errTallas.message });
+        }
+
+        // Paso 2: Eliminar el registro en productos
+        db.query('DELETE FROM productos WHERE id_producto = ?', [id], (err) => {
+            if (err) {
+                // Si el producto ya fue vendido (registrado en detalleventa)
+                if (err.errno === 1451 || err.code === 'ER_ROW_IS_REFERENCED_2') {
+                    return res.status(400).json({ 
+                        error: "No se puede eliminar el producto porque tiene ventas asociadas." 
+                    });
+                }
+                return res.status(500).json({ error: err.message });
+            }
+
+            res.json({ Status: "Exito", Message: "Producto eliminado correctamente" });
+        });
     });
 };
 
