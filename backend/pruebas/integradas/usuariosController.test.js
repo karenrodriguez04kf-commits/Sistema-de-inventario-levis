@@ -2,7 +2,7 @@ const usuariosController = require('../../controllers/usuariosController');
 const db = require('../../config/db');
 
 // Mockeamos la base de datos para que devuelva un objeto con la función promise().query
-jest.mock('../config/db', () => ({
+jest.mock('../../config/db', () => ({
     promise: jest.fn().mockReturnValue({
         query: jest.fn()
     })

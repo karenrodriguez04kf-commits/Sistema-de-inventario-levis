@@ -35,13 +35,10 @@ const Perfil = () => {
     const handleUpdate = async (e) => {
         e.preventDefault();
 
+        // Si se ingresó una contraseña, solo validamos la longitud de 6 a 20 caracteres
         if (password.trim() !== '') {
             if (password.length < 6 || password.length > 20) {
                 alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
-                return;
-            }
-            if (!/^\d+$/.test(password)) {
-                alert("❌ La contraseña solo debe contener números (sin letras ni caracteres especiales).");
                 return;
             }
         }
@@ -116,7 +113,7 @@ const Perfil = () => {
                             onChange={e => setPassword(e.target.value)} 
                             placeholder="Dejar en blanco para no cambiar"
                         />
-                        <span className="input-hint">Solo números (6-20 caracteres)</span>
+                        <span className="input-hint">6-20 caracteres (letras, números y símbolos permitidos)</span>
                     </div>
 
                     <div className="modern-input-group">
@@ -155,7 +152,6 @@ const Perfil = () => {
                     </button>
                 </form>
 
-                {/* Botón de eliminar cuenta estilizado de forma profesional */}
                 <div style={{ marginTop: '16px', textAlign: 'center' }}>
                     <button 
                         type="button" 

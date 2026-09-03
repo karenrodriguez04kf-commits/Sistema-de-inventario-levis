@@ -83,7 +83,9 @@ const ReporteVentas = () => {
                                             />
                                             <div className="rv-producto-info">
                                                 <span className="rv-producto-nombre">{prod.nombreProducto}</span>
-                                                <span className="rv-producto-detalle">Cantidad: {prod.cantidad} × ${Number(prod.precioUnitario).toLocaleString()}</span>
+                                                <span className="rv-producto-detalle">
+                                                    Talla: <strong>{prod.talla || 'N/A'}</strong> | Cantidad: {prod.cantidad} × ${Number(prod.precioUnitario).toLocaleString()}
+                                                </span>
                                             </div>
                                             <span className="rv-subtotal">${Number(prod.cantidad * prod.precioUnitario).toLocaleString()}</span>
                                         </div>

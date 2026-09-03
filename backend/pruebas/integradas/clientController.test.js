@@ -1,7 +1,7 @@
 const clientController = require('../../controllers/clientController');
 const db = require('../../config/db');
 
-jest.mock('../config/db');
+jest.mock('../../config/db');
 
 describe('Pruebas unitarias para clientController', () => {
     afterEach(() => {

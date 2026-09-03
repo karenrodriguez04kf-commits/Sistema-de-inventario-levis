@@ -171,14 +171,16 @@ exports.finalizarCompra = (req, res) => {
 
         const id_venta = result.insertId;
 
+        // Incluimos p.talla en el mapeo de detalles
         const valoresDetalles = productos.map(p => [
             id_venta,
             p.id_producto,
             p.cantidad,
-            p.precioProducto || p.precioUnitario
+            p.precioProducto || p.precioUnitario,
+            p.talla || null
         ]);
 
-        db.query('INSERT INTO detalleventa (id_venta, id_producto, cantidad, precioUnitario) VALUES ?', [valoresDetalles], (err) => {
+        db.query('INSERT INTO detalleventa (id_venta, id_producto, cantidad, precioUnitario, talla) VALUES ?', [valoresDetalles], (err) => {
             if (err) return res.status(500).json({ error: "Error al guardar detalles", details: err.message });
 
             productos.forEach(p => {
@@ -198,12 +200,12 @@ exports.finalizarCompra = (req, res) => {
     });
 };
 
-// 7. PEDIDOS DE USUARIO
+// 7. PEDIDOS DE USUARIO (Actualizado para traer la talla)
 exports.getPedidosUsuario = (req, res) => {
     const { id_usuario } = req.params;
 
     const sql = `
-        SELECT v.id_venta, v.total, v.fecha, dv.cantidad, dv.precioUnitario, 
+        SELECT v.id_venta, v.total, v.fecha, dv.cantidad, dv.precioUnitario, dv.talla,
                pr.nombreProducto, pr.imagen 
         FROM venta v
         JOIN detalleventa dv ON v.id_venta = dv.id_venta
@@ -217,7 +219,7 @@ exports.getPedidosUsuario = (req, res) => {
     });
 };
 
-// 8. REPORTE DE VENTAS
+// 8. REPORTE DE VENTAS (Actualizado para incluir dv.talla)
 exports.getReporteVentas = (req, res) => {
     const sql = `
         SELECT 
@@ -228,6 +230,7 @@ exports.getReporteVentas = (req, res) => {
             u.email AS email_usuario,
             dv.cantidad,
             dv.precioUnitario,
+            dv.talla,         -- <-- Agregamos esta línea para traer la talla
             pr.nombreProducto,
             pr.imagen
         FROM venta v

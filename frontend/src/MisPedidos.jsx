@@ -98,13 +98,15 @@ const MisPedidos = () => {
                                         </div>
                                         <div className="product-info-neon">
                                             <h4>{prod.nombreProducto}</h4>
-                                            <span className="prod-qty-price">Cant: {prod.cantidad} × ${Number(prod.precioUnitario).toLocaleString()}</span>
-                                        </div>
+                                              <span className="prod-qty-price">
+                                                 Cant: {prod.cantidad} {prod.talla ? `| Talla: ${prod.talla}` : ''} × ${Number(prod.precioUnitario).toLocaleString()}
+                                                         </span>   
+                                                    </div>
                                         <div className="product-subtotal-neon">
                                             ${Number(prod.cantidad * prod.precioUnitario).toLocaleString()}
                                         </div>
                                     </div>
-                                ))}
+                                ))} 
                             </div>
 
                             <div className="card-neon-footer">

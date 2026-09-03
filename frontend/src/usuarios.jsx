@@ -30,7 +30,7 @@ const Usuarios = () => {
         if (!nombre.trim()) return alert("El nombre es obligatorio");
         if (!email.trim()) return alert("El email es obligatorio");
         
-        // Si creamos usuario nuevo, exigimos contraseña numérica
+        // Validamos longitud de contraseña permitiendo cualquier carácter
         if (!editandoId) {
             if (!password.trim()) {
                 return alert("La contraseña es obligatoria para nuevos usuarios");
@@ -38,17 +38,10 @@ const Usuarios = () => {
             if (password.length < 6 || password.length > 20) {
                 return alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
             }
-            if (!/^\d+$/.test(password)) {
-                return alert("❌ La contraseña solo debe contener números (sin letras ni caracteres especiales).");
-            }
         } else {
-            // Si editamos y se escribió algo en contraseña, validamos igual
             if (password.trim() !== '') {
                 if (password.length < 6 || password.length > 20) {
                     return alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
-                }
-                if (!/^\d+$/.test(password)) {
-                    return alert("❌ La contraseña solo debe contener números (sin letras ni caracteres especiales).");
                 }
             }
         }
@@ -122,7 +115,7 @@ const Usuarios = () => {
                 
                 <input 
                     type="password" 
-                    placeholder={editandoId ? "NUEVA CONTRASEÑA (Opcional, solo números)" : "CONTRASEÑA (Solo números, 6-20)"} 
+                    placeholder={editandoId ? "NUEVA CONTRASEÑA (Opcional)" : "CONTRASEÑA (6-20 caracteres)"} 
                     value={password} 
                     onChange={e => setPassword(e.target.value)} 
                     {...(!editandoId && { required: true })}
