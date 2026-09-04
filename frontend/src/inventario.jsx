@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { BASE_URL } from "./api";
-import { FaBoxes, FaPlus, FaEdit, FaTrash, FaArrowLeft, FaUpload, FaTag } from "react-icons/fa";
+import { FaBoxes, FaPlus, FaEdit, FaArrowLeft, FaUpload, FaTag } from "react-icons/fa";
 import "./inventario.css";
 
 const TALLAS_DEFAULT = ["S", "M", "L", "XL", "XXL"];
@@ -66,15 +66,18 @@ function Inventario() {
     return tallas.reduce((sum, t) => sum + (t.stock || 0), 0);
   };
 
-  const eliminarProducto = async (id) => {
-    if (window.confirm("¿Estás seguro de borrar este producto?")) {
-      try {
-        await api.delete(`/productos/${id}`);
-        alert("Producto eliminado con éxito");
-        cargarProductos();
-      } catch (error) {
-        alert("Error al eliminar");
-      }
+  // Función para cambiar el estado Activo / Inactivo adaptada al campo 'activo' del backend
+  const toggleEstadoProducto = async (prod) => {
+    const nuevoActivo = prod.activo === 1 || prod.activo === true ? 0 : 1;
+    
+    try {
+      await api.put(`/productos/${prod.id_producto}/estado`, { activo: nuevoActivo });
+      setProductos(productos.map(p => 
+        p.id_producto === prod.id_producto ? { ...p, activo: nuevoActivo } : p
+      ));
+    } catch (error) {
+      console.error("Error al cambiar estado:", error);
+      alert("No se pudo actualizar el estado en el servidor.");
     }
   };
 
@@ -186,6 +189,9 @@ function Inventario() {
                   ? (typeof prod.tallas === 'string' ? JSON.parse(prod.tallas) : prod.tallas)
                   : [];
                 const totalStk = stockTotal(prod);
+                
+                // Verificamos usando el campo 'activo' (por defecto true/1 si viene undefined)
+                const esActivo = prod.activo === undefined || prod.activo === 1 || prod.activo === true;
 
                 return (
                   <div key={prod.id_producto} className="pedido-card-neon">
@@ -229,7 +235,7 @@ function Inventario() {
                         STOCK: {totalStk} UND
                       </div>
                       
-                      <div style={{ display: "flex", gap: "8px" }}>
+                      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
                         <button 
                           className="btn-icon edit" 
                           onClick={() => abrirModal(prod)}
@@ -238,13 +244,28 @@ function Inventario() {
                         >
                           <FaEdit />
                         </button>
+                        
+                        {/* Botón Activo/Inactivo con estilo Neón usando 'esActivo' */}
                         <button 
-                          className="btn-icon delete" 
-                          onClick={() => eliminarProducto(prod.id_producto)}
-                          title="Eliminar producto"
-                          style={{ background: "#222", border: "1px solid #444", color: "#c41230", padding: "6px 10px", borderRadius: "6px", cursor: "pointer" }}
+                          onClick={() => toggleEstadoProducto(prod)}
+                          title="Cambiar estado del producto"
+                          style={{
+                            background: "#121212",
+                            border: `1px solid ${esActivo ? "#00ff66" : "#ff073a"}`,
+                            color: esActivo ? "#00ff66" : "#ff073a",
+                            padding: "5px 10px",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "11px",
+                            fontWeight: "bold",
+                            letterSpacing: "0.5px",
+                            boxShadow: esActivo 
+                              ? "0 0 8px rgba(0, 255, 102, 0.4)" 
+                              : "0 0 8px rgba(255, 7, 58, 0.4)",
+                            transition: "all 0.3s ease"
+                          }}
                         >
-                          <FaTrash />
+                          {esActivo ? "ACTIVO" : "INACTIVO"}
                         </button>
                       </div>
                     </div>

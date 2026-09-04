@@ -9,6 +9,7 @@ const clientRoutes = require('./routes/clientRoutes');
 const productRoutes = require('./routes/productRoutes');
 const proveedorRoutes = require('./routes/proveedorRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
+const ventaRoutes = require('./routes/ventaRoutes');
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use('/api/clientes', clientRoutes);
 app.use('/api/productos', productRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/ventas', ventaRoutes);
 
 app.get('/', (req, res) => {
     res.send(`
@@ -68,4 +70,3 @@ app.listen(PORT, () => {
     console.log(`📖 Documentación: http://localhost:${PORT}/api-docs`);
     console.log("-----------------------------------------");
 });
-//fin

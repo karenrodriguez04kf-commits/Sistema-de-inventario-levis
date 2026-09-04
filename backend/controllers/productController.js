@@ -1,5 +1,34 @@
 const db = require('../config/db');
 
+// 0. OBTENER REPORTE DE VENTAS
+exports.getReporteVentas = (req, res) => {
+    const sql = `
+        SELECT 
+            v.id_venta,
+            v.total AS total_venta,
+            v.fecha,
+            u.nombre AS nombre_usuario,
+            u.email AS email_usuario,
+            dv.cantidad,
+            dv.precioUnitario,
+            COALESCE(dv.talla, 'N/A') AS talla,
+            pr.nombreProducto,
+            pr.imagen
+        FROM venta v
+        JOIN detalleventa dv ON v.id_venta = dv.id_venta
+        JOIN productos pr ON dv.id_producto = pr.id_producto
+        JOIN usuarios u ON v.id_usuario = u.id_usuario
+        ORDER BY v.fecha DESC`;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error("❌ Error en la consulta de Reporte de Ventas:", err.message);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(results);
+    });
+};
+
 // 1. OBTENER CATÁLOGO
 exports.getCatalogo = (req, res) => {
     const sql = `
@@ -8,7 +37,7 @@ exports.getCatalogo = (req, res) => {
         FROM productos p
         LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
         LEFT JOIN producto_tallas pt ON p.id_producto = pt.id_producto
-        WHERE pt.stock > 0
+        WHERE pt.stock > 0 AND (p.activo = 1 OR p.activo IS NULL)
         ORDER BY p.id_producto`;
 
     db.query(sql, (err, results) => {
@@ -80,8 +109,8 @@ exports.createProduct = (req, res) => {
         if (result.length > 0) return res.status(400).json({ error: "Ya existe un producto con ese nombre" });
 
         const sql = `INSERT INTO productos 
-            (nombreProducto, descripcionProducto, precioProducto, genero, color, imagen, id_categoria, id_proveedor) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            (nombreProducto, descripcionProducto, precioProducto, genero, color, imagen, id_categoria, id_proveedor, activo) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`;
 
         db.query(sql, [nombreProducto, descripcionProducto, precioProducto, genero, color || null, imagen, id_categoria || null, id_proveedor || null], (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
@@ -109,146 +138,137 @@ exports.createProduct = (req, res) => {
 // 4. ACTUALIZAR PRODUCTO
 exports.updateProduct = (req, res) => {
     const { id } = req.params;
-    const { nombreProducto, descripcionProducto, precioProducto, genero, color, id_categoria, id_proveedor, tallas } = req.body;
+    let { nombreProducto, descripcionProducto, precioProducto, genero, color, categoria, id_categoria, id_proveedor, tallas } = req.body;
+    const imagen = req.file ? `/images/${req.file.filename}` : req.body.imagen;
 
-    let sql = `UPDATE productos SET 
-        nombreProducto=?, descripcionProducto=?, precioProducto=?, 
-        genero=?, color=?, id_categoria=?, id_proveedor=?`;
-    let params = [nombreProducto, descripcionProducto, precioProducto, genero, color || null, id_categoria || null, id_proveedor || null];
+    const ejecutarUpdate = (finalIdCategoria) => {
+        const sql = `UPDATE productos SET 
+            nombreProducto = ?, 
+            descripcionProducto = ?, 
+            precioProducto = ?, 
+            genero = ?, 
+            color = ?, 
+            imagen = COALESCE(?, imagen), 
+            id_categoria = ?, 
+            id_proveedor = ? 
+            WHERE id_producto = ?`;
 
-    if (req.file) {
-        sql += ', imagen=?';
-        params.push(`/images/${req.file.filename}`);
-    }
+        const values = [
+            nombreProducto, 
+            descripcionProducto || null, 
+            precioProducto, 
+            genero, 
+            color || null, 
+            imagen || null, 
+            finalIdCategoria || null, 
+            id_proveedor || null, 
+            id
+        ];
 
-    sql += ' WHERE id_producto=?';
-    params.push(id);
+        db.query(sql, values, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
 
-    db.query(sql, params, (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        const tallasArray = tallas ? (typeof tallas === 'string' ? JSON.parse(tallas) : tallas) : [];
-
-        if (tallasArray.length > 0) {
-            const updates = tallasArray.map(t => new Promise((resolve, reject) => {
-                db.query(
-                    'UPDATE producto_tallas SET stock=? WHERE id_producto=? AND talla=?',
-                    [t.stock, id, t.talla],
-                    (err) => err ? reject(err) : resolve()
-                );
-            }));
-
-            Promise.all(updates)
-                .then(() => res.json({ Status: "Exito", Message: "Producto actualizado correctamente" }))
-                .catch(err => res.status(500).json({ error: err.message }));
-        } else {
-            res.json({ Status: "Exito", Message: "Producto actualizado correctamente" });
-        }
-    });
-};
-
-// 5. ELIMINAR PRODUCTO
-exports.deleteProduct = (req, res) => {
-    const { id } = req.params;
-    db.query('DELETE FROM productos WHERE id_producto = ?', [id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ Status: "Exito", Message: "Producto eliminado correctamente" });
-    });
-};
-
-// 6. FINALIZAR COMPRA
-exports.finalizarCompra = (req, res) => {
-    const { id_usuario, total, productos } = req.body;
-
-    if (!productos || productos.length === 0) {
-        return res.status(400).json({ Message: "El carrito está vacío" });
-    }
-
-    const sqlVenta = "INSERT INTO venta (id_usuario, total) VALUES (?, ?)";
-
-    db.query(sqlVenta, [id_usuario, total], (err, result) => {
-        if (err) return res.status(500).json({ error: "Error al crear venta", details: err.message });
-
-        const id_venta = result.insertId;
-
-        // Incluimos p.talla en el mapeo de detalles
-        const valoresDetalles = productos.map(p => [
-            id_venta,
-            p.id_producto,
-            p.cantidad,
-            p.precioProducto || p.precioUnitario,
-            p.talla || null
-        ]);
-
-        db.query('INSERT INTO detalleventa (id_venta, id_producto, cantidad, precioUnitario, talla) VALUES ?', [valoresDetalles], (err) => {
-            if (err) return res.status(500).json({ error: "Error al guardar detalles", details: err.message });
-
-            productos.forEach(p => {
-                if (p.talla) {
-                    db.query(
-                        'UPDATE producto_tallas SET stock = stock - ? WHERE id_producto = ? AND talla = ?',
-                        [p.cantidad, p.id_producto, p.talla],
-                        (errStock) => {
-                            if (errStock) console.error("Error actualizando stock:", errStock);
-                        }
-                    );
+            if (tallas !== undefined) {
+                let tallasArray = [];
+                try {
+                    tallasArray = typeof tallas === 'string' ? JSON.parse(tallas) : tallas;
+                } catch (e) {
+                    tallasArray = [];
                 }
-            });
 
-            res.json({ Status: "Exito", Message: "Compra realizada correctamente", id_venta });
+                db.query('DELETE FROM producto_tallas WHERE id_producto = ?', [id], (errDel) => {
+                    if (errDel) return res.status(500).json({ error: errDel.message });
+
+                    if (Array.isArray(tallasArray) && tallasArray.length > 0) {
+                        const valoresTallas = tallasArray.map(t => [id, t.talla, t.stock || 0]);
+                        db.query('INSERT INTO producto_tallas (id_producto, talla, stock) VALUES ?', [valoresTallas], (errTalla) => {
+                            if (errTalla) return res.status(500).json({ error: errTalla.message });
+                            return res.json({ Status: "Exito", Message: "Producto y stock actualizados correctamente" });
+                        });
+                    } else {
+                        return res.json({ Status: "Exito", Message: "Producto actualizado correctamente (sin tallas)" });
+                    }
+                });
+            } else {
+                res.json({ Status: "Exito", Message: "Producto actualizado correctamente" });
+            }
         });
-    });
+    };
+
+    if (id_categoria) {
+        ejecutarUpdate(id_categoria);
+    } else if (categoria && isNaN(categoria)) {
+        db.query("SELECT id_categoria FROM categorias WHERE nombre = ?", [categoria], (errCat, catResult) => {
+            if (errCat) return res.status(500).json({ error: errCat.message });
+            const resolvedId = catResult.length > 0 ? catResult[0].id_categoria : null;
+            ejecutarUpdate(resolvedId);
+        });
+    } else {
+        ejecutarUpdate(categoria || null);
+    }
 };
 
-// 7. PEDIDOS DE USUARIO (Actualizado para traer la talla)
-exports.getPedidosUsuario = (req, res) => {
-    const { id_usuario } = req.params;
+// 5. CAMBIAR ESTADO DE PRODUCTO (Alternar Activo / Inactivo con IF)
+exports.toggleProductStatus = (req, res) => {
+    const { id } = req.params;
 
-    const sql = `
-        SELECT v.id_venta, v.total, v.fecha, dv.cantidad, dv.precioUnitario, dv.talla,
-               pr.nombreProducto, pr.imagen 
-        FROM venta v
-        JOIN detalleventa dv ON v.id_venta = dv.id_venta
-        JOIN productos pr ON dv.id_producto = pr.id_producto
-        WHERE v.id_usuario = ?
-        ORDER BY v.fecha DESC`;
+    // Soportamos tanto si mandan { activo: 0/1 } como si solo hacen la petición para invertir el valor actual
+    const sql = req.body.activo !== undefined 
+        ? "UPDATE productos SET activo = ? WHERE id_producto = ?"
+        : "UPDATE productos SET activo = IF(activo = 1, 0, 1) WHERE id_producto = ?";
 
-    db.query(sql, [id_usuario], (err, results) => {
+    const params = req.body.activo !== undefined ? [req.body.activo ? 1 : 0, id] : [id];
+
+    db.query(sql, params, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
+        if (result.affectedRows === 0) return res.status(404).json({ error: "Producto no encontrado" });
+
+        res.json({ Status: "Exito", Message: "Estado del producto actualizado correctamente" });
     });
 };
 
-// 8. REPORTE DE VENTAS (Actualizado para incluir dv.talla)
-exports.getReporteVentas = (req, res) => {
-    const sql = `
-        SELECT 
-            v.id_venta,
-            v.total AS total_venta,
-            v.fecha,
-            u.nombre AS nombre_usuario,
-            u.email AS email_usuario,
-            dv.cantidad,
-            dv.precioUnitario,
-            dv.talla,         -- <-- Agregamos esta línea para traer la talla
-            pr.nombreProducto,
-            pr.imagen
-        FROM venta v
-        JOIN detalleventa dv ON v.id_venta = dv.id_venta
-        JOIN productos pr ON dv.id_producto = pr.id_producto
-        JOIN usuarios u ON v.id_usuario = u.id_usuario
-        ORDER BY v.fecha DESC`;
-
+// 6. OBTENER CATEGORÍAS
+exports.getCategorias = (req, res) => {
+    const sql = "SELECT * FROM categorias";
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });
 };
 
-// 9. OBTENER CATEGORIAS
-exports.getCategorias = (req, res) => {
-    db.query('SELECT * FROM categorias', (err, results) => {
+// 7. FINALIZAR COMPRA
+exports.finalizarCompra = (req, res) => {
+    res.json({ Status: "Exito", Message: "Compra finalizada correctamente" });
+};
+
+// 8. OBTENER PEDIDOS DE USUARIO (Básico)
+exports.getPedidosUsuario = (req, res) => {
+    const { id_usuario } = req.params;
+    const sql = "SELECT * FROM ventas WHERE id_usuario = ?";
+    db.query(sql, [id_usuario], (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
+    });
+};
+
+// 9. OBTENER MIS PEDIDOS DETALLADOS
+exports.getMisPedidos = (req, res) => {
+    const { id_usuario } = req.params;
+    const query = `
+        SELECT v.id_venta, v.fecha, v.total, 
+               dv.cantidad, dv.precioUnitario, dv.talla, 
+               p.nombreProducto, p.imagen
+        FROM venta v
+        JOIN detalleventa dv ON v.id_venta = dv.id_venta
+        JOIN productos p ON dv.id_producto = p.id_producto
+        WHERE v.id_usuario = ?
+        ORDER BY v.id_venta DESC
+    `;
+    db.query(query, [id_usuario], (err, rows) => {
+        if (err) {
+            console.error("Error al obtener mis pedidos:", err);
+            return res.status(500).json({ error: "Error al obtener los pedidos del usuario" });
+        }
+        res.json(rows);
     });
 };

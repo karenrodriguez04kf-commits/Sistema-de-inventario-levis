@@ -50,7 +50,6 @@ function Catalogo() {
     }
   };
 
-  // Abre el modal de múltiples tallas limpiando las selecciones previas
   const abrirModalSeleccion = (producto) => {
     setProductoModal(producto);
     setCantidadesModal({});
@@ -120,10 +119,13 @@ function Catalogo() {
   const normalizarTexto = (texto) =>
     texto?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() || "";
 
-  // Filtrado general adaptado al array de tallas
-  let productosFiltrados = productos.filter((p) =>
-    normalizarTexto(p.nombreProducto).includes(normalizarTexto(busqueda))
-  );
+  // FILTRADO PRINCIPAL (Oculta inactivos y aplica búsqueda/filtros)
+  let productosFiltrados = productos.filter((p) => {
+    const esActivo = p.estado === undefined || p.estado === 1 || p.estado === true;
+    if (!esActivo) return false;
+
+    return normalizarTexto(p.nombreProducto).includes(normalizarTexto(busqueda));
+  });
 
   if (generosSeleccionados.length > 0) {
     productosFiltrados = productosFiltrados.filter((p) =>
@@ -324,7 +326,6 @@ function Catalogo() {
                     <h4>{p.nombreProducto}</h4>
                     <p className="p-talla">Color: {p.color || "N/A"} | Gen: {p.genero || "N/A"}</p>
                     
-                    {/* Visualización correcta de tallas desde el array */}
                     <div className="tallas-badges-catalogo" style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', margin: '8px 0' }}>
                       {p.tallas && p.tallas.length > 0 ? (
                         p.tallas.map((tItem) => {
@@ -357,11 +358,11 @@ function Catalogo() {
         </main>
       </div>
 
-      {/* MODAL PARA SELECCIONAR MÚLTIPLES TALLAS Y CANTIDADES */}
+      {/* MODAL PARA SELECCIONAR TALLAS */}
       {productoModal && (
         <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
           <div className="modal-content" style={{ background: '#121212', padding: '30px', borderRadius: '16px', width: '420px', color: '#fff', position: 'relative', border: '1px solid #e50914', boxShadow: '0 0 25px rgba(229, 9, 20, 0.4)' }}>
-            <button onClick={() => setProductoModal(null)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: '#aaa', cursor: 'pointer', transition: '0.2s' }} onMouseEnter={(e) => e.target.style.color = '#fff'} onMouseLeave={(e) => e.target.style.color = '#aaa'}>
+            <button onClick={() => setProductoModal(null)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: '#aaa', cursor: 'pointer' }}>
               <FaTimes size={18} />
             </button>
             
@@ -477,8 +478,6 @@ function Catalogo() {
                 setProductoModal(null);
               }}
               style={{ width: '100%', padding: '12px', background: '#e50914', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 0 15px rgba(229, 9, 20, 0.6)', transition: '0.2s' }}
-              onMouseEnter={(e) => e.target.style.background = '#ff1e2b'}
-              onMouseLeave={(e) => e.target.style.background = '#e50914'}
             >
               AÑADIR AL CARRITO
             </button>
