@@ -25,25 +25,85 @@ const Usuarios = () => {
         }
     };
 
+    const handleTelefonoChange = (e) => {
+        const valorLimpio = e.target.value.replace(/\D/g, '');
+        if (valorLimpio.length <= 10) {
+            setTelefono(valorLimpio);
+        }
+    };
+
+    // Función de apoyo para validar la calidad de la dirección
+    const validarDireccion = (texto) => {
+        const direccionLimpia = texto.trim();
+
+        // 1. Es obligatoria
+        if (!direccionLimpia) {
+            alert(" La dirección es obligatoria.");
+            return false;
+        }
+
+        // 2. Mínimo 10 y máximo 100 caracteres
+        if (direccionLimpia.length < 10 || direccionLimpia.length > 100) {
+            alert(" La dirección debe tener entre 10 y 100 caracteres.");
+            return false;
+        }
+
+        // 3. Debe incluir al menos un número (ej. Casa, Edificio, Calle)
+        if (!/\d/.test(direccionLimpia)) {
+            alert(" La dirección debe incluir al menos un número (ej. Calle 10 #4-20).");
+            return false;
+        }
+
+        // 4. Debe incluir espacios para separar palabras (evita textos de una sola palabra como "dddddddddd1")
+        if (!/\s/.test(direccionLimpia)) {
+            alert(" Ingresa una dirección válida con espacios entre calles y números.");
+            return false;
+        }
+
+        // 5. Bloquea caracteres iguales repetidos 4 o más veces seguidas (ej: "dddd", "aaaa", "1111")
+        if (/(.)\1{3,}/i.test(direccionLimpia)) {
+            alert(" Ingresa una dirección real. No uses caracteres repetidos.");
+            return false;
+        }
+
+        return true;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validar nombre (mínimo 6 y máximo 20 caracteres)
         if (!nombre.trim()) return alert("El nombre es obligatorio");
+        if (nombre.trim().length < 6 || nombre.trim().length > 20) {
+            return alert("❌ El nombre debe tener entre 6 y 20 caracteres.");
+        }
+
         if (!email.trim()) return alert("El email es obligatorio");
         
-        // Validamos longitud de contraseña permitiendo cualquier carácter
+        // Validar contraseña
         if (!editandoId) {
             if (!password.trim()) {
                 return alert("La contraseña es obligatoria para nuevos usuarios");
             }
             if (password.length < 6 || password.length > 20) {
-                return alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
+                return alert(" La contraseña debe tener entre 6 y 20 caracteres.");
             }
         } else {
             if (password.trim() !== '') {
                 if (password.length < 6 || password.length > 20) {
-                    return alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
+                    return alert(" La contraseña debe tener entre 6 y 20 caracteres.");
                 }
             }
+        }
+
+        // Validar teléfono (exactamente 10 dígitos)
+        if (telefono.length !== 10) {
+            return alert(" El teléfono debe contener exactamente 10 números.");
+        }
+
+        // Validar dirección con todos los filtros de seguridad
+        if (!validarDireccion(direccion)) {
+            return;
         }
 
         const datosUsuario = { 
@@ -52,7 +112,7 @@ const Usuarios = () => {
             ...(password && { password }), 
             rol, 
             telefono, 
-            direccion 
+            direccion: direccion.trim() 
         };
 
         try {
@@ -110,7 +170,16 @@ const Usuarios = () => {
             <h2 className="seccion-titulo">Administración General de Cuentas</h2>
 
             <form onSubmit={handleSubmit} className="clientes-form">
-                <input type="text" placeholder="NOMBRE" value={nombre} onChange={e => setNombre(e.target.value)} required />
+                <input 
+                    type="text" 
+                    placeholder="NOMBRE (6-20 caracteres)" 
+                    value={nombre} 
+                    onChange={e => setNombre(e.target.value)} 
+                    minLength={6}
+                    maxLength={20}
+                    required 
+                />
+                
                 <input type="email" placeholder="EMAIL" value={email} onChange={e => setEmail(e.target.value)} required />
                 
                 <input 
@@ -126,8 +195,25 @@ const Usuarios = () => {
                     <option value="admin">Administrador</option>
                 </select>
 
-                <input type="text" placeholder="TELÉFONO" value={telefono} onChange={e => setTelefono(e.target.value)} />
-                <input type="text" placeholder="DIRECCIÓN" value={direccion} onChange={e => setDireccion(e.target.value)} />
+                <input 
+                    type="text" 
+                    inputMode="numeric"
+                    placeholder="TELÉFONO (10 DIGITOS)" 
+                    value={telefono} 
+                    onChange={handleTelefonoChange} 
+                    maxLength={10}
+                    required
+                />
+
+                <input 
+                    type="text" 
+                    placeholder="DIRECCIÓN (Ej: Calle 10 #4-20)" 
+                    value={direccion} 
+                    onChange={e => setDireccion(e.target.value)} 
+                    minLength={10}
+                    maxLength={100}
+                    required
+                />
                 
                 <button type="submit" className={`btn-submit ${editandoId ? 'btn-editar' : 'btn-agregar'}`}>
                     {editandoId ? 'GUARDAR CAMBIOS' : '+ AGREGAR USUARIO'}
