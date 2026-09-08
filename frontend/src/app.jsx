@@ -12,7 +12,7 @@ import Perfil from './perfil';
 import MisPedidos from "./MisPedidos";
 import ReporteVentas from "./ReporteVentas";
 import Proveedores from './proveedores';
-import Landing from './landing';
+import Landing from "./Landing";
 
 const RutaAdmin = ({ children }) => {
   const rol = localStorage.getItem('rol');
