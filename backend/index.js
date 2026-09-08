@@ -1,8 +1,11 @@
 const express = require('express');
-const mysql = require('mysql');
 const cors = require('cors');
-const ventaRoutes = require('./routes/ventaRoutes');
+require('dotenv').config({ path: __dirname + '/.env' });
 
+// 🔌 Importamos la conexión única desde db.js
+const db = require('./config/db');
+
+const ventaRoutes = require('./routes/ventaRoutes');
 const validarToken = require('./middlewares/authMiddleware');
 const authAdmin = require('./middlewares/authAdmin');
 
@@ -18,21 +21,7 @@ app.use(cors({
 
 app.use(express.json());
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'levis_db'
-});
-
-db.connect((err) => {
-  if (err) {
-    console.error('Error de conexión a la base de datos:', err);
-    return;
-  }
-  console.log('Conectado a la base de datos levis_db exitosamente.');
-});
-
+// Asignamos a global si lo necesitas en otras partes de tu app
 global.db = db;
 
 app.get('/productos', (req, res) => {
@@ -75,7 +64,7 @@ app.get('/api/ReporteVentas', validarToken, authAdmin, (req, res) => {
         JOIN usuarios u ON v.id_usuario = u.id_usuario
         ORDER BY v.fecha DESC`;
 
-    global.db.query(sql, (err, results) => {
+    db.query(sql, (err, results) => {
         if (err) {
             console.error("❌ Error en SQL de Reporte de Ventas:", err.message);
             return res.status(500).json({ error: err.message });
@@ -86,6 +75,7 @@ app.get('/api/ReporteVentas', validarToken, authAdmin, (req, res) => {
 
 app.use('/api', ventaRoutes);
 
-app.listen(3002, () => {
-  console.log("Servidor de Inventario Levis corriendo en el puerto 3002");
+const PORT = process.env.PORT || 3002;
+app.listen(PORT, () => {
+  console.log(`Servidor de Inventario Levis corriendo en el puerto ${PORT}`);
 });
