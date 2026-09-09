@@ -66,8 +66,9 @@ app.use((err, req, res, next) => {
     res.status(500).json({ Status: "Error", Message: "Ocurrió un error en el servidor" });
 });
 
+
 const PORT = process.env.PORT || 3002;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
     console.log("-----------------------------------------");
     console.log(`✅ Servidor LEVI'S listo en el puerto ${PORT}`);
     console.log("-----------------------------------------");
