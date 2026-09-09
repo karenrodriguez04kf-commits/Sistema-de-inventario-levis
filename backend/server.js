@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
     res.send(`
         <div style="text-align:center; font-family: sans-serif; margin-top: 50px;">
             <h1 style="color: #c41230;">LEVI'S BACKEND ACTIVE 🚀</h1>
-            <p>Servidor en puerto 3002.</p>
+            <p>Servidor en puerto ${process.env.PORT || 3002}.</p>
         </div>
     `);
 });
@@ -66,10 +66,9 @@ app.use((err, req, res, next) => {
     res.status(500).json({ Status: "Error", Message: "Ocurrió un error en el servidor" });
 });
 
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
     console.log("-----------------------------------------");
-    console.log(`✅ Servidor LEVI'S listo en http://localhost:${PORT}`);
-    console.log(`📖 Documentación: http://localhost:${PORT}/api-docs`);
+    console.log(`✅ Servidor LEVI'S listo en puerto ${PORT}`);
     console.log("-----------------------------------------");
 });
