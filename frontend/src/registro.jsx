@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from './api';
 import { useNavigate, Link } from 'react-router-dom';
-import './Registro.css';
+import './registro.css';
 
 const Registro = () => {
     const [nombre, setNombre] = useState('');
