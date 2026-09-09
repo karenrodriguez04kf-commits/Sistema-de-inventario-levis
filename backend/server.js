@@ -16,9 +16,12 @@ const app = express();
 // Ocultar la versión de Express por seguridad (resuelve la primera alerta)
 app.disable('x-powered-by');
 
-// Configuración segura de CORS (resuelve la segunda alerta)
+// Configuración segura de CORS
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: [
+        'http://localhost:5173', 
+        'https://flourishing-pithivier-e57a20.netlify.app'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
