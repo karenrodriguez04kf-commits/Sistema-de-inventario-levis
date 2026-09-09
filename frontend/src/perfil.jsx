@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from './api'; 
 import { jwtDecode } from "jwt-decode";
-import './Perfil.css';
+import './perfil.css';
 
 const Perfil = () => {
     const [nombre, setNombre] = useState('');
