@@ -13,10 +13,8 @@ const ventaRoutes = require('./routes/ventaRoutes');
 
 const app = express();
 
-// Ocultar la versión de Express por seguridad (resuelve la primera alerta)
 app.disable('x-powered-by');
 
-// Configuración segura de CORS
 app.use(cors({
     origin: [
         'http://localhost:5173', 
@@ -38,7 +36,10 @@ const swaggerOptions = {
             version: '1.0.0',
             description: 'Sistema de gestión de inventario y ventas'
         },
-        servers: [{ url: 'http://localhost:3002' }]
+        servers: [
+            { url: 'http://localhost:3002', description: 'Servidor Local' },
+            { url: 'https://' + (process.env.RAILWAY_STATIC_URL || 'tu-backend.railway.app'), description: 'Servidor de Producción' }
+        ]
     },
     apis: ['./routes/*.js'] 
 };
@@ -65,7 +66,6 @@ app.use((err, req, res, next) => {
     console.error("❌ Error interno:", err.stack);
     res.status(500).json({ Status: "Error", Message: "Ocurrió un error en el servidor" });
 });
-
 
 const PORT = process.env.PORT || 3002;
 app.listen(PORT, '0.0.0.0', () => {
