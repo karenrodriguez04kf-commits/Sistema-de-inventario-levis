@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import Catalogo from "./catalogo"; 
 import Inventario from "./inventario"; 
 import Login from './login';
@@ -12,7 +12,7 @@ import Perfil from './perfil';
 import MisPedidos from "./MisPedidos";
 import ReporteVentas from "./ReporteVentas";
 import Proveedores from './proveedores';
-import Landing from './landing';
+import Landing from "./Landing";
 
 const RutaAdmin = ({ children }) => {
   const rol = localStorage.getItem('rol');
@@ -21,7 +21,7 @@ const RutaAdmin = ({ children }) => {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         {/* 1. Rutas Públicas */}
         <Route path="/" element={<Landing />} />
@@ -54,7 +54,7 @@ function App() {
         {/* 3. Redirección por defecto */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

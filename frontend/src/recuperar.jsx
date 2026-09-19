@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from './api';
 import { useNavigate, Link } from 'react-router-dom';
-import './Recuperar.css';
+import './recuperar.css';
 
 const Recuperar = () => {
     const [paso, setPaso] = useState(1);

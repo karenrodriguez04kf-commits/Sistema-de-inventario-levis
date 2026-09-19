@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// 1. Centralizamos la URL del servidor
-export const BASE_URL = 'http://localhost:3002'; 
+// 1. Si estamos en producción (Vercel) usa la URL de Railway, si no, usa localhost para desarrollo
+export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002'; 
 
 const api = axios.create({
     // 2. Usamos la constante para la base de la API

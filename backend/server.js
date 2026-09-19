@@ -13,12 +13,13 @@ const ventaRoutes = require('./routes/ventaRoutes');
 
 const app = express();
 
-// Ocultar la versión de Express por seguridad (resuelve la primera alerta)
 app.disable('x-powered-by');
 
-// Configuración segura de CORS (resuelve la segunda alerta)
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: [
+        'http://localhost:5173', 
+        'https://flourishing-pithivier-e57a20.netlify.app'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -35,7 +36,10 @@ const swaggerOptions = {
             version: '1.0.0',
             description: 'Sistema de gestión de inventario y ventas'
         },
-        servers: [{ url: 'http://localhost:3002' }]
+        servers: [
+            { url: 'http://localhost:3002', description: 'Servidor Local' },
+            { url: 'https://' + (process.env.RAILWAY_STATIC_URL || 'tu-backend.railway.app'), description: 'Servidor de Producción' }
+        ]
     },
     apis: ['./routes/*.js'] 
 };
@@ -53,7 +57,7 @@ app.get('/', (req, res) => {
     res.send(`
         <div style="text-align:center; font-family: sans-serif; margin-top: 50px;">
             <h1 style="color: #c41230;">LEVI'S BACKEND ACTIVE 🚀</h1>
-            <p>Servidor en puerto 3002.</p>
+            <p>Servidor en puerto ${process.env.PORT || 3002}.</p>
         </div>
     `);
 });
@@ -63,10 +67,10 @@ app.use((err, req, res, next) => {
     res.status(500).json({ Status: "Error", Message: "Ocurrió un error en el servidor" });
 });
 
-const PORT = 3002;
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 3002;
+app.listen(PORT, '0.0.0.0', () => {
     console.log("-----------------------------------------");
-    console.log(`✅ Servidor LEVI'S listo en http://localhost:${PORT}`);
-    console.log(`📖 Documentación: http://localhost:${PORT}/api-docs`);
+    console.log(`✅ Servidor LEVI'S listo en el puerto: ${PORT}`);
+    console.log(`🚀 Documentación lista`);
     console.log("-----------------------------------------");
 });

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import api from './api';
 import { useNavigate, Link } from 'react-router-dom';
-import './Registro.css';
+import './registro.css';
 
 const Registro = () => {
     const [nombre, setNombre] = useState('');
@@ -11,7 +11,13 @@ const Registro = () => {
 
     const handleRegistro = async (e) => {
         e.preventDefault();
-
+        
+// Validar nombre (entre 6 y 20 caracteres)
+        if (!nombre.trim()) return alert("El nombre es obligatorio");
+        if (nombre.trim().length < 6 || nombre.trim().length > 20) {
+            alert(" El nombre debe tener entre 6 y 20 caracteres.");
+            return;
+        }
         // Validar únicamente la longitud (6 a 20 caracteres) permitiendo letras, números y símbolos
         if (password.length < 6 || password.length > 20) {
             alert("❌ La contraseña debe tener entre 6 y 20 caracteres.");
