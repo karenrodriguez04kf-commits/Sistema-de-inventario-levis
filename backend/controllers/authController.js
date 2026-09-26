@@ -1,186 +1,226 @@
-const db = require('../config/db');
-const bcrypt = require('bcrypt');
+const db = require('../config/db'); // Importa el pool de MySQL (backend/config/db.js)
+const bcrypt = require('bcryptjs'); 
 const jwt = require('jsonwebtoken');
 
+// ==========================================
 // 1. INICIO DE SESIÓN (LOGIN)
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// ==========================================
+const login = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+        if (!email || !password) {
+            return res.status(400).json({
+                error: true,
+                message: 'Por favor, ingresa el correo electrónico y la contraseña.'
+            });
+        }
+
+        const [rows] = await db.execute('SELECT * FROM usuarios WHERE email = ?', [email]);
+
+        if (rows.length === 0) {
+            return res.status(401).json({
+                error: true,
+                message: 'Credenciales inválidas: el usuario no existe.'
+            });
+        }
+
+        const usuario = rows[0];
+
+        let isPasswordValid = false;
+        if (usuario.password && usuario.password.startsWith('$2')) {
+            isPasswordValid = await bcrypt.compare(password, usuario.password);
+        } else {
+            isPasswordValid = (usuario.password === password);
+        }
+
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                error: true,
+                message: 'Credenciales inválidas: la contraseña es incorrecta.'
+            });
+        }
+
+        const secretKey = process.env.JWT_SECRET || 'secreto_adso_sistema_inventario';
+        const token = jwt.sign(
+            { 
+                id: usuario.id, 
+                email: usuario.email, 
+                rol: usuario.rol || 'usuario' 
+            },
+            secretKey,
+            { expiresIn: '8h' }
+        );
+
+        delete usuario.password;
+
+        return res.status(200).json({
+            ok: true,
+            message: 'Inicio de sesión exitoso',
+            token: token,
+            usuario: usuario
+        });
+
+    } catch (error) {
+        console.error('🔥 Error durante el proceso de login:', error);
+        next(error);
     }
-
-    // Consulta de usuario en la base de datos
-    const [rows] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
-
-    if (!rows || rows.length === 0) {
-      return res.status(401).json({ message: 'Credenciales inválidas (Usuario no encontrado)' });
-    }
-
-    const usuario = rows[0];
-
-    // Verificación de contraseña (soporta texto plano o hash con bcrypt)
-    let isPasswordValid = false;
-    if (usuario.password && (usuario.password.startsWith('$2b$') || usuario.password.startsWith('$2a$'))) {
-      isPasswordValid = await bcrypt.compare(password, usuario.password);
-    } else {
-      isPasswordValid = (password === usuario.password);
-    }
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Credenciales inválidas (Contraseña incorrecta)' });
-    }
-
-    // Generación del token JWT
-    const token = jwt.sign(
-      { id: usuario.id_usuario || usuario.id, email: usuario.email, rol: usuario.rol },
-      process.env.JWT_SECRET || 'secreto_super_seguro',
-      { expiresIn: '8h' }
-    );
-
-    return res.status(200).json({
-      message: 'Inicio de sesión exitoso',
-      token,
-      usuario: {
-        id: usuario.id_usuario || usuario.id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol
-      }
-    });
-
-  } catch (error) {
-    console.error('💥 ERROR EN LOGIN:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Error interno del servidor al procesar el login',
-      error: error.message
-    });
-  }
 };
 
-// 2. REGISTRO DE USUARIOS
-exports.register = async (req, res) => {
-  try {
-    const { nombre, email, password, rol } = req.body;
+// ==========================================
+// 2. REGISTRO DE USUARIO
+// ==========================================
+const register = async (req, res, next) => {
+    try {
+        const { nombre, email, password, rol } = req.body;
 
-    if (!nombre || !email || !password) {
-      return res.status(400).json({ message: 'Campos requeridos incompletos' });
+        if (!nombre || !email || !password) {
+            return res.status(400).json({
+                error: true,
+                message: 'Todos los campos obligatorios deben ser completados.'
+            });
+        }
+
+        const [existingUser] = await db.execute('SELECT id FROM usuarios WHERE email = ?', [email]);
+        
+        if (existingUser.length > 0) {
+            return res.status(409).json({
+                error: true,
+                message: 'El correo electrónico ya se encuentra registrado.'
+            });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const [result] = await db.execute(
+            'INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)',
+            [nombre, email, hashedPassword, rol || 'usuario']
+        );
+
+        return res.status(201).json({
+            ok: true,
+            message: 'Usuario registrado con éxito',
+            userId: result.insertId
+        });
+
+    } catch (error) {
+        console.error('🔥 Error durante el registro de usuario:', error);
+        next(error);
     }
-
-    const [existing] = await db.query('SELECT id_usuario FROM usuarios WHERE email = ?', [email]);
-    if (existing && existing.length > 0) {
-      return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const userRol = rol || 'cliente';
-
-    await db.query(
-      'INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)',
-      [nombre, email, hashedPassword, userRol]
-    );
-
-    return res.status(201).json({ message: 'Usuario registrado exitosamente' });
-
-  } catch (error) {
-    console.error('💥 ERROR EN REGISTRO:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Error interno del servidor al registrar usuario',
-      error: error.message
-    });
-  }
 };
 
+// ==========================================
 // 3. OBTENER PERFIL DE USUARIO
-exports.getPerfil = async (req, res) => {
-  try {
-    const { email } = req.params;
+// ==========================================
+const getProfile = async (req, res, next) => {
+    try {
+        const userId = req.user ? req.user.id : req.params.id;
 
-    const [rows] = await db.query(
-      'SELECT id_usuario, nombre, email, rol FROM usuarios WHERE email = ?',
-      [email]
-    );
+        const [rows] = await db.execute(
+            'SELECT id, nombre, email, rol, fecha_creacion FROM usuarios WHERE id = ?', 
+            [userId]
+        );
 
-    if (!rows || rows.length === 0) {
-      return res.status(404).json({ message: 'Perfil no encontrado' });
+        if (rows.length === 0) {
+            return res.status(404).json({
+                error: true,
+                message: 'Usuario no encontrado.'
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            usuario: rows[0]
+        });
+
+    } catch (error) {
+        console.error('🔥 Error al obtener perfil del usuario:', error);
+        next(error);
     }
-
-    return res.status(200).json(rows[0]);
-
-  } catch (error) {
-    console.error('💥 ERROR EN GET PERFIL:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Error al obtener el perfil',
-      error: error.message
-    });
-  }
 };
 
-// 4. ACTUALIZAR PERFIL
-exports.actualizarPerfil = async (req, res) => {
-  try {
-    const { nombre, email, password } = req.body;
+// ==========================================
+// 4. CAMBIAR CONTRASEÑA
+// ==========================================
+const changePassword = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { currentPassword, newPassword } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ message: 'El correo electrónico es requerido' });
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                error: true,
+                message: 'Debes proporcionar la contraseña actual y la nueva contraseña.'
+            });
+        }
+
+        const [rows] = await db.execute('SELECT * FROM usuarios WHERE id = ?', [id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: true, message: 'Usuario no encontrado.' });
+        }
+
+        const usuario = rows[0];
+        let isValid = false;
+
+        if (usuario.password && usuario.password.startsWith('$2')) {
+            isValid = await bcrypt.compare(currentPassword, usuario.password);
+        } else {
+            isValid = (usuario.password === currentPassword);
+        }
+
+        if (!isValid) {
+            return res.status(401).json({ error: true, message: 'La contraseña actual es incorrecta.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedNewPassword = await bcrypt.hash(newPassword, salt);
+
+        await db.execute('UPDATE usuarios SET password = ? WHERE id = ?', [hashedNewPassword, id]);
+
+        return res.status(200).json({
+            ok: true,
+            message: 'Contraseña actualizada con éxito.'
+        });
+
+    } catch (error) {
+        console.error('🔥 Error al cambiar la contraseña:', error);
+        next(error);
     }
-
-    if (password && password.trim() !== '') {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await db.query(
-        'UPDATE usuarios SET nombre = ?, password = ? WHERE email = ?',
-        [nombre, hashedPassword, email]
-      );
-    } else {
-      await db.query(
-        'UPDATE usuarios SET nombre = ? WHERE email = ?',
-        [nombre, email]
-      );
-    }
-
-    return res.status(200).json({ message: 'Perfil actualizado correctamente' });
-
-  } catch (error) {
-    console.error('💥 ERROR EN ACTUALIZAR PERFIL:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Error al actualizar el perfil',
-      error: error.message
-    });
-  }
 };
 
-// 5. RECUPERAR CONTRASEÑA
-exports.recuperarPassword = async (req, res) => {
-  try {
-    const { email, nuevaPassword } = req.body;
+// ==========================================
+// 5. VERIFICAR TOKEN DE AUTENTICACIÓN
+// ==========================================
+const verifyToken = async (req, res, next) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[1];
 
-    if (!email || !nuevaPassword) {
-      return res.status(400).json({ message: 'Datos incompletos para recuperar contraseña' });
+        if (!token) {
+            return res.status(401).json({ error: true, message: 'No se proporcionó token.' });
+        }
+
+        const secretKey = process.env.JWT_SECRET || 'secreto_adso_sistema_inventario';
+        const decoded = jwt.verify(token, secretKey);
+
+        return res.status(200).json({
+            ok: true,
+            message: 'Token válido',
+            usuario: decoded
+        });
+
+    } catch (error) {
+        return res.status(401).json({
+            error: true,
+            message: 'Token inválido o expirado.'
+        });
     }
+};
 
-    const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
-    const [result] = await db.query(
-      'UPDATE usuarios SET password = ? WHERE email = ?',
-      [hashedPassword, email]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'No se encontró un usuario con ese correo' });
-    }
-
-    return res.status(200).json({ message: 'Contraseña restablecida correctamente' });
-
-  } catch (error) {
-    console.error('💥 ERROR EN RECUPERAR PASSWORD:', error);
-    return res.status(500).json({
-      status: 'error',
-      message: 'Error al restablecer contraseña',
-      error: error.message
-    });
-  }
+module.exports = {
+    login,
+    register,
+    getProfile,
+    changePassword,
+    verifyToken
 };
