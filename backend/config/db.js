@@ -1,17 +1,15 @@
 const mysql = require('mysql2');
-require('dotenv').config();
 
-const db = mysql.createPool({ // Usamos Pool para mejor manejo de múltiples conexiones
-  
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'levis_db',
-  port: 3306,
+const db = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'levis_db',
+  port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10
 });
 
-console.log('Conectado exitosamente a levis_db... 🚀');
+console.log('Conectado exitosamente a la base de datos... 🚀');
 
 module.exports = db;
