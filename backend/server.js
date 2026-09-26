@@ -12,6 +12,11 @@ const usuariosRoutes = require('./routes/usuariosRoutes');
 const ventaRoutes = require('./routes/ventaRoutes');
 
 const app = express();
+// Log para rastrear peticiones entrantes desde la app móvil
+app.use((req, res, next) => {
+  console.log(`📥 [${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
 app.disable('x-powered-by');
 
@@ -68,9 +73,18 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3002;
+// Prevenir caída del servidor por promesas o excepciones no capturadas (Evita Error 502)
+process.on('uncaughtException', (err) => {
+  console.error('💥 EXCEPCIÓN NO CAPTURADA:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 RECHAZO DE PROMESA NO CAPTURADO:', reason);
+}); 
 app.listen(PORT, '0.0.0.0', () => {
     console.log("-----------------------------------------");
     console.log(`✅ Servidor LEVI'S listo en el puerto: ${PORT}`);
     console.log(`🚀 Documentación lista`);
     console.log("-----------------------------------------");
-});
+}
+);
