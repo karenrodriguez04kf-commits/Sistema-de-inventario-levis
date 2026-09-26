@@ -1,94 +1,96 @@
 const express = require('express');
 const cors = require('cors');
-// Importar conexión a la base de datos
-const db = require('./config/db');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const path = require('path');
 
-// Importar todas las rutas del proyecto
-const authRoutes = require('./routes/auth.routes');
-const productRoutes = require('./routes/product.routes');
-const userRoutes = require('./routes/user.routes');
-const inventoryRoutes = require('./routes/inventory.routes');
+const authRoutes = require('./routes/authRoutes');
+const clientRoutes = require('./routes/clientRoutes');
+const productRoutes = require('./routes/productRoutes');
+const proveedorRoutes = require('./routes/proveedorRoutes');
+const usuariosRoutes = require('./routes/usuariosRoutes');
+const ventaRoutes = require('./routes/ventaRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// ==========================================
-// 1. CONFIGURACIÓN DE MIDDLEWARES BASE
-// ==========================================
+// Log para rastrear peticiones entrantes desde la app móvil
+app.use((req, res, next) => {
+  console.log(`📥 [${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
-// Configuración completa de CORS
+app.disable('x-powered-by');
+
 app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    origin: [
+        'http://localhost:5173', 
+        'https://flourishing-pithivier-e57a20.netlify.app'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Lectura de cuerpo en formato JSON y URL Encoded
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json());
 
-// Logger para monitorear cada petición recibida en los logs de Railway
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} -> ${req.url}`);
-    next();
-});
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
 
-// ==========================================
-// 2. RUTAS Y ENDPOINTS DE LA API
-// ==========================================
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: "PROYECTO LEVI'S API",
+            version: '1.0.0',
+            description: 'Sistema de gestión de inventario y ventas'
+        },
+        servers: [
+            { url: 'http://localhost:3002', description: 'Servidor Local' },
+            { url: 'https://' + (process.env.RAILWAY_STATIC_URL || 'tu-backend.railway.app'), description: 'Servidor de Producción' }
+        ]
+    },
+    apis: ['./routes/*.js'] 
+};
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-// Ruta raíz de verificación de estado (Health Check)
-app.get('/', (req, res) => {
-    res.status(200).json({
-        ok: true,
-        message: 'API del Sistema de Inventario funcionando correctamente',
-        environment: process.env.NODE_ENV || 'production'
-    });
-});
-
-// Registro de las rutas de la aplicación
 app.use('/api/auth', authRoutes);
+app.use('/api/clientes', clientRoutes);
 app.use('/api/productos', productRoutes);
-app.use('/api/usuarios', userRoutes);
-app.use('/api/inventario', inventoryRoutes);
+app.use('/api/proveedores', proveedorRoutes);
+app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/ventas', ventaRoutes);
 
-// Manejador para rutas no encontradas (404)
-app.use((req, res) => {
-    res.status(404).json({
-        error: true,
-        message: `La ruta solicitada [${req.method} ${req.url}] no existe en este servidor.`
-    });
+app.get('/', (req, res) => {
+    res.send(`
+        <div style="text-align:center; font-family: sans-serif; margin-top: 50px;">
+            <h1 style="color: #c41230;">LEVI'S BACKEND ACTIVE 🚀</h1>
+            <p>Servidor en puerto ${process.env.PORT || 3002}.</p>
+        </div>
+    `);
 });
 
-// ==========================================
-// 3. CAPTURA Y CONTROL DE ERRORES GLOBAL
-// ==========================================
-
-// Middleware global de manejo de errores HTTP (Evita el desplome con HTTP 502)
+// Manejo global de errores (captura errores en rutas para responder JSON y evitar cuelgues 502)
 app.use((err, req, res, next) => {
-    console.error('🔥 Error no controlado en la petición:', err.stack || err);
-    
-    res.status(err.status || 500).json({
-        error: true,
-        message: err.message || 'Ocurrió un error interno en el servidor.',
-        details: process.env.NODE_ENV === 'development' ? err.stack : null
+    console.error("❌ Error interno:", err.stack || err);
+    res.status(err.status || 500).json({ 
+        Status: "Error", 
+        Message: err.message || "Ocurrió un error en el servidor" 
     });
 });
 
-// Capturadores globales del proceso de Node.js (Impiden la caída del contenedor)
-process.on('uncaughtException', (error) => {
-    console.error('🚨 Excepción no capturada en el proceso (uncaughtException):', error);
+const PORT = process.env.PORT || 3002;
+
+// Prevenir caída del servidor por promesas o excepciones no capturadas (Evita Error 502)
+process.on('uncaughtException', (err) => {
+  console.error('💥 EXCEPCIÓN NO CAPTURADA:', err);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('🚨 Promesa rechazada no manejada (unhandledRejection):', reason);
-});
-
-// ==========================================
-// 4. INICIALIZACIÓN DEL SERVIDOR
-// ==========================================
+  console.error('💥 RECHAZO DE PROMESA NO CAPTURADO:', reason);
+}); 
 
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Servidor ejecutándose exitosamente en el puerto ${PORT}`);
-    console.log(`📡 Aceptando conexiones públicas en http://0.0.0.0:${PORT}`);
+    console.log("-----------------------------------------");
+    console.log(`✅ Servidor LEVI'S listo en el puerto: ${PORT}`);
+    console.log(`🚀 Documentación lista`);
+    console.log("-----------------------------------------");
 });
