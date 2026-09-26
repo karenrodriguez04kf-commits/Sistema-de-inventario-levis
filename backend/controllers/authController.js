@@ -2,7 +2,7 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const SECRET_KEY = "mi_clave_secreta_super_segura";
+const SECRET_KEY = process.env.JWT_SECRET || "mi_clave_secreta_super_segura";
 const saltRounds = 10;
 
 // 1. REGISTRO

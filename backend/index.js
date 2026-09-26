@@ -75,7 +75,7 @@ app.get('/api/ReporteVentas', validarToken, authAdmin, (req, res) => {
 
 app.use('/api', ventaRoutes);
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`Servidor de Inventario Levis corriendo en el puerto ${PORT}`);
+    console.log(`Servidor LEVI'S listo en el puerto: ${PORT}`);
 });

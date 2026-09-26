@@ -15,11 +15,9 @@ const app = express();
 
 app.disable('x-powered-by');
 
+// CORS abierto para evitar errores fantasmas en producción
 app.use(cors({
-    origin: [
-        'http://localhost:5173', 
-        'https://flourishing-pithivier-e57a20.netlify.app'
-    ],
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -38,7 +36,7 @@ const swaggerOptions = {
         },
         servers: [
             { url: 'http://localhost:3002', description: 'Servidor Local' },
-            { url: 'https://' + (process.env.RAILWAY_STATIC_URL || 'tu-backend.railway.app'), description: 'Servidor de Producción' }
+            { url: 'https://' + (process.env.RENDER_EXTERNAL_URL || 'tu-backend.onrender.com'), description: 'Servidor de Producción Render' }
         ]
     },
     apis: ['./routes/*.js'] 
@@ -57,7 +55,7 @@ app.get('/', (req, res) => {
     res.send(`
         <div style="text-align:center; font-family: sans-serif; margin-top: 50px;">
             <h1 style="color: #c41230;">LEVI'S BACKEND ACTIVE 🚀</h1>
-            <p>Servidor en puerto ${process.env.PORT || 3002}.</p>
+            <p>Servidor corriendo en Render en el puerto ${process.env.PORT || 10000}.</p>
         </div>
     `);
 });
@@ -67,7 +65,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ Status: "Error", Message: "Ocurrió un error en el servidor" });
 });
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log("-----------------------------------------");
     console.log(`✅ Servidor LEVI'S listo en el puerto: ${PORT}`);
