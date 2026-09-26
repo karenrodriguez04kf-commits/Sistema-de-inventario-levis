@@ -1,16 +1,17 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-const db = mysql.createPool({
-    host: process.env.MYSQLHOST || process.env.DB_HOST,
-    user: process.env.MYSQLUSER || process.env.DB_USER,
-    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD,
-    database: process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE || process.env.DB_NAME,
-    port: process.env.MYSQLPORT || process.env.DB_PORT,
-    waitForConnections: true,
-    connectionLimit: 10
+const db = mysql.createPool({ // Usamos Pool para mejor manejo de múltiples conexiones
+  
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'levis_db',
+  port: 3306,
+  waitForConnections: true,
+  connectionLimit: 10
 });
 
-console.log('Conectado exitosamente a la base de datos de Railway... 🚀');
+console.log('Conectado exitosamente a levis_db... 🚀');
 
 module.exports = db;
