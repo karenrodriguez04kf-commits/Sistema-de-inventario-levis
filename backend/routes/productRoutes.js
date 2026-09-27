@@ -37,7 +37,6 @@ router.get('/', validarToken, authAdmin, productController.getAllProducts);
 router.post('/', validarToken, authAdmin, upload.single('imagen'), productController.createProduct);
 router.put('/:id', validarToken, authAdmin, upload.single('imagen'), productController.updateProduct);
 
-// Rutas configuradas para alternar el estado (Activar / Inactivar) en lugar de borrar físicamente
 router.delete('/:id', validarToken, authAdmin, productController.toggleProductStatus);
 router.put('/:id/estado', validarToken, authAdmin, productController.toggleProductStatus);
 

@@ -208,11 +208,9 @@ exports.updateProduct = (req, res) => {
     }
 };
 
-// 5. CAMBIAR ESTADO DE PRODUCTO (Alternar Activo / Inactivo con IF)
+// 5. CAMBIAR ESTADO DE PRODUCTO
 exports.toggleProductStatus = (req, res) => {
     const { id } = req.params;
-
-    // Soportamos tanto si mandan { activo: 0/1 } como si solo hacen la petición para invertir el valor actual
     const sql = req.body.activo !== undefined 
         ? "UPDATE productos SET activo = ? WHERE id_producto = ?"
         : "UPDATE productos SET activo = IF(activo = 1, 0, 1) WHERE id_producto = ?";
@@ -236,9 +234,61 @@ exports.getCategorias = (req, res) => {
     });
 };
 
-// 7. FINALIZAR COMPRA
+// 7. FINALIZAR COMPRA (Conectado a la lógica de descuento de inventario)
 exports.finalizarCompra = (req, res) => {
-    res.json({ Status: "Exito", Message: "Compra finalizada correctamente" });
+    const { id_usuario, total, productos } = req.body;
+
+    if (!productos || productos.length === 0) {
+        return res.status(400).json({ error: "El carrito está vacío" });
+    }
+
+    const sqlVenta = "INSERT INTO venta (id_usuario, total, fecha) VALUES (?, ?, NOW())";
+    db.query(sqlVenta, [id_usuario, total], (err, resultVenta) => {
+        if (err) {
+            console.error("❌ Error al registrar la venta:", err);
+            return res.status(500).json({ error: "Error al registrar la venta" });
+        }
+
+        const id_venta = resultVenta.insertId;
+
+        let detallesQuery = "INSERT INTO detalleventa (id_venta, id_producto, cantidad, precioUnitario, talla) VALUES ?";
+        let valoresDetalles = productos.map(item => [
+            id_venta,
+            item.id_producto,
+            item.cantidad,
+            item.precioProducto || item.precio,
+            item.talla
+        ]);
+
+        db.query(detallesQuery, [valoresDetalles], (errDetalle) => {
+            if (errDetalle) {
+                console.error("❌ Error al registrar detalle de venta:", errDetalle);
+                return res.status(500).json({ error: "Error al registrar detalles de la compra" });
+            }
+
+            let actualizacionesPendientes = productos.length;
+            let huboErrorStock = false;
+
+            productos.forEach(item => {
+                const sqlStock = "UPDATE producto_tallas SET stock = stock - ? WHERE id_producto = ? AND talla = ?";
+                db.query(sqlStock, [item.cantidad, item.id_producto, item.talla], (errStock) => {
+                    if (errStock) {
+                        console.error("❌ Error al descontar stock:", errStock);
+                        huboErrorStock = true;
+                    }
+
+                    actualizacionesPendientes--;
+                    
+                    if (actualizacionesPendientes === 0) {
+                        if (huboErrorStock) {
+                            return res.status(500).json({ error: "La compra se registró pero hubo un error actualizando algunos stocks" });
+                        }
+                        return res.status(201).json({ message: "¡Compra finalizada y stock actualizado con éxito!", id_venta });
+                    }
+                });
+            });
+        });
+    });
 };
 
 // 8. OBTENER PEDIDOS DE USUARIO (Básico)
