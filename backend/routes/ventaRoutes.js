@@ -10,6 +10,7 @@ router.use((req, res, next) => {
 });
 
 // Rutas limpias
+router.post('/finalizar-compra', validarToken, ventaController.finalizarCompra); // <--- NUEVA RUTA AQUÍ
 router.get('/ReporteVentas', validarToken, authAdmin, ventaController.getReporteVentas);
 router.get('/categorias', validarToken, ventaController.getCategorias);
 

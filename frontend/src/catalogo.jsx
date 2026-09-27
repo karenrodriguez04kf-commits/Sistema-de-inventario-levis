@@ -116,6 +116,63 @@ function Catalogo() {
     }
   };
 
+  const handleAgregarAlCarrito = () => {
+    const seleccionadas = Object.entries(cantidadesModal).filter(([talla, cantidad]) => cantidad > 0);
+
+    if (seleccionadas.length === 0) {
+      alert("Por favor selecciona al menos una cantidad mayor a 0 en alguna talla.");
+      return;
+    }
+
+    let errorStock = false;
+
+    seleccionadas.forEach(([talla, cantidad]) => {
+      const tItemEncontrado = productoModal.tallas.find(t => t.talla === talla);
+      const stockMaximoTalla = tItemEncontrado ? Number(tItemEncontrado.stock) : 999;
+      
+      const itemEnCarrito = carrito.find(
+        (item) => item.id_producto === productoModal.id_producto && item.talla === talla
+      );
+      const cantidadActualEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
+
+      if (cantidadActualEnCarrito + cantidad > stockMaximoTalla) {
+        alert(`La cantidad total para la talla ${talla} excede el stock disponible (${stockMaximoTalla})`);
+        errorStock = true;
+      }
+    });
+
+    if (errorStock) return;
+
+    setCarrito((prev) => {
+      let nuevoCarrito = [...prev];
+
+      seleccionadas.forEach(([talla, cantidad]) => {
+        const tItemEncontrado = productoModal.tallas.find(t => t.talla === talla);
+        const stockMaximoTalla = tItemEncontrado ? Number(tItemEncontrado.stock) : 999;
+
+        const indexExistente = nuevoCarrito.findIndex(
+          (item) => item.id_producto === productoModal.id_producto && item.talla === talla
+        );
+
+        if (indexExistente >= 0) {
+          const itemActual = nuevoCarrito[indexExistente];
+          nuevoCarrito[indexExistente] = { ...itemActual, cantidad: itemActual.cantidad + cantidad };
+        } else {
+          nuevoCarrito.push({
+            ...productoModal,
+            talla: talla,
+            cantidad: cantidad,
+            stockMaximoTalla: stockMaximoTalla
+          });
+        }
+      });
+
+      return nuevoCarrito;
+    });
+
+    setProductoModal(null);
+  };
+
   const normalizarTexto = (texto) =>
     texto?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() || "";
 
@@ -433,50 +490,7 @@ function Catalogo() {
             </div>
 
             <button 
-              onClick={() => {
-                const seleccionadas = Object.entries(cantidadesModal).filter(([talla, cantidad]) => cantidad > 0);
-
-                if (seleccionadas.length === 0) {
-                  alert("Por favor selecciona al menos una cantidad mayor a 0 en alguna talla.");
-                  return;
-                }
-
-                setCarrito((prev) => {
-                  let nuevoCarrito = [...prev];
-
-                  seleccionadas.forEach(([talla, cantidad]) => {
-                    const tItemEncontrado = productoModal.tallas.find(t => t.talla === talla);
-                    const stockMaximoTalla = tItemEncontrado ? Number(tItemEncontrado.stock) : 999;
-
-                    const indexExistente = nuevoCarrito.findIndex(
-                      (item) => item.id_producto === productoModal.id_producto && item.talla === talla
-                    );
-
-                    if (indexExistente >= 0) {
-                      const itemActual = nuevoCarrito[indexExistente];
-                      const nuevaCantidadTotal = itemActual.cantidad + cantidad;
-
-                      if (nuevaCantidadTotal > stockMaximoTalla) {
-                        alert(`La cantidad total para la talla ${talla} excede el stock disponible (${stockMaximoTalla})`);
-                        return;
-                      }
-
-                      nuevoCarrito[indexExistente] = { ...itemActual, cantidad: nuevaCantidadTotal };
-                    } else {
-                      nuevoCarrito.push({
-                        ...productoModal,
-                        talla: talla,
-                        cantidad: cantidad,
-                        stockMaximoTalla: stockMaximoTalla
-                      });
-                    }
-                  });
-
-                  return nuevoCarrito;
-                });
-
-                setProductoModal(null);
-              }}
+              onClick={handleAgregarAlCarrito}
               style={{ width: '100%', padding: '12px', background: '#e50914', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 0 15px rgba(229, 9, 20, 0.6)', transition: '0.2s' }}
             >
               AÑADIR AL CARRITO
