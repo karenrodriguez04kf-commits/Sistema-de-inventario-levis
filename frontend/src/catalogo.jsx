@@ -101,7 +101,7 @@ function Catalogo() {
         }))
       };
 
-      const response = await api.post("/productos/finalizar-compra", datosParaEnviar);
+const response = await api.post("/finalizar-compra", datosParaEnviar);
 
       if (response.status === 200 || response.status === 201) {
         alert("¡Compra finalizada con éxito! ✨");

@@ -51,7 +51,9 @@ app.use('/api/clientes', clientRoutes);
 app.use('/api/productos', productRoutes);
 app.use('/api/proveedores', proveedorRoutes);
 app.use('/api/usuarios', usuariosRoutes);
-app.use('/api/ventas', ventaRoutes);
+
+// CORRECCIÓN AQUÍ: Cambiamos '/api/ventas' por '/api' para que coincida con tu frontend (api.js)
+app.use('/api', ventaRoutes);
 
 app.get('/', (req, res) => {
     res.send(`
